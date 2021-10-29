@@ -22,7 +22,7 @@ def print_graph_dot(graph):
         if len(graph.out_edges(nid)) == 0:
             fillcolor = '#555555'
 
-        print('  "%s" [label="%s"; style="filled"; fillcolor="%s"; shape="box"];' % (nid, label, fillcolor))
+        print('  "%s" [label="%s"; style="filled"; fillcolor="%s"];' % (nid, label, fillcolor))
 
     for ea, eb in graph.edges:
         print('  "%s" -> "%s";' % (ea, eb))

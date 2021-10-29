@@ -22,3 +22,6 @@ Graph Procedural Content Generation via Reinforcement Learning
 
 * Create a dot file of the graph.
   * `pypy3 graph2doy.py mario-grams.pkl`
+
+* Get info about a graph.
+  * `pypy3 graph2info.py mario-grams.pkl`
