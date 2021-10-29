@@ -17,22 +17,27 @@ def construct_graph(folder, transpose):
             lines = [_.strip() for _ in infile.readlines()]
 
         slices = tuple(util.rows_to_slices(lines, transpose))
-        
+
         graph.add_node(node, slices=slices)
 
         for next_node, edge_data in next_data.items():
-            edge_slices = tuple(edge_data['shortest']['link'])
-            if len(edge_slices) == 0:
+            edge_data_use = edge_data['shortest']
+            
+            if edge_data_use['percent_playable'] != 1.0:
                 continue
-
+            
             if (node, next_node) in graph.edges:
                 raise RuntimeError('Duplicate edge.')
 
-            edge_node = node + '__' + next_node
+            edge_slices = tuple(edge_data_use['link'])
+            if len(edge_slices) == 0:
+                graph.add_edge(node, next_node, weight=1)
+            else:
+                edge_node = node + '__' + next_node
             
-            graph.add_node(edge_node, slices=edge_slices)
-            graph.add_edge(node, edge_node, weight=1)
-            graph.add_edge(edge_node, next_node, weight=1)
+                graph.add_node(edge_node, slices=edge_slices)
+                graph.add_edge(node, edge_node, weight=1)
+                graph.add_edge(edge_node, next_node, weight=1)
 
     graph = util.largest_scc(graph)
 
