@@ -395,86 +395,6 @@ def rewards_icarus(px, py, x, y, j, ji):
 
 
 
-SOLIDS_ICARUS = set()
-SOLIDS_ICARUS.add('#')
-SOLIDS_ICARUS.add('T')
-SOLIDS_ICARUS.add('X')
-SOLIDS_ICARUS.add('D')
-
-SOLIDS_MARIO = set()
-SOLIDS_MARIO.add('X')
-SOLIDS_MARIO.add('S')
-SOLIDS_MARIO.add('?')
-SOLIDS_MARIO.add('Q')
-SOLIDS_MARIO.add('<')
-SOLIDS_MARIO.add('>')
-SOLIDS_MARIO.add('[')
-SOLIDS_MARIO.add(']')
-SOLIDS_MARIO.add('B')
-SOLIDS_MARIO.add('b')
-
-# modified from past work by seth cooper
-JUMPS = [
-    [
-        [0,-1],
-        [0,-2],
-        [0,-3],
-        [1,-3],
-        [1,-4]
-    ],
-    [
-        [0,-1],
-        [0,-2],
-        [0,-3],
-        [0,-4],
-        [1,-4]
-    ],
-    [
-        [0,-1],
-        [1,-1],
-        [1,-2],
-        [1,-3],
-        [1,-4],
-        [2,-4]
-    ],
-    [
-        [0,-1],
-        [1,-1],
-        [1,-2],
-        [2,-2],
-        [2,-3],
-        [3,-3],
-        [3,-4],
-        [4,-4],
-        [5,-4],
-        [5,-3],
-        [6,-3],
-        [7,-3],
-        [7,-2],
-        [8,-2],
-        [8,-1]
-    ],
-    [
-        [0,-1],
-        [1,-1],
-        [1,-2],
-        [2,-2],
-        [2,-3],
-        [3,-3],
-        [3,-4],
-        [4,-4],
-        [5,-4],
-        [6,-4],
-        [6,-3],
-        [7,-3],
-        [7,-2],
-        [8,-2],
-        [8,-1]
-    ]
-]
-
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate levels.')
     parser.add_argument('filename', type=str, help='Graph files.')
@@ -493,8 +413,8 @@ if __name__ == '__main__':
     if args.icarus:
         if not graph.graph['transpose']:
             raise RuntimeError('Icarus must use transposed slices')
-        GAME_jumps = JUMPS
-        GAME_solids = SOLIDS_ICARUS
+        GAME_jumps = SummervilleAgent.JUMPS
+        GAME_solids = SummervilleAgent.SOLIDS_ICARUS
         GAME_wrapx = True
         GAME_start_pos = find_start_icarus
         GAME_find_goals = find_goals_icarus
@@ -502,8 +422,8 @@ if __name__ == '__main__':
     else:
         if graph.graph['transpose']:
             raise RuntimeError('Mario must not use transposed slices')
-        GAME_jumps = JUMPS
-        GAME_solids = SOLIDS_MARIO
+        GAME_jumps = SummervilleAgent.JUMPS
+        GAME_solids = SummervilleAgent.SOLIDS_MARIO
         GAME_wrapx = False
         GAME_start_pos = lambda lv, sz, solids: (0, 0, -1)
         GAME_find_goals = find_goals_mario

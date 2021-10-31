@@ -8,6 +8,88 @@ from heapq import heappush, heappop
 
 DEBUG_DISPLAY = False
 
+
+
+SOLIDS_ICARUS = set()
+SOLIDS_ICARUS.add('#')
+SOLIDS_ICARUS.add('T')
+SOLIDS_ICARUS.add('X')
+SOLIDS_ICARUS.add('D')
+
+SOLIDS_MARIO = set()
+SOLIDS_MARIO.add('X')
+SOLIDS_MARIO.add('S')
+SOLIDS_MARIO.add('?')
+SOLIDS_MARIO.add('Q')
+SOLIDS_MARIO.add('<')
+SOLIDS_MARIO.add('>')
+SOLIDS_MARIO.add('[')
+SOLIDS_MARIO.add(']')
+SOLIDS_MARIO.add('B')
+SOLIDS_MARIO.add('b')
+
+# modified from past work by seth cooper
+JUMPS = [
+    [
+        [0,-1],
+        [0,-2],
+        [0,-3],
+        [1,-3],
+        [1,-4]
+    ],
+    [
+        [0,-1],
+        [0,-2],
+        [0,-3],
+        [0,-4],
+        [1,-4]
+    ],
+    [
+        [0,-1],
+        [1,-1],
+        [1,-2],
+        [1,-3],
+        [1,-4],
+        [2,-4]
+    ],
+    [
+        [0,-1],
+        [1,-1],
+        [1,-2],
+        [2,-2],
+        [2,-3],
+        [3,-3],
+        [3,-4],
+        [4,-4],
+        [5,-4],
+        [5,-3],
+        [6,-3],
+        [7,-3],
+        [7,-2],
+        [8,-2],
+        [8,-1]
+    ],
+    [
+        [0,-1],
+        [1,-1],
+        [1,-2],
+        [2,-2],
+        [2,-3],
+        [3,-3],
+        [3,-4],
+        [4,-4],
+        [5,-4],
+        [6,-4],
+        [6,-3],
+        [7,-3],
+        [7,-2],
+        [8,-2],
+        [8,-1]
+    ]
+]
+
+
+
 # should account for level edges and wrap
 def levelTile(levelStr, wrapx, x, y):
     maxX = len(levelStr[0])-1
