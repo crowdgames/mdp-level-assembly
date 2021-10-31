@@ -43,18 +43,59 @@ def nodes_to_level(graph, nodes):
     slices_out, edges_out = nodes_to_slices(graph, nodes)
     return slices_to_level(graph, slices_out), edges_out
 
-# def nodes_to_level(graph, nodes):
-#     slices_out = []
-#     indices_out = []
+
+
+def q_table_init(graph):
+    q = {}
+
+    for edge in graph.edges:
+        q[edge] = 0.0
+
+    return q
     
-#     for ni, node in enumerate(nodes):
-#         node_slices = graph.nodes[node]['slices']
-#         slices_out += node_slices
-#         indices_out += ([ni] * len(node_slices))
+def q_table_update(graph, q, edge, value):
+    max_next_q = -1e100
+    out_edges = list(graph.out_edges(edge[1]))
+    for out_edge in out_edges:
+        max_next_q = max(max_next_q, q[out_edge])
 
-#     return util.slices_to_rows(slices_out, graph.graph['transpose']), indices_out
+    q[edge] = (1.0 - ALPHA) * q[edge] + ALPHA * (value + LAMBDA * max_next_q)
 
+def q_table_next(graph, q, node, eps):
+    out_edges = list(graph.out_edges(node))
 
+    if False:
+        nexts = []
+        wts = []
+        for out_edge in out_edges:
+            nexts.append(out_edge[1])
+            wts.append(math.exp(q[out_edge]))
+        return random.choices(nexts, weights=wts, k=1)[0]
+
+    else:
+        # selecting edge with max q seems to work much better
+
+        if random.random() < eps:
+            nexts = []
+            for out_edge in out_edges:
+                nexts.append(out_edge[1])
+            return random.sample(nexts, k=1)[0]
+
+        else:
+            best_q = -1e100
+            next_nodes = []
+
+            for out_edge in out_edges:
+                out_q = q[out_edge]
+                if out_q > best_q:
+                    best_q = out_q
+                    next_nodes = [out_edge[1]]
+                elif out_q == best_q:
+                    next_nodes.append(out_edge[1])
+
+            return random.sample(next_nodes, 1)[0]
+
+    
 
 def gen_level_random(graph, size, start=None):
     curr_node = start if start != None else random.sample(graph.nodes, 1)[0]
@@ -106,34 +147,22 @@ def gen_level_greedy(graph, size, tile, start=None):
     return nodes
 
 def learn_q_edge_shuffle(graph, tile):
-    q = {}
-
-    for edge in graph.edges:
-        q[edge] = 0.0
+    q = q_table_init(graph)
 
     for ii in range(1000):
         edges = list(graph.edges)
         random.shuffle(edges)
 
         for edge in edges:
-            #edge = random.sample(graph.edges, 1)[0]
             out_slices = graph.nodes[edge[1]]['slices']
             value = count_tile(out_slices, tile)
 
-            max_next_q = -1e100
-            out_edges = list(graph.out_edges(edge[1]))
-            for out_edge in out_edges:
-                max_next_q = max(max_next_q, q[out_edge])
-
-            q[edge] = (1.0 - ALPHA) * q[edge] + ALPHA * (value + LAMBDA * max_next_q)
+            q_table_update(graph, q, edge, value)
 
     return q
 
 def learn_q_level(graph, size, tile):
-    q = {}
-
-    for edge in graph.edges:
-        q[edge] = 0.0
+    q = q_table_init(graph)
 
     iters = 10 * len(q)
 
@@ -157,12 +186,7 @@ def learn_q_level(graph, size, tile):
                     else:
                         value = 0
 
-                    max_next_q = -1e100
-                    out_edges = list(graph.out_edges(edge[1]))
-                    for out_edge in out_edges:
-                        max_next_q = max(max_next_q, q[out_edge])
-
-                    q[edge] = (1.0 - ALPHA) * q[edge] + ALPHA * (value + LAMBDA * max_next_q)
+                    q_table_update(graph, q, edge, value)
 
         else:
             edge_reward = {}
@@ -198,11 +222,7 @@ def learn_q_level(graph, size, tile):
 
                 value = edge_reward[edge]
 
-                max_next_q = -1e100
-                out_edges = list(graph.out_edges(edge[1]))
-                for out_edge in out_edges:
-                    max_next_q = max(max_next_q, q[out_edge])
-                q[edge] = (1.0 - ALPHA) * q[edge] + ALPHA * (value + LAMBDA * max_next_q)
+                q_table_update(graph, q, edge, value)
 
     return q
 
@@ -212,37 +232,7 @@ def gen_level_q(graph, q, eps, size, start=None):
     nslices = len(graph.nodes[curr_node]['slices'])
 
     while nslices < size:
-        out_edges = list(graph.out_edges(curr_node))
-
-        if False:
-            nexts = []
-            wts = []
-            for out_edge in out_edges:
-                nexts.append(out_edge[1])
-                wts.append(math.exp(q[out_edge]))
-            curr_node = random.choices(nexts, weights=wts, k=1)[0]
-
-        else:
-            if random.random() < eps:
-                nexts = []
-                for out_edge in out_edges:
-                    nexts.append(out_edge[1])
-                curr_node = random.sample(nexts, k=1)[0]
-
-            else:
-                # selecting edge with max q seems to work much better
-                best_q = -1e100
-                next_nodes = []
-
-                for out_edge in out_edges:
-                    out_q = q[out_edge]
-                    if out_q > best_q:
-                        best_q = out_q
-                        next_nodes = [out_edge[1]]
-                    elif out_q == best_q:
-                        next_nodes.append(out_edge[1])
-
-                curr_node = random.sample(next_nodes, 1)[0]
+        curr_node = q_table_next(graph, q, curr_node, eps)
 
         nodes.append(curr_node)
         nslices += len(graph.nodes[curr_node]['slices'])
@@ -250,10 +240,7 @@ def gen_level_q(graph, q, eps, size, start=None):
     return nodes
 
 def init_q(graph):
-    q = {}
-
-    for edge in graph.edges:
-        q[edge] = 0.0
+    q = q_table_init(graph)
 
     return q
 
@@ -283,12 +270,8 @@ def update_q(graph, q, level, level_edges, path, reward_func, transpose):
             #continue
 
         total_reward += value
-                
-        max_next_q = -1e100
-        out_edges = list(graph.out_edges(edge[1]))
-        for out_edge in out_edges:
-            max_next_q = max(max_next_q, q[out_edge])
-        q[edge] = (1.0 - ALPHA) * q[edge] + ALPHA * (value + LAMBDA * max_next_q)
+
+        q_table_update(graph, q, edge, value)
 
     return total_reward
 
@@ -335,11 +318,7 @@ def update_q_batch(graph, q, level, level_edges, path, reward_func, transpose):
 
         value = edge_reward[edge]
         
-        max_next_q = -1e100
-        out_edges = list(graph.out_edges(edge[1]))
-        for out_edge in out_edges:
-            max_next_q = max(max_next_q, q[out_edge])
-        q[edge] = (1.0 - ALPHA) * q[edge] + ALPHA * (value + LAMBDA * max_next_q)
+        q_table_update(graph, q, edge, value)
 
     return total_reward
 
