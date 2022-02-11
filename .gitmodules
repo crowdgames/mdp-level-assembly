@@ -1,0 +1,3 @@
+[submodule "GramElitesData"]
+	path = GramElitesData
+	url = https://github.com/bi3mer/GramElitesData.git

@@ -8,12 +8,11 @@ from heapq import heappush, heappop
 
 DEBUG_DISPLAY = False
 
-
-
 SOLIDS_ICARUS = set()
 SOLIDS_ICARUS.add('#')
 SOLIDS_ICARUS.add('T')
 SOLIDS_ICARUS.add('X')
+SOLIDS_ICARUS.add('d')
 SOLIDS_ICARUS.add('D')
 
 SOLIDS_MARIO = set()

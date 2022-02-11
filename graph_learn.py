@@ -3,6 +3,13 @@ import networkx as nx
 import SummervilleAgent, util
 
 
+# TODO: real q-learning algorithm from library
+# TODO: baumgarten mario agent
+# TODO: dungeongrams
+# TODO: deal with cycles where q-learning will find something good and do it 
+#       over and over and over. Analyze repetition. Penalize history or 
+#       something. Maybe put in more randomness with epsilon or something.
+
 
 ALPHA   = 0.10
 LAMBDA  = 0.90
@@ -322,76 +329,13 @@ def update_q_batch(graph, q, level, level_edges, path, reward_func, transpose):
 
     return total_reward
 
-def find_goals_mario(level, start_pos, index, solids):
-    goals = set()
-    for ic in range(index, 2, -1):
-        if ic <= start_pos[0] + 1:
-            return None
-        
-        found_solid = False
-        for ir in range(len(level) - 1, -1, -1):
-            if level[ir][ic] in solids:
-                found_solid = True
-            else:
-                if found_solid:
-                    goals.add((ic, ir))
-        if len(goals) != 0:
-            return goals
-    return None
 
-def rewards_mario(px, py, x, y, j, ji):
-    if False:
-        if ji == 0 or ji == 1:
-            return 1
-    elif False:
-        if y >= 11:
-            return 1
-    elif False:
-        if ji == -1:
-            return 1
-    elif True:
-        if 5 <= y and y <= 7:
-            return 1
-    else:
-        if y <= 3:
-            return 1
-    return None
 
-def find_start_icarus(level, index, solids):
-    for ir in range(len(level) - 2, len(level) - index, -1):
-        for ic in range(len(level[0])):
-            if not level[ir][ic] in solids and level[ir + 1][ic] in solids:
-                return (ic, ir, -1)
-    return None
 
-def find_goals_icarus(level, start_pos, index, solids):
-    goals = set()
-    for ir in range(len(level) - 1 - index, len(level) - 1):
-        if ir >= start_pos[1] - 1:
-            return None
-        
-        for ic in range(len(level[0])):
-            if not level[ir][ic] in solids:
-                goals.add((ic, ir))
-        if len(goals) != 0:
-            return goals
-    return None
 
-def rewards_icarus(px, py, x, y, j, ji):
-    if False:
-        if 4 <= x and x <= 12:
-            return 1
-        if abs(x - px) > 2:
-            return -5
-    elif False:
-        if 4 <= x and x <= 12:
-            return None
-        if abs(x - px) > 2:
-            return 5
-    else:
-        if abs(x - px) > 2:
-            return 1
-    return None
+
+
+
 
 
 
@@ -401,7 +345,7 @@ if __name__ == '__main__':
     parser.add_argument('--blocksize', type=int, required=True, help='Generate with blocks of given size.', default=None)
     run_group = parser.add_mutually_exclusive_group(required=True)
     run_group.add_argument('--rungen', action='store_true', help='Run continuous generation.')
-    run_group.add_argument('--comparetile', type=str, help='Compare apporaches using given tile.', default=None)
+    run_group.add_argument('--comparetile', type=str, help='Compare approaches using given tile.', default=None)
     game_group = parser.add_mutually_exclusive_group(required=True)
     game_group.add_argument('--mario', action='store_true', help='Use Mario.')
     game_group.add_argument('--icarus', action='store_true', help='Use Icarus.')
@@ -425,7 +369,6 @@ if __name__ == '__main__':
         GAME_jumps = SummervilleAgent.JUMPS
         GAME_solids = SummervilleAgent.SOLIDS_MARIO
         GAME_wrapx = False
-        GAME_start_pos = lambda lv, sz, solids: (0, 0, -1)
         GAME_find_goals = find_goals_mario
         GAME_rewards = rewards_mario
 
@@ -517,7 +460,7 @@ if __name__ == '__main__':
                 #sys.exit(-1)
 
     elif args.comparetile != None:
-        LOOP = 10000
+        LOOP = 100
         TILE = args.comparetile
 
         #q = learn_q_edge_shuffle(graph, TILE)
