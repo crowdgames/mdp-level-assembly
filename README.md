@@ -24,7 +24,7 @@ Graph Procedural Content Generation via Reinforcement Learning
   
 * Generate random levels.
   * `python graph2level.py icarus-grams.pkl --size 50`
-
+ 
 * Create a dot file of the graph.
   * `python graph2doy.py mario-grams.pkl`
 

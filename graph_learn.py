@@ -1,6 +1,6 @@
 import argparse, math, pickle, pprint, random, sys
 import networkx as nx
-import SummervilleAgent, util
+import Utility.SummervilleAgent as SummervilleAgent, Utility.util as util
 
 
 # TODO: real q-learning algorithm from library

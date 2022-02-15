@@ -2,16 +2,13 @@ from math import inf
 from random import choices
 
 class MDP:
-    def __init__(self, S, T, R):
-        self.S = S
-        self.T = T
-        self.R = R
-        self.U = {}
+    def __init__(self, graph):
+        self.G = graph
+        for n in graph.nodes:
+            graph.nodes[n]['U'] = 0
+            graph.nodes[n]['N'] = 0
 
-        for s in S:
-            self.U[s] = 0
-
-    def best_neighbor(self, s):
+    def best_neighbor(self, node):
         best_s = None
         best_u = -inf
 
@@ -23,6 +20,12 @@ class MDP:
 
         return best_s
 
-    def weighted_neighbor(self, s):
-        w = [self.U[n] for n in self.T[s]]
-        return choices(self.T[s], weights=w, k=1)[0]
+    def weighted_neighbor(self, node):
+        n = []
+        w = []
+
+        for neighbor in self.G.neighbors(node):
+            n.append(neighbor)
+            w.append(self.G.nodes[neighbor]['U'])
+
+        return choices(n, weights=w, k=1)[0]

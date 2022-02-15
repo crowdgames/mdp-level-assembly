@@ -1,19 +1,20 @@
 import argparse, json, pickle, math, pprint, random, sys
-import util
+import Utility.util as util
 import networkx as nx
-from os.path import join
+from os.path import join, exists
 
 
 
 def construct_graph(folder, transpose):
-    with open(join('GramElitesData', folder, 'gram_elites', 'links.json'), 'rb') as f:
+    f_name = join('.', 'GramElitesData', f'{folder}Data', 'gram_elites', 'links.json')
+    with open(f_name, 'r') as f:
         data = json.load(f)
 
     graph = nx.DiGraph()
     graph.graph['transpose'] = transpose
 
     for node, next_data in data.items():
-        node_filename = join('GramElitesData', folder, 'gram_elites', 'levels', node.replace(',', '_') + '.txt')
+        node_filename = join('GramElitesData', f'{folder}Data', 'gram_elites', 'levels', node.replace(',', '_') + '.txt')
         # node_filename = folder + '/levels/' + node.replace(',', '_') + '.txt'
         with open(node_filename, 'rt') as infile:
             lines = [_.strip() for _ in infile.readlines()]

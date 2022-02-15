@@ -1,5 +1,5 @@
 import argparse, math, pickle, pprint, random, sys
-import util
+import Utility.util as util
 import networkx as nx
 
 

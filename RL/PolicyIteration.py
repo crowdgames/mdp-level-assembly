@@ -1,12 +1,12 @@
 from random import choice
-from tqdm import range
 from math import inf
 from .MDP import MDP
 
 class PolicyIteration(MDP):
-    def __init__(self, S, P, R, E, START, theta):
-        super().__init__(S, P, R, E, START, False)
-        self.theta = theta
+    def __init__(self, graph, gamma):
+        super().__init__(graph)
+
+        self.GAMMA = gamma
 
         # create a random policy
         self.pi = {} 
@@ -14,15 +14,16 @@ class PolicyIteration(MDP):
             self.pi[s] = choice(list(self.P[s].keys()))
             
     def update(self, playthrough, max_iterations=1_000):
-        GAMMA = 0.75
         ITER = 20
-        delta = 0
+
+        # NOTE: should the pi and U be reset?
 
         for i in range(0, max_iterations, ITER):
             # simplified policy evaluation
             for _ in range(ITER):
                 for s in self.S:
-                    self.U[s] = self.R[s] + GAMMA*self.P[s][self.pi[s]] * self.U[self.pi[s]]
+                    # NOTE: P will always be 1, and is removed from the calculation
+                    self.U[s] = self.R[s] + self.GAMMA * self.U[self.pi[s]]
 
             # policy improvement
             unchanged = True

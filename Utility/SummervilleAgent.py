@@ -184,13 +184,20 @@ def makeGetNeighbors(jumps,levelStr,visited,isSolid,wrapx):
         return neighbors
     return getNeighbors
 
-def find_path(levelStr, start, goals, jumps, solids, wrapx):
+def find_path(levelStr, start, goal, jumps, solids, wrapx):
     def isSolid(tile):
         return tile in solids
     visited = set()
     getNeighbors = makeGetNeighbors(jumps,levelStr,visited,isSolid,wrapx)
 
-    heuristic = lambda pos: 0.0 # TODO: distance to goal locations?
+    # heuristic = lambda pos: 0.0 
+    # heuristic = lambda pos: sqrt((pos[0]-goal[0])**2 + (pos[1] - goal[1])**2)
+    # NOTE: using the nonsquared version is faster but also does not find the 
+    # optimal path. All we care about is that a path can be found so it doesn't
+    # matter beyond this.
+    heuristic = lambda pos: (pos[0]-goal[0])**2 + (pos[1] - goal[1])**2
+    best_x = start[0]
+    best_y = start[1]
 
     dist = {}
     prev = {}
@@ -224,17 +231,21 @@ def find_path(levelStr, start, goals, jumps, solids, wrapx):
             displayLevel()
             
         for next_node in getNeighbors(node):
-            next_node[0] += heuristic(next_node[1])
-            next_node.append(heuristic(next_node[1]))
+            h = heuristic(next_node[1])
+            next_node[0] += h
+            next_node.append(h)
+
             if next_node[1] not in dist or next_node[0] < dist[next_node[1]]:
+                best_x = max(best_x, next_node[1][0])
+                best_y = max(best_y, next_node[1][1])
+
                 dist[next_node[1]] = next_node[0]
                 prev[next_node[1]] = node[1]
                 heappush(heap, next_node)
 
                 next_pos = (next_node[1][0], next_node[1][1])
 
-                if next_pos in goals:
-
+                if next_pos == goal:
                     if DEBUG_DISPLAY:
                         full_path = []
                         path_node = next_node[1]
@@ -260,14 +271,17 @@ def find_path(levelStr, start, goals, jumps, solids, wrapx):
     if DEBUG_DISPLAY:
         import sys
         sys.exit(-1)
+    
+    if end_node != None:
+        print('Level beaten successfully')
+    return best_x / goal[0], best_y / goal[1] 
+    # if end_node == None:
+    #     return None
 
-    if end_node == None:
-        return None
-
-    else:
-        path = []
-        curr_node = end_node
-        while curr_node != None:
-            path.append(curr_node)
-            curr_node = prev[curr_node]
-        return list(reversed(path))
+    # else:
+    #     path = []
+    #     curr_node = end_node
+    #     while curr_node != None:
+    #         path.append(curr_node)
+    #         curr_node = prev[curr_node]
+    #     return list(reversed(path))

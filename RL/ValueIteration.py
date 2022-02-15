@@ -1,35 +1,39 @@
 from .MDP import MDP
 
 class ValueIteration(MDP):
-    def __init__(self, S, T, R, theta):
-        super().__init__(S, T, R)
-        self.theta = theta
-        self.N = {}
-        for s in self.S:
-            self.N[s] = 0
+    def __init__(self, graph, max_iterations, gamma, theta):
+        super().__init__(graph)
+        self.THETA = theta
 
-        self.GAMMA = 0.75
+        self.MAX_ITERATIONS = max_iterations
+        self.GAMMA = gamma
         self.MIN_N = 10
         self.R_PLUS = 100
 
-    def update(self, playthrough, max_iterations=1_000):
+    def update(self, playthrough):
         # Something like this may allow for better adaptability to new players
         # self.R_PLUS += 5
         # self.MIN_N += 5
 
-        for i in range(max_iterations):
-            new_u = self.U.copy()
+        # NOTE: should U be reset?
+        # NOTE: implementation is in-place value iteration
+        # TODO: update rewards
+
+        for _ in range(self.MAX_ITERATIONS):
             delta = 0
 
-            for s in self.S:
-                self.N[s] += 1
-                if self.N[s] < self.MIN_N:
-                    new_u[s] = self.R_PLUS - self.N[s]
+            for n in self.G:
+                self.G.nodes[n]['N'] += 1
+                N = self.G.nodes[n]['N']
+                if N < self.MIN_N:
+                    u = self.R_PLUS - N
                 else:
-                    new_u[s] = self.R[s] + self.GAMMA * max([self.P[s][next_s] * self.U[next_s] for next_s in self.P[s]])
+                    # NOTE: P will always be 1, and is removed from the calculation
+                    R = self.G.nodes[n]['U']
+                    u = R + self.GAMMA * max(self.G.nodes[n_p]['U'] for n_p in self.G.neighbors(n))
                 
-                delta = max(delta, abs(self.U[s] - new_u[s]))
+                delta = max(delta, abs(self.G.nodes[n]['U']  - u))
+                self.G.nodes[n]['U'] = u
 
-            self.U = new_u
-            if delta < self.theta:
+            if delta < self.THETA:
                 break
