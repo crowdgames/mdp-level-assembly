@@ -5,15 +5,18 @@ class SARSA(QTable):
         super().__init__(graph, gamma)
 
     def update(self, playthrough):
-        GAMMA = 0.9
+        n = playthrough[0][0]
+        n_1 = playthrough[1][0]
+        for n_2, _ in playthrough[2:]:
+            N = self.get_node_meta_data(n, 'N') + 1
+            self.set_node_meta_data(n, 'N', N)
 
-        s = playthrough[0]
-        s_1 = playthrough[1]
-        for s_2 in playthrough[2:]:
-            self.N[s] += 1
+            R = self.get_node_meta_data(n, 'r')
+            ALPHA = (60.0/(59.0 + N))
+            A = self.G.edges[n_1, n_2]['Q'] 
+            B = self.G.edges[n, n_1]['Q']
 
-            ALPHA = (60.0/(59.0 + self.N[s]))
-            self.Q[s][s_1] += ALPHA*(self.R[s] + GAMMA*self.Q[s_1][s_2] - self.Q[s][s_1])
+            self.G.edges[n, n_1]['Q'] += ALPHA*(R + self.GAMMA*A - B)
 
-            s = s_1
-            s_1 = s_2
+            n = n_1
+            n_1 = n_2
