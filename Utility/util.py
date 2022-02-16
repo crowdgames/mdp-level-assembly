@@ -69,7 +69,7 @@ def get_graph(BASE_DIR, transpose, get_reward, link_name='links.json'):
             lines = [_.strip() for _ in infile.readlines()]
 
         slices = tuple(rows_to_slices(lines, transpose))
-        graph.add_node(node, slices=slices, r=0, max_r=get_reward(slices))
+        graph.add_node(node, slices=slices, r=1, max_r=get_reward(slices))
 
         for next_node, edge_data in next_data.items():
             edge_data_use = edge_data['tree search']
@@ -90,7 +90,7 @@ def get_graph(BASE_DIR, transpose, get_reward, link_name='links.json'):
                 # TODO: max-r and r here for q table
                 edge_node = f'{node}__{next_node}'
 
-                graph.add_node(edge_node, slices=edge_slices, r=0, max_r=get_reward(slices))
+                graph.add_node(edge_node, slices=edge_slices, r=1, max_r=get_reward(slices))
                 graph.add_edge(node, edge_node)
                 graph.add_edge(edge_node, next_node)
 

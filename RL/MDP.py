@@ -29,3 +29,10 @@ class MDP:
             w.append(self.G.nodes[neighbor]['U'])
 
         return choices(n, weights=w, k=1)[0]
+
+    def get_node_meta_data(self, node, field_name):
+        return self.G.nodes[node][field_name]
+
+    def update_node_meta_data(self, node, field_name, value):
+        self.G.nodes[node][field_name] = value
+        

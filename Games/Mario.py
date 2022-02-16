@@ -1,9 +1,12 @@
+from Utility.SummervilleAgent import find_path
 from Utility.Math import get_slope_and_intercept
+from Utility import slices_to_rows
 from os.path import join
 
 WRAPS = False
 TRANSPOSE = False
 START = (1,1,-1)
+PADDING_SIZE = 2
 
 # view smb.json in TheVGLC
 SOLIDS = set()
@@ -160,3 +163,21 @@ def leniency(level):
 def get_reward(slices):
     # TODO: optimize to use one for loop
     return linearity(slices) + leniency(slices)
+
+def get_furthest_xy(lvl):
+    lvl.insert(0, 'X-------------')
+    lvl.insert(0, 'X-------------')
+    lvl.append('X-------------')
+    lvl.append('X-------------')
+    formatted_lvl = slices_to_rows(lvl, False)
+
+    START = (1, len(formatted_lvl)-2, -1)
+    GOAL = (len(formatted_lvl[0]) - 1, len(formatted_lvl)-2)
+    x, y = find_path(formatted_lvl, START, GOAL, JUMPS, SOLIDS, WRAPS)
+    
+    lvl.pop(0)
+    lvl.pop(0)
+    lvl.pop()
+    lvl.pop()
+
+    return x, y

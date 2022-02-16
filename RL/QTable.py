@@ -29,3 +29,6 @@ class QTable:
     def weighted_neighbor(self, s):
         w = [self.Q[s][n] for n in self.Q[s]]
         return choices(list(self.Q[s].keys()), weights=w, k=1)[0]
+
+    def get_node_meta_data(self, node, field_name):
+        return self.graph.nodes[node][field_name]

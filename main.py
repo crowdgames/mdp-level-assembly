@@ -1,13 +1,14 @@
-from ast import parse
+from Tasks import *
 from Games import *
 import Utility
 import RL
 
+from random import seed
 from time import time
 import argparse
 import sys
+import os
 
-from Utility.util import rows_to_slices
 
 start = time()
 
@@ -32,10 +33,12 @@ rl_agent_group.add_argument('--value', action='store_true', help='Value Iteratio
 
 parser.add_argument('--segments', type=int, help='Number of segments to fit together', required=True)
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
-parser.add_argument('--max-iter', type=float, default=10_000, help='Max # of iterations for Value Iteration')
+parser.add_argument('--max-iter', type=int, default=10_000, help='Max # of iterations for Value Iteration')
 parser.add_argument('--gamma', type=float, default=0.75, help='Discount factor for all RL algorithms')
 
 args = parser.parse_args()
+
+seed(args.seed)
 
 def find_goals_mario(level, start_pos, index, solids):
     goals = set()
@@ -81,39 +84,9 @@ if args.fit_to_agent:
     elif args.value:
         rl_agent = RL.ValueIteration(graph, args.max_iter, args.gamma, args.theta)
 
-    lvl = []
-    cur = '0,0,0'
-    size = 0
-    lvl += graph.nodes[cur]['slices']
-    nodes = [cur]
-    lengths = len(lvl)
-    while size < args.segments:
-        cur = rl_agent.weighted_neighbor(cur)
-        nodes.append(cur)
-        lvl += graph.nodes[cur]['slices']
-        lengths.append(len(graph.nodes[cur]['slices']))
-        size += 1 * '__' not in cur # small optimization to remove branching
+    task = FitAgent(rl_agent, config, args.segments)
+    task.run()
 
-
-    # TODO: only the rewards where the player played should be used in
-    # the RL algorithm
-    # lvl.insert(30, 'XXXXXXXXXXXXXX')
-                    
-
-    lvl = list(reversed(rows_to_slices(lvl, False)))
-    # lvl = list(rows_to_slices(lvl, False)))
-    # print(lvl[0])
-    
-
-    from Utility import SummervilleAgent
-    import sys
-    START = (1, len(lvl)-2, -1)
-    GOAL = (len(lvl[0]) - 2, len(lvl)-2)
-    # GOAL = [(1, 1, -1)]
-    # GOAL = find_goals_mario(lvl, config.START, 0, config.SOLIDS)
-    print(GOAL)
-    x, y = SummervilleAgent.find_path(lvl, START, GOAL, config.JUMPS, config.SOLIDS, config.WRAPS)
-    print(x, y)
 
     # lvl.append()
     # rl_agent.update([])
@@ -128,5 +101,4 @@ minutes, seconds = divmod(rem, 60)
 print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
 
 # mac only
-import os
 os.popen('say "Done!"')
