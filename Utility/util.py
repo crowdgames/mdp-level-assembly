@@ -69,7 +69,8 @@ def get_graph(BASE_DIR, transpose, get_reward, link_name='links.json'):
             lines = [_.strip() for _ in infile.readlines()]
 
         slices = tuple(rows_to_slices(lines, transpose))
-        graph.add_node(node, slices=slices, r=1, max_r=get_reward(slices))
+        # graph.add_node(node, slices=slices, r=1, max_r=get_reward(slices))
+        graph.add_node(node, slices=slices, r=get_reward(slices), max_r=get_reward(slices))
 
         for next_node, edge_data in next_data.items():
             edge_data_use = edge_data['tree search']
@@ -84,17 +85,16 @@ def get_graph(BASE_DIR, transpose, get_reward, link_name='links.json'):
             # between the two nodes.
             edge_slices = tuple(edge_data_use['link'])
             if len(edge_slices) == 0:
-                # TODO: max-r and r here for q table
                 graph.add_edge(node, next_node)
             else:
-                # TODO: max-r and r here for q table
                 edge_node = f'{node}__{next_node}'
 
-                graph.add_node(edge_node, slices=edge_slices, r=1, max_r=get_reward(slices))
+                # graph.add_node(edge_node, slices=edge_slices, r=1, max_r=get_reward(slices))
+                graph.add_node(edge_node, slices=edge_slices, r=get_reward(slices), max_r=get_reward(slices))
                 graph.add_edge(node, edge_node)
                 graph.add_edge(edge_node, next_node)
 
-    # get largest strongly connected version of the graph
+    # get largest strongly connected version of the graph to remove deadends
     biggest_comp = None
     for comp in nx.strongly_connected_components(graph):
         if biggest_comp == None or len(comp) > len(biggest_comp):

@@ -2,33 +2,39 @@ from random import choices
 from math import inf
 
 class QTable:
-    def __init__(self, S, T, R):
-        self.S = S
-        self.R = R
-        self.Q = {}
-        self.N = {} # used for adaptive learning rate
+    def __init__(self, graph, gamma):
+        self.G = graph
+        self.GAMMA = gamma
 
-        for s in S:
-            self.N[s] = 1
-            self.Q[s] = {}
-            for s_p in T[s]:
-                self.Q[s][s_p] = 0
+        for e in graph.out_edges():
+            graph.edges[e]['Q'] = 1
 
-    def best_neighbor(self, s):
-        best_s = None
-        best_u = -inf
+        for n in graph.nodes:
+            graph.nodes[n]['N'] = 0
 
-        for new_s in self.Q[s]:
-            next_u = self.Q[s][new_s]
-            if next_u > best_u:
-                best_u = next_u
-                best_s = new_s
+    def best_neighbor(self, n):
+        best_n = None
+        best_q = -inf
 
-        return best_s, best_u
+        for e in self.G.out_edges(n):
+            q = self.G.edges[e]['Q']
+            if q > best_q:
+                best_q = q
+                best_n = e[1]
 
-    def weighted_neighbor(self, s):
-        w = [self.Q[s][n] for n in self.Q[s]]
-        return choices(list(self.Q[s].keys()), weights=w, k=1)[0]
+        return best_n
+
+    def weighted_neighbor(self, n):
+        nodes = []
+        weights = []
+        for e in self.G.out_edges(n):
+            nodes.append(e[1])
+            weights.append(self.G.edges[e]['Q'])
+
+        return choices(nodes, weights=weights, k=1)[0]
 
     def get_node_meta_data(self, node, field_name):
-        return self.graph.nodes[node][field_name]
+        return self.G.nodes[node][field_name]
+
+    def set_node_meta_data(self, node, field_name, value):
+        self.G.nodes[node][field_name] = value

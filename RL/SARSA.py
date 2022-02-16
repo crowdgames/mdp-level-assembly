@@ -1,8 +1,8 @@
 from .QTable import QTable
 
 class SARSA(QTable):
-    def __init__(self, S, T, R):
-        super().__init__(S, T, R)
+    def __init__(self, graph, gamma):
+        super().__init__(graph, gamma)
 
     def update(self, playthrough):
         GAMMA = 0.9

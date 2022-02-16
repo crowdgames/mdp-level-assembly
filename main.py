@@ -77,9 +77,9 @@ if args.fit_to_agent:
 
     rl_agent = None
     if args.sarsa:
-        rl_agent = RL.SARSA(graph)
+        rl_agent = RL.SARSA(graph, args.gamma)
     elif args.q:
-        rl_agent = RL.QLearning(graph)
+        rl_agent = RL.QLearning(graph, args.gamma)
     elif args.policy:
         rl_agent = RL.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma)
     elif args.value:

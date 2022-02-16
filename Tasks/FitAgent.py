@@ -41,7 +41,7 @@ class FitAgent:
 
     def run(self):
         cur = '0,0,0'
-        for i in range(25):
+        for i in range(50):
             lvl = []
             size = 1
             lvl += self.rl_agent.get_node_meta_data(cur, 'slices')
