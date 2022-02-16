@@ -41,7 +41,7 @@ class FitAgent:
 
     def run(self):
         cur = '0,0,0'
-        for _ in range(100):
+        for i in range(25):
             lvl = []
             size = 1
             lvl += self.rl_agent.get_node_meta_data(cur, 'slices')
@@ -66,9 +66,12 @@ class FitAgent:
                 lengths)
 
             for node, r in playthrough:
-                r = self.rl_agent.get_node_meta_data(node, 'max_r') * r
-                self.rl_agent.update_node_meta_data(node, 'r', r)
+                self.rl_agent.set_node_meta_data(
+                    node, 
+                    'r', 
+                    self.rl_agent.get_node_meta_data(node, 'max_r') * r)
 
-            cur = playthrough[-1][0] # get most recent successful node to start from
+            cur = self.rl_agent.weighted_neighbor(cur)
             self.rl_agent.update(playthrough)
+            print(f'{i}: {playthrough}')
    

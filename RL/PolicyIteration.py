@@ -3,42 +3,45 @@ from math import inf
 from .MDP import MDP
 
 class PolicyIteration(MDP):
-    def __init__(self, graph, gamma):
+    def __init__(self, graph, max_iterations, policy_iter, gamma):
         super().__init__(graph)
 
         self.GAMMA = gamma
+        self.MAX_ITERATIONS = max_iterations
+        self.POLICY_ITER = policy_iter
 
         # create a random policy
         self.pi = {} 
-        for s in S:
-            self.pi[s] = choice(list(self.P[s].keys()))
+        for n in self.G:
+            self.pi[n] = choice(list(self.G.neighbors(n)))
             
-    def update(self, playthrough, max_iterations=1_000):
-        ITER = 20
-
+    def update(self, playthrough):
         # NOTE: should the pi and U be reset?
 
-        for i in range(0, max_iterations, ITER):
+        for _ in range(0, self.MAX_ITERATIONS, self.POLICY_ITER):
             # simplified policy evaluation
-            for _ in range(ITER):
-                for s in self.S:
+            for _ in range(self.POLICY_ITER):
+                for n in self.G:
                     # NOTE: P will always be 1, and is removed from the calculation
-                    self.U[s] = self.R[s] + self.GAMMA * self.U[self.pi[s]]
+                    # self.U[s] = self.R[s] + self.GAMMA * self.U[self.pi[s]]
+                    R = self.G.nodes[n]['r']
+                    self.set_node_meta_data(n, 'U', R + self.GAMMA * self.get_node_meta_data(n, 'U'))
 
             # policy improvement
             unchanged = True
-            for s in self.S:
-                old = self.pi[s]
+            for n in self.G:
+                old = self.pi[n]
 
                 best_s = None
                 best_u = -inf
-                for s_p in self.P[s]:
-                    if self.U[s_p] > best_u:
-                        best_s = s_p
-                        best_u = self.U[s_p]
+                for n_p in self.G.neighbors(n):
+                    u_p = self.get_node_meta_data(n_p, 'U')
+                    if u_p > best_u:
+                        best_s = n_p
+                        best_u = u_p
 
                 if old != best_s:
-                    self.pi[s] = best_s
+                    self.pi[n] = best_s
                     unchanged = False
 
             if unchanged:

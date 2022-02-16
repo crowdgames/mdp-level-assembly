@@ -34,6 +34,7 @@ rl_agent_group.add_argument('--value', action='store_true', help='Value Iteratio
 parser.add_argument('--segments', type=int, help='Number of segments to fit together', required=True)
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
 parser.add_argument('--max-iter', type=int, default=10_000, help='Max # of iterations for Value Iteration')
+parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
 parser.add_argument('--gamma', type=float, default=0.75, help='Discount factor for all RL algorithms')
 
 args = parser.parse_args()
@@ -80,7 +81,7 @@ if args.fit_to_agent:
     elif args.q:
         rl_agent = RL.QLearning(graph)
     elif args.policy:
-        rl_agent = RL.PolicyIteration(graph)
+        rl_agent = RL.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma)
     elif args.value:
         rl_agent = RL.ValueIteration(graph, args.max_iter, args.gamma, args.theta)
 

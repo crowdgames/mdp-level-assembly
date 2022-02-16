@@ -33,6 +33,6 @@ class MDP:
     def get_node_meta_data(self, node, field_name):
         return self.G.nodes[node][field_name]
 
-    def update_node_meta_data(self, node, field_name, value):
+    def set_node_meta_data(self, node, field_name, value):
         self.G.nodes[node][field_name] = value
         
