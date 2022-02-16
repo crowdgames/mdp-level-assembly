@@ -73,7 +73,7 @@ elif args.icarus:
 
 # run task
 if args.fit_to_agent:
-    graph = Utility.get_graph(config.BASE_DIR, config.TRANSPOSE, config.get_reward)
+    graph = Utility.get_graph(config.BASE_DIR, config.TRANSPOSE)
 
     rl_agent = None
     if args.sarsa:
@@ -87,7 +87,6 @@ if args.fit_to_agent:
 
     task = FitAgent(rl_agent, config, args.segments)
     task.run()
-
 
     # lvl.append()
     # rl_agent.update([])
