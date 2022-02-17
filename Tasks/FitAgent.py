@@ -41,6 +41,7 @@ class FitAgent:
 
     def run(self):
         cur = '0,0,0'
+        data = []
         for i in range(18):
             lvl = []
             size = 1
@@ -66,6 +67,7 @@ class FitAgent:
                 nodes, 
                 lengths)
 
+            data.append(playthrough)
             for node, r in playthrough:
                 self.rl_agent.set_node_meta_data(
                     node, 
@@ -75,4 +77,6 @@ class FitAgent:
             cur = self.rl_agent.weighted_neighbor(cur)
             self.rl_agent.update(playthrough)
             print(f'{i}: {playthrough}')
+
+        return data
    

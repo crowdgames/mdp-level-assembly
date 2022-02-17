@@ -6,7 +6,8 @@ import Directors
 from os.path import join
 from random import seed
 from time import time
-from pickle import dump
+from pickle import dump as pkl_dump
+from json import dump as json_dump
 import argparse
 import sys
 import os
@@ -80,6 +81,16 @@ elif args.icarus:
 if args.fit_to_agent:
     graph = Utility.get_graph(config.BASE_DIR, config.TRANSPOSE)
 
+    agents = [
+        Directors.SARSA(graph, args.gamma),
+        Directors.QLearning(graph, args.gamma),
+        Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma),
+        Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta),
+        Directors.Random(graph),
+        Directors.GreedyMax(graph),
+        Directors.GreedyRelative(graph)
+    ]
+    
     rl_agent = None
     if args.sarsa:
         rl_agent = Directors.SARSA(graph, args.gamma)
@@ -95,14 +106,19 @@ if args.fit_to_agent:
         rl_agent = Directors.GreedyMax(graph)
     elif args.greedy_relative:
         rl_agent = Directors.GreedyRelative(graph)
+    elif args.all:
+        pass
     else:
         raise NotImplementedError('Agent type specificed in command line arguments is not implemented.')
 
     task = FitAgent(rl_agent, config, args.segments)
-    task.run()
+    data = task.run()
 
-    with open(join(config.BASE_DIR, f'{config.NAME}_{rl_agent.NAME}.pkl'), 'wb') as f:
-        dump(rl_agent, f)
+    with open(join(config.BASE_DIR, f'agent_{config.NAME}_{rl_agent.NAME}.pkl'), 'wb') as f:
+        pkl_dump(rl_agent, f)
+
+    with open(join(config.BASE_DIR, f'fitagent_playthrough_{config.NAME}_{rl_agent.NAME}.json'), 'w') as f:
+        json_dump(data, f, indent=2)
         
 elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')
