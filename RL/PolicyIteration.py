@@ -9,6 +9,7 @@ class PolicyIteration(MDP):
         self.GAMMA = gamma
         self.MAX_ITERATIONS = max_iterations
         self.POLICY_ITER = policy_iter
+        self.NAME = 'policy'
 
         # create a random policy
         self.pi = {} 

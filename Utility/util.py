@@ -81,7 +81,6 @@ def get_graph(BASE_DIR, transpose, link_name='links.json'):
             lines = [_.strip() for _ in infile.readlines()]
 
         slices = tuple(rows_to_slices(lines, transpose))
-        # graph.add_node(node, slices=slices, r=1, max_r=get_reward(slices))
         graph.add_node(node, slices=slices, r=r, max_r=r)
 
         for next_node, edge_data in next_data.items():
@@ -101,7 +100,6 @@ def get_graph(BASE_DIR, transpose, link_name='links.json'):
             else:
                 edge_node = f'{node}__{next_node}'
 
-                # graph.add_node(edge_node, slices=edge_slices, r=1, max_r=r)
                 graph.add_node(edge_node, slices=edge_slices, r=r, max_r=r)
                 graph.add_edge(node, edge_node)
                 graph.add_edge(edge_node, next_node)

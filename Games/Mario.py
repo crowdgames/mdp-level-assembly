@@ -1,5 +1,4 @@
 from Utility.SummervilleAgent import find_path
-from Utility.Math import get_slope_and_intercept
 from Utility import slices_to_rows
 from os.path import join
 
@@ -7,6 +6,7 @@ WRAPS = False
 TRANSPOSE = False
 START = (1,1,-1)
 PADDING_SIZE = 2
+NAME = 'mario'
 
 # view smb.json in TheVGLC
 SOLIDS = set()

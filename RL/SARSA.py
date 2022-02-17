@@ -3,6 +3,7 @@ from .QTable import QTable
 class SARSA(QTable):
     def __init__(self, graph, gamma):
         super().__init__(graph, gamma)
+        self.NAME = 'sarsa'
 
     def update(self, playthrough):
         n = playthrough[0][0]

@@ -4,6 +4,7 @@ from .QTable import QTable
 class QLearning(QTable):
     def __init__(self, graph, gamma):
         super().__init__(graph, gamma)
+        self.NAME = 'q'
 
     def update(self, playthrough):
         n = playthrough[0][0]

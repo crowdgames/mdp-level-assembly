@@ -9,6 +9,7 @@ class ValueIteration(MDP):
         self.GAMMA = gamma
         self.MIN_N = 10
         self.R_PLUS = 100
+        self.NAME = 'value'
 
     def update(self, _):
         # Something like this may allow for better adaptability to new players

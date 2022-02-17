@@ -3,8 +3,10 @@ from Games import *
 import Utility
 import RL
 
+from os.path import join
 from random import seed
 from time import time
+from pickle import dump
 import argparse
 import sys
 import os
@@ -88,9 +90,8 @@ if args.fit_to_agent:
     task = FitAgent(rl_agent, config, args.segments)
     task.run()
 
-    # lvl.append()
-    # rl_agent.update([])
-    raise NotImplementedError('store graph as pkl')
+    with open(join(config.BASE_DIR, f'{config.NAME}_{rl_agent.NAME}.pkl'), 'wb') as f:
+        dump(rl_agent, f)
 elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')
 
