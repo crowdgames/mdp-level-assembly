@@ -73,7 +73,9 @@ def get_graph(BASE_DIR, transpose, link_name='links.json'):
     # build graph from json file
     graph = nx.DiGraph()
     for node, next_data in data.items():
+        # reward range is [-1,1]
         a, b, _ = node.split(',')
+        # r = (float(a) / max_bc[0]) + (float(b) / max_bc[1]) - 1.0
         r = (float(a) / max_bc[0]) + (float(b) / max_bc[1])
 
         node_filename = f'{join(BASE_DIR, "levels", node.replace(",", "_"))}.txt'
@@ -100,7 +102,7 @@ def get_graph(BASE_DIR, transpose, link_name='links.json'):
             else:
                 edge_node = f'{node}__{next_node}'
 
-                graph.add_node(edge_node, slices=edge_slices, r=r, max_r=r)
+                graph.add_node(edge_node, slices=edge_slices, r=0, max_r=0)
                 graph.add_edge(node, edge_node)
                 graph.add_edge(edge_node, next_node)
 

@@ -1,4 +1,5 @@
 from math import inf
+from operator import ne
 from random import choices
 
 class MDP:
@@ -27,6 +28,10 @@ class MDP:
         for neighbor in self.G.neighbors(node):
             n.append(neighbor)
             w.append(self.G.nodes[neighbor]['U'])
+
+        offset = min(w) 
+        if offset < 0:
+            w = [a-offset+0.1 for a in w]
 
         return choices(n, weights=w, k=1)[0]
 

@@ -1,6 +1,4 @@
-from json import dump
-
-from Utility.util import slices_to_rows
+from Utility import Counter
 
 class FitAgent:
     def __init__(self, rl_agent, config, segments):
@@ -40,8 +38,11 @@ class FitAgent:
         return playthrough
 
     def run(self):
-        cur = '0,0,0'
+        cur = self.config.START_NODE
         data = []
+        self.rl_agent.update([])
+        counter = Counter()
+
         for i in range(50):
             lvl = []
             size = 1
@@ -50,10 +51,11 @@ class FitAgent:
             lengths = [len(lvl)]
             while size < self.segments:
                 cur = self.rl_agent.weighted_neighbor(cur)
-                # cur = self.rl_agent.best_neighbor(cur)
+                counter.add(cur)
                 nodes.append(cur)
-                lvl += self.rl_agent.get_node_meta_data(cur, 'slices')
-                lengths.append(len(self.rl_agent.get_node_meta_data(cur, 'slices')))
+                segment = self.rl_agent.get_node_meta_data(cur, 'slices')
+                lvl += segment
+                lengths.append(len(segment))
                 size += 1 * '__' not in cur # small optimization to remove branching
 
             lengths[0] += self.config.PADDING_SIZE 
@@ -68,13 +70,36 @@ class FitAgent:
                 lengths)
 
             data.append(playthrough)
+            what = True
             for node, r in playthrough:
                 self.rl_agent.set_node_meta_data(
                     node, 
                     'r', 
-                    self.rl_agent.get_node_meta_data(node, 'max_r') * r)
+                    self.rl_agent.get_node_meta_data(node, 'max_r') * r / counter.get(node, default=1))
+
+                what &= r == 1.0
+            
+            if not what:
+                from Utility import slices_to_rows
+                print()
+                print()
+                print(nodes)
+                print(playthrough)
+                for r in slices_to_rows(lvl, False):
+                    print(r)
+
+                print()
+                print()
+                for n in nodes:
+                    print(n)
+                    for r in slices_to_rows(self.rl_agent.get_node_meta_data(n, 'slices'), False):
+                        print(r)
+                    print()
+                import sys
+                sys.exit(-1)
 
             cur = self.rl_agent.weighted_neighbor(cur)
+            counter.add(cur)
             self.rl_agent.update(playthrough)
             print(f'{i}: {playthrough}')
 

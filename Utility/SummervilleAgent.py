@@ -103,18 +103,12 @@ def makeGetNeighbors(jumps,levelStr,visited,isSolid,wrapx):
         return neighbors
     return getNeighbors
 
-def find_path(levelStr, start, goal, jumps, solids, wrapx):
+def find_path(levelStr, start, jumps, solids, wrapx, heuristic):
     def isSolid(tile):
         return tile in solids
     visited = set()
     getNeighbors = makeGetNeighbors(jumps,levelStr,visited,isSolid,wrapx)
 
-    # heuristic = lambda pos: 0.0 
-    # heuristic = lambda pos: sqrt((pos[0]-goal[0])**2 + (pos[1] - goal[1])**2)
-    # NOTE: using the nonsquared version is faster but also does not find the 
-    # optimal path. All we care about is that a path can be found so it doesn't
-    # matter beyond this.
-    heuristic = lambda pos: (pos[0]-goal[0])**2 + (pos[1] - goal[1])**2
     best_x = start[0]
     best_y = start[1]
 
@@ -164,7 +158,8 @@ def find_path(levelStr, start, goal, jumps, solids, wrapx):
 
                 next_pos = (next_node[1][0], next_node[1][1])
 
-                if next_pos == goal:
+                # if next_pos == goal:
+                if heuristic(next_pos) == 0:
                     if DEBUG_DISPLAY:
                         full_path = []
                         path_node = next_node[1]
@@ -191,7 +186,7 @@ def find_path(levelStr, start, goal, jumps, solids, wrapx):
         import sys
         sys.exit(-1)
     
-    return best_x / goal[0], best_y / goal[1] 
+    return best_x, best_y 
     # if end_node == None:
     #     return None
 

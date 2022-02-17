@@ -4,7 +4,7 @@ from os.path import join
 
 WRAPS = False
 TRANSPOSE = False
-START = (1,1,-1)
+START_NODE = '0,0,0'
 PADDING_SIZE = 2
 NAME = 'mario'
 

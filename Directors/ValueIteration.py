@@ -25,14 +25,8 @@ class ValueIteration(MDP):
             delta = 0
 
             for n in self.G:
-                self.G.nodes[n]['N'] += 1
-                N = self.G.nodes[n]['N']
-                if N < self.MIN_N:
-                    u = self.R_PLUS - N
-                else:
-                    # NOTE: P will always be 1, and is removed from the calculation
-                    R = self.G.nodes[n]['U']
-                    u = R + self.GAMMA * max(self.G.nodes[n_p]['U'] for n_p in self.G.neighbors(n))
+                R = self.G.nodes[n]['r']
+                u = R + self.GAMMA * max(self.G.nodes[n_p]['U'] for n_p in self.G.neighbors(n))
                 
                 delta = max(delta, abs(self.G.nodes[n]['U'] - u))
                 self.G.nodes[n]['U'] = u

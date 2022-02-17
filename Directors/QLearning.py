@@ -7,6 +7,9 @@ class QLearning(QTable):
         self.NAME = 'q'
 
     def update(self, playthrough):
+        if len(playthrough) < 2:
+            return
+            
         n = playthrough[0][0]
         for n_1, _ in playthrough[1:]:
             N = self.get_node_meta_data(n, 'N') + 1

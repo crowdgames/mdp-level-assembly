@@ -6,6 +6,9 @@ class SARSA(QTable):
         self.NAME = 'sarsa'
 
     def update(self, playthrough):
+        if len(playthrough) < 3:
+            return
+
         n = playthrough[0][0]
         n_1 = playthrough[1][0]
         for n_2, _ in playthrough[2:]:
