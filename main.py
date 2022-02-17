@@ -33,6 +33,8 @@ rl_agent_group.add_argument('--q', action='store_true', help='Q-Learning agent')
 rl_agent_group.add_argument('--policy', action='store_true', help='Policy Iteration agent')
 rl_agent_group.add_argument('--value', action='store_true', help='Value Iteration agent')
 rl_agent_group.add_argument('--random', action='store_true', help='Randomly choose where to go regardless of the player')
+rl_agent_group.add_argument('--greedy-max', action='store_true', help='Greedily choose where to go based on the max reward')
+rl_agent_group.add_argument('--greedy-relative', action='store_true', help='Greedily choose where to go based on the reward')
 
 parser.add_argument('--segments', type=int, help='Number of segments to fit together', required=True)
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
@@ -89,6 +91,12 @@ if args.fit_to_agent:
         rl_agent = Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta)
     elif args.random:
         rl_agent = Directors.Random(graph)
+    elif args.greedy_max:
+        rl_agent = Directors.GreedyMax(graph)
+    elif args.greedy_relative:
+        rl_agent = Directors.GreedyRelative(graph)
+    else:
+        raise NotImplementedError('Agent type specificed in command line arguments is not implemented.')
 
     task = FitAgent(rl_agent, config, args.segments)
     task.run()

@@ -3,6 +3,7 @@ from random import choice
 class Random:
     def __init__(self, graph):
         self.G = graph
+        self.NAME = 'random'
 
     def best_neighbor(self, node):
         return choice(list(self.G.neighbors(node)))

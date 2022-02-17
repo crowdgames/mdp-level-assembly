@@ -73,7 +73,7 @@ def get_graph(BASE_DIR, transpose, link_name='links.json'):
     # build graph from json file
     graph = nx.DiGraph()
     for node, next_data in data.items():
-        a, b, _ = key.split(',')
+        a, b, _ = node.split(',')
         r = (float(a) / max_bc[0]) + (float(b) / max_bc[1])
 
         node_filename = f'{join(BASE_DIR, "levels", node.replace(",", "_"))}.txt'
