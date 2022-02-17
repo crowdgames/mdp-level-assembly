@@ -1,7 +1,7 @@
 from Tasks import *
 from Games import *
 import Utility
-import RL
+import Directors
 
 from os.path import join
 from random import seed
@@ -32,6 +32,7 @@ rl_agent_group.add_argument('--sarsa', action='store_true', help='SARSA agent')
 rl_agent_group.add_argument('--q', action='store_true', help='Q-Learning agent')
 rl_agent_group.add_argument('--policy', action='store_true', help='Policy Iteration agent')
 rl_agent_group.add_argument('--value', action='store_true', help='Value Iteration agent')
+rl_agent_group.add_argument('--random', action='store_true', help='Randomly choose where to go regardless of the player')
 
 parser.add_argument('--segments', type=int, help='Number of segments to fit together', required=True)
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
@@ -79,19 +80,22 @@ if args.fit_to_agent:
 
     rl_agent = None
     if args.sarsa:
-        rl_agent = RL.SARSA(graph, args.gamma)
+        rl_agent = Directors.SARSA(graph, args.gamma)
     elif args.q:
-        rl_agent = RL.QLearning(graph, args.gamma)
+        rl_agent = Directors.QLearning(graph, args.gamma)
     elif args.policy:
-        rl_agent = RL.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma)
+        rl_agent = Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma)
     elif args.value:
-        rl_agent = RL.ValueIteration(graph, args.max_iter, args.gamma, args.theta)
+        rl_agent = Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta)
+    elif args.random:
+        rl_agent = Directors.Random(graph)
 
     task = FitAgent(rl_agent, config, args.segments)
     task.run()
 
     with open(join(config.BASE_DIR, f'{config.NAME}_{rl_agent.NAME}.pkl'), 'wb') as f:
         dump(rl_agent, f)
+        
 elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')
 

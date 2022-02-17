@@ -9,16 +9,16 @@ class MDP:
             graph.nodes[n]['N'] = 0
 
     def best_neighbor(self, node):
-        best_s = None
+        best_n = None
         best_u = -inf
 
-        for new_s in self.T[s]:
-            next_u = self.U[new_s]
-            if next_u > best_u:
-                best_u = next_u
-                best_s = new_s
+        for neighbor in self.G.neighbors(node):
+            u = self.G.nodes[neighbor]['U']
+            if u > best_u:
+                best_u = u
+                best_n = neighbor
 
-        return best_s
+        return best_n
 
     def weighted_neighbor(self, node):
         n = []
