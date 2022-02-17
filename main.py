@@ -36,6 +36,7 @@ rl_agent_group.add_argument('--value', action='store_true', help='Value Iteratio
 rl_agent_group.add_argument('--random', action='store_true', help='Randomly choose where to go regardless of the player')
 rl_agent_group.add_argument('--greedy-max', action='store_true', help='Greedily choose where to go based on the max reward')
 rl_agent_group.add_argument('--greedy-relative', action='store_true', help='Greedily choose where to go based on the reward')
+rl_agent_group.add_argument('--all', action='store_true', help='Run every agent')
 
 parser.add_argument('--segments', type=int, help='Number of segments to fit together', required=True)
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
@@ -80,45 +81,34 @@ elif args.icarus:
 # run task
 if args.fit_to_agent:
     graph = Utility.get_graph(config.BASE_DIR, config.TRANSPOSE)
+    agents = []
+    if args.sarsa or args.all:
+        agents.append(Directors.SARSA(graph, args.gamma))
+    if args.q or args.all:
+        agents.append(Directors.QLearning(graph, args.gamma))
+    if args.policy or args.all:
+        agents.append(Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma))
+    if args.value or args.all:
+        agents.append(Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta))
+    if args.random or args.all:
+        agents.append(Directors.Random(graph))
+    if args.greedy_max or args.all:
+        agents.append(Directors.GreedyMax(graph))
+    if args.greedy_relative or args.all:
+        agents.append(Directors.GreedyRelative(graph))
 
-    agents = [
-        Directors.SARSA(graph, args.gamma),
-        Directors.QLearning(graph, args.gamma),
-        Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma),
-        Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta),
-        Directors.Random(graph),
-        Directors.GreedyMax(graph),
-        Directors.GreedyRelative(graph)
-    ]
-    
-    rl_agent = None
-    if args.sarsa:
-        rl_agent = Directors.SARSA(graph, args.gamma)
-    elif args.q:
-        rl_agent = Directors.QLearning(graph, args.gamma)
-    elif args.policy:
-        rl_agent = Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma)
-    elif args.value:
-        rl_agent = Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta)
-    elif args.random:
-        rl_agent = Directors.Random(graph)
-    elif args.greedy_max:
-        rl_agent = Directors.GreedyMax(graph)
-    elif args.greedy_relative:
-        rl_agent = Directors.GreedyRelative(graph)
-    elif args.all:
-        pass
-    else:
-        raise NotImplementedError('Agent type specificed in command line arguments is not implemented.')
+    for rl_agent in agents:
+        print(f'Running agent: {rl_agent.NAME}')
+        task = FitAgent(rl_agent, config, args.segments)
+        data = task.run()
 
-    task = FitAgent(rl_agent, config, args.segments)
-    data = task.run()
+        with open(join(config.BASE_DIR, f'agent_{config.NAME}_{rl_agent.NAME}.pkl'), 'wb') as f:
+            pkl_dump(rl_agent, f)
 
-    with open(join(config.BASE_DIR, f'agent_{config.NAME}_{rl_agent.NAME}.pkl'), 'wb') as f:
-        pkl_dump(rl_agent, f)
-
-    with open(join(config.BASE_DIR, f'fitagent_playthrough_{config.NAME}_{rl_agent.NAME}.json'), 'w') as f:
-        json_dump(data, f, indent=2)
+        with open(join(config.BASE_DIR, f'fitagent_playthrough_{config.NAME}_{rl_agent.NAME}.json'), 'w') as f:
+            json_dump(data, f, indent=2)
+        print()
+        print()
         
 elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')
