@@ -75,11 +75,23 @@ class FitAgent:
             data.append(playthrough)
             reward_always_one = True
             for node, r in playthrough:
-                self.rl_agent.set_node_meta_data(
-                    node, 
-                    'r', 
-                    self.rl_agent.get_node_meta_data(node, 'max_r') * r / counter.get(node, default=1))
-                
+                if '__' in node:
+                    self.rl_agent.set_node_meta_data(
+                        node, 
+                        'r', 
+                        self.rl_agent.get_node_meta_data(node, 'max_r') * r / counter.get(node, default=1))
+                else:
+                    a, b, _ = node.split(',')
+                    index = 0
+                    cur_node = f'{a},{b},{index}'
+                    while cur_node in self.rl_agent.G:
+                        self.rl_agent.set_node_meta_data(
+                            cur_node, 
+                            'r', 
+                            self.rl_agent.get_node_meta_data(node, 'max_r') * r / counter.get(node, default=1))
+                        index +=1
+                        cur_node = f'{a},{b},{index}'
+
                 reward_always_one &= r==1.0
             
             if not reward_always_one:
