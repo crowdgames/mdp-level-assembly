@@ -75,11 +75,6 @@ class FitAgent:
             data.append(playthrough)
             reward_always_one = True
             for node, r in playthrough:
-                a = self.rl_agent.get_node_meta_data(node, 'max_r')
-                b = a * r
-                c = counter.get(node, default=1)
-                d = b / c
-                e = self.rl_agent.get_node_meta_data(node, 'max_r') * r / counter.get(node, default=1)
                 self.rl_agent.set_node_meta_data(
                     node, 
                     'r', 
