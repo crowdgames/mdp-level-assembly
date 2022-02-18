@@ -10,14 +10,15 @@ class PolicyIteration(MDP):
         self.MAX_ITERATIONS = max_iterations
         self.POLICY_ITER = policy_iter
         self.NAME = 'policy'
-
-        # create a random policy
+            
+    def update(self, playthrough):
+        # create a random policy and rest utility
         self.pi = {} 
         for n in self.G:
             self.pi[n] = choice(list(self.G.neighbors(n)))
-            
-    def update(self, playthrough):
-        # NOTE: should the pi and U be reset?
+
+        for n in self.G.nodes:
+            self.G.nodes[n]['U'] = 0
 
         for _ in range(0, self.MAX_ITERATIONS, self.POLICY_ITER):
             # simplified policy evaluation
@@ -26,7 +27,7 @@ class PolicyIteration(MDP):
                     # NOTE: P will always be 1, and is removed from the calculation
                     # self.U[s] = self.R[s] + self.GAMMA * self.U[self.pi[s]]
                     R = self.G.nodes[n]['r']
-                    self.set_node_meta_data(n, 'U', R + self.GAMMA * self.get_node_meta_data(n, 'U'))
+                    self.set_node_meta_data(n, 'U', R + self.GAMMA * self.get_node_meta_data(self.pi[n], 'U'))
 
             # policy improvement
             unchanged = True

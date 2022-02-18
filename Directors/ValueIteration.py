@@ -19,7 +19,7 @@ class ValueIteration(MDP):
         # NOTE: should U be reset?
         # NOTE: implementation is in-place value iteration
         for n in self.G.nodes:
-            self.G.nodes[n]['U'] = 1
+            self.G.nodes[n]['U'] = 0
 
         for _ in range(self.MAX_ITERATIONS):
             delta = 0
@@ -33,4 +33,3 @@ class ValueIteration(MDP):
 
             # if delta < self.THETA:
             #     break
-            
