@@ -43,14 +43,15 @@ class FitAgent:
         self.rl_agent.update([])
         counter = Counter()
 
-        for i in range(50):
+        for i in range(100):
             lvl = []
             size = 1
             lvl += self.rl_agent.get_node_meta_data(cur, 'slices')
             nodes = [cur]
             lengths = [len(lvl)]
             while size < self.segments:
-                cur = self.rl_agent.weighted_neighbor(cur)
+                # cur = self.rl_agent.weighted_neighbor(cur)
+                cur = self.rl_agent.best_neighbor(cur)
                 counter.add(cur)
                 nodes.append(cur)
                 segment = self.rl_agent.get_node_meta_data(cur, 'slices')
