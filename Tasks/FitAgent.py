@@ -43,7 +43,7 @@ class FitAgent:
         self.rl_agent.update([])
         counter = Counter()
 
-        for i in range(100):
+        for i in range(40):
             lvl = []
             size = 1
             lvl += self.rl_agent.get_node_meta_data(cur, 'slices')
@@ -51,7 +51,8 @@ class FitAgent:
             lengths = [len(lvl)]
             while size < self.segments:
                 # cur = self.rl_agent.weighted_neighbor(cur)
-                cur = self.rl_agent.best_neighbor(cur)
+                # cur = self.rl_agent.best_neighbor(cur)
+                cur = self.rl_agent.get(cur)
                 counter.add(cur)
                 nodes.append(cur)
                 segment = self.rl_agent.get_node_meta_data(cur, 'slices')
@@ -71,16 +72,16 @@ class FitAgent:
                 lengths)
 
             data.append(playthrough)
-            what = True
+            reward_always_one = True
             for node, r in playthrough:
                 self.rl_agent.set_node_meta_data(
                     node, 
                     'r', 
                     self.rl_agent.get_node_meta_data(node, 'max_r') * r / counter.get(node, default=1))
 
-                what &= r == 1.0
+                reward_always_one &= r==1.0
             
-            if not what:
+            if not reward_always_one:
                 from Utility import slices_to_rows
                 print()
                 print()

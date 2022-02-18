@@ -11,7 +11,7 @@ class PolicyIteration(MDP):
         self.POLICY_ITER = policy_iter
         self.NAME = 'policy'
             
-    def update(self, playthrough):
+    def update(self, _):
         # create a random policy and rest utility
         self.pi = {} 
         for n in self.G:
@@ -48,3 +48,6 @@ class PolicyIteration(MDP):
 
             if unchanged:
                 break
+
+    def get(self, node):
+        return self.best_neighbor(node)

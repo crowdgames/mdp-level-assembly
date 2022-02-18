@@ -24,3 +24,6 @@ class SARSA(QTable):
 
             n = n_1
             n_1 = n_2
+
+    def get(self, node):
+        return self.weighted_neighbor(node)

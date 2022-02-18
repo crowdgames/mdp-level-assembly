@@ -24,3 +24,6 @@ class QLearning(QTable):
             self.G.edges[(n, n_1)]['Q'] += ALPHA*(R + self.GAMMA*A - B)
 
             n = n_1
+
+    def get(self, node):
+        return self.weighted_neighbor(node)

@@ -34,6 +34,9 @@ class GreedyMax:
     def set_node_meta_data(self, node, field_name, value):
         self.G.nodes[node][field_name] = value
 
-    def update(self, playthrough):
+    def update(self, _):
         pass
+
+    def get(self, node):
+        return self.best_neighbor(node)
 

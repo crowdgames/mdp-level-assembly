@@ -12,11 +12,6 @@ class ValueIteration(MDP):
         self.NAME = 'value'
 
     def update(self, _):
-        # Something like this may allow for better adaptability to new players
-        # self.R_PLUS += 5
-        # self.MIN_N += 5
-
-        # NOTE: should U be reset?
         # NOTE: implementation is in-place value iteration
         for n in self.G.nodes:
             self.G.nodes[n]['U'] = 0
@@ -33,3 +28,6 @@ class ValueIteration(MDP):
 
             # if delta < self.THETA:
             #     break
+
+    def get(self, node):
+        return self.best_neighbor(node)
