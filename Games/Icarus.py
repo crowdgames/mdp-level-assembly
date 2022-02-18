@@ -3,7 +3,7 @@ from os.path import join
 
 WRAPS = True
 TRANSPOSE = True
-START_NODE = '2,2,0'
+START_NODE = '0,2,0'
 PADDING_SIZE = 2
 NAME = 'icarus'
 

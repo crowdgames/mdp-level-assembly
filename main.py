@@ -43,27 +43,9 @@ parser.add_argument('--theta', type=float, default=1e-13, help='Convergence crit
 parser.add_argument('--max-iter', type=int, default=10_000, help='Max # of iterations for Value Iteration')
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
 parser.add_argument('--gamma', type=float, default=0.75, help='Discount factor for all RL algorithms')
+parser.add_argument('--empty-link', type=bool, default=True, help='Allow empty links')
 
 args = parser.parse_args()
-
-seed(args.seed)
-
-def find_goals_mario(level, start_pos, index, solids):
-    goals = set()
-    for ic in range(index, 2, -1):
-        if ic <= start_pos[0] + 1:
-            return None
-        
-        found_solid = False
-        for ir in range(len(level) - 1, -1, -1):
-            if level[ir][ic] in solids:
-                found_solid = True
-            else:
-                if found_solid:
-                    goals.add((ic, ir))
-        if len(goals) != 0:
-            return goals
-    return None
 
 # Get Game 
 if args.dungeongram:
@@ -78,27 +60,28 @@ elif args.mario:
 elif args.icarus:
     config = Icarus
 
+graph = Utility.get_graph(config.BASE_DIR, config.TRANSPOSE, args.empty_link)
+agents = []
+if args.sarsa or args.all:
+    agents.append(Directors.SARSA(graph, args.gamma))
+if args.q or args.all:
+    agents.append(Directors.QLearning(graph, args.gamma))
+if args.policy or args.all:
+    agents.append(Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma))
+if args.value or args.all:
+    agents.append(Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta))
+if args.random or args.all:
+    agents.append(Directors.Random(graph))
+if args.greedy_max or args.all:
+    agents.append(Directors.GreedyMax(graph))
+if args.greedy_relative or args.all:
+    agents.append(Directors.GreedyRelative(graph))
+
 # run task
 if args.fit_to_agent:
-    graph = Utility.get_graph(config.BASE_DIR, config.TRANSPOSE)
-    agents = []
-    if args.sarsa or args.all:
-        agents.append(Directors.SARSA(graph, args.gamma))
-    if args.q or args.all:
-        agents.append(Directors.QLearning(graph, args.gamma))
-    if args.policy or args.all:
-        agents.append(Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma))
-    if args.value or args.all:
-        agents.append(Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta))
-    if args.random or args.all:
-        agents.append(Directors.Random(graph))
-    if args.greedy_max or args.all:
-        agents.append(Directors.GreedyMax(graph))
-    if args.greedy_relative or args.all:
-        agents.append(Directors.GreedyRelative(graph))
-
     for rl_agent in agents:
         print(f'Running agent: {rl_agent.NAME}')
+        seed(args.seed)
         task = FitAgent(rl_agent, config, args.segments)
         data = task.run()
 

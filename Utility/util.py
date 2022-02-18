@@ -56,9 +56,9 @@ def print_level(level, path=None, goals=None):
                 sys.stdout.write(t)
         sys.stdout.write('\n')
 
-def get_graph(BASE_DIR, transpose, link_name='links.json'):
+def get_graph(BASE_DIR, transpose, allow_empty_link):
     # get json file that represents the graph
-    with open(join(BASE_DIR, link_name), 'r') as f:
+    with open(join(BASE_DIR, f'links_{allow_empty_link}.json'), 'r') as f:
         data = load_file(f)
 
     # find max behavioral characteristic values. Note: there is kind of a cheat

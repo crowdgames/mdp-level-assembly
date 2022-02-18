@@ -7,7 +7,8 @@ class QTable:
         self.GAMMA = gamma
 
         for e in graph.out_edges():
-            graph.edges[e]['Q'] = 1
+            # graph.edges[e]['Q'] = 1
+            graph.edges[e]['Q'] = self.get_node_meta_data(e[1], 'max_r')
 
         for n in graph.nodes:
             graph.nodes[n]['N'] = 0

@@ -38,6 +38,13 @@ class FitAgent:
 
         return playthrough
 
+    def __node_no_index(self, node):
+        if '__' in node:
+            return node
+            
+        a, b, _ = node.split(',')
+        return f'{a},{b}'
+
     def run(self):
         cur = self.config.START_NODE
         data = []
@@ -54,7 +61,7 @@ class FitAgent:
                 # cur = self.rl_agent.weighted_neighbor(cur)
                 # cur = self.rl_agent.best_neighbor(cur)
                 cur = self.rl_agent.get(cur)
-                counter.add(cur)
+                counter.add(self.__node_no_index(cur))
                 nodes.append(cur)
                 segment = self.rl_agent.get_node_meta_data(cur, 'slices')
                 lvl += segment
@@ -72,6 +79,8 @@ class FitAgent:
                 nodes, 
                 lengths)
 
+            # BUG? counter.add a,b not a,b,c ??
+
             data.append(playthrough)
             reward_always_one = True
             for node, r in playthrough:
@@ -84,11 +93,12 @@ class FitAgent:
                     a, b, _ = node.split(',')
                     index = 0
                     cur_node = f'{a},{b},{index}'
+                    node_name = self.__node_no_index(cur_node)
                     while cur_node in self.rl_agent.G:
                         self.rl_agent.set_node_meta_data(
                             cur_node, 
                             'r', 
-                            self.rl_agent.get_node_meta_data(node, 'max_r') * r / counter.get(node, default=1))
+                            self.rl_agent.get_node_meta_data(node, 'max_r') * r / counter.get(node_name, default=1))
                         index +=1
                         cur_node = f'{a},{b},{index}'
 

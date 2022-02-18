@@ -1,4 +1,3 @@
-from telnetlib import GA
 from .QTable import QTable
 
 class QLearning(QTable):
