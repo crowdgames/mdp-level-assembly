@@ -72,6 +72,7 @@ def get_graph(BASE_DIR, transpose, link_name='links.json'):
 
     # build graph from json file
     graph = nx.DiGraph()
+    links = []
     for node, next_data in data.items():
         # reward range is [-1,1]
         a, b, _ = node.split(',')
@@ -101,10 +102,24 @@ def get_graph(BASE_DIR, transpose, link_name='links.json'):
                 graph.add_edge(node, next_node)
             else:
                 edge_node = f'{node}__{next_node}'
+                links.append(edge_node)
 
-                graph.add_node(edge_node, slices=edge_slices, r=0, max_r=0)
+                graph.add_node(edge_node, slices=edge_slices, r=0, max_r=0) # updated below
                 graph.add_edge(node, edge_node)
                 graph.add_edge(edge_node, next_node)
+
+    # edges are the mean reward of the two nodes that they connect
+    for e in links:
+        src, tgt = e.split('__')
+        src_a, src_b, _ =  src.split(',')
+        src_r = (float(src_a) / max_bc[0]) + (float(src_b) / max_bc[1])
+
+        tgt_a, tgt_b, _ =  tgt.split(',')
+        tgt_r = (float(tgt_a) / max_bc[0]) + (float(tgt_b) / max_bc[1])
+
+        mean = (src_r + tgt_r) / 2
+        graph.nodes[e]['r'] = mean
+        graph.nodes[e]['max_r'] = mean
 
     # get largest strongly connected version of the graph to remove deadends
     biggest_comp = None

@@ -16,6 +16,7 @@ class GreedyRelative:
                 best_r = r
                 best_n = neighbor
 
+        print(best_r)
         return best_n
 
     def weighted_neighbor(self, node):
@@ -24,7 +25,7 @@ class GreedyRelative:
 
         for neighbor in self.G.neighbors(node):
             n.append(neighbor)
-            w.append(self.G.nodes[neighbor]['r'])
+            w.append(self.G.nodes[neighbor]['r']+0.001)
 
         return choices(n, weights=w, k=1)[0]
 
@@ -38,4 +39,5 @@ class GreedyRelative:
         pass
 
     def get(self, node):
-        return self.best_neighbor(node)
+        return self.weighted_neighbor(node)
+        # return self.best_neighbor(node)

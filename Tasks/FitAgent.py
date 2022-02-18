@@ -1,3 +1,4 @@
+from email.policy import default
 from Utility import Counter
 
 class FitAgent:
@@ -43,7 +44,7 @@ class FitAgent:
         self.rl_agent.update([])
         counter = Counter()
 
-        for i in range(40):
+        for i in range(50):
             lvl = []
             size = 1
             lvl += self.rl_agent.get_node_meta_data(cur, 'slices')
@@ -74,11 +75,16 @@ class FitAgent:
             data.append(playthrough)
             reward_always_one = True
             for node, r in playthrough:
+                a = self.rl_agent.get_node_meta_data(node, 'max_r')
+                b = a * r
+                c = counter.get(node, default=1)
+                d = b / c
+                e = self.rl_agent.get_node_meta_data(node, 'max_r') * r / counter.get(node, default=1)
                 self.rl_agent.set_node_meta_data(
                     node, 
                     'r', 
                     self.rl_agent.get_node_meta_data(node, 'max_r') * r / counter.get(node, default=1))
-
+                
                 reward_always_one &= r==1.0
             
             if not reward_always_one:
