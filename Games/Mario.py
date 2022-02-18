@@ -96,9 +96,10 @@ def get_furthest_xy(lvl):
     lvl.append('X-------------')
     formatted_lvl = slices_to_rows(lvl, False)
 
-    START = (1, len(formatted_lvl)-2, -1)
-    GOAL = (len(formatted_lvl[0]) - 1, len(formatted_lvl)-2)
-    x, y = find_path(formatted_lvl, START, GOAL, JUMPS, SOLIDS, WRAPS)
+    START = (0, len(formatted_lvl)-2, -1)
+    heuristic = lambda pos: (len(lvl) - 1 - pos[0])**2
+
+    x, y = find_path(formatted_lvl, START, JUMPS, SOLIDS, WRAPS, heuristic)
     
     lvl.pop(0)
     lvl.pop(0)
