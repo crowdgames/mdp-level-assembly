@@ -40,7 +40,7 @@ rl_agent_group.add_argument('--all', action='store_true', help='Run every agent'
 
 parser.add_argument('--segments', type=int, help='Number of segments to fit together', required=True)
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
-parser.add_argument('--max-iter', type=int, default=10_000, help='Max # of iterations for Value Iteration')
+parser.add_argument('--max-iter', type=int, default=100, help='Max # of iterations for Value Iteration')
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
 parser.add_argument('--gamma', type=float, default=0.75, help='Discount factor for all RL algorithms')
 parser.add_argument('--empty-link', type=bool, default=True, help='Allow empty links')

@@ -1,3 +1,6 @@
 [submodule "GramElitesData"]
 	path = GramElitesData
 	url = https://github.com/bi3mer/GramElitesData.git
+[submodule "dungeongrams"]
+	path = dungeongrams
+	url = https://github.com/crowdgames/dungeongrams.git

@@ -58,7 +58,9 @@ def print_level(level, path=None, goals=None):
 
 def get_graph(BASE_DIR, transpose, allow_empty_link):
     # get json file that represents the graph
-    with open(join(BASE_DIR, f'links_{allow_empty_link}.json'), 'r') as f:
+    filename = join(BASE_DIR, f'links_{allow_empty_link}.json')
+    print(f'Loading links from: {filename}') 
+    with open(filename, 'r') as f:
         data = load_file(f)
 
     # find max behavioral characteristic values. Note: there is kind of a cheat
@@ -76,12 +78,11 @@ def get_graph(BASE_DIR, transpose, allow_empty_link):
     for node, next_data in data.items():
         # reward range is [-1,1]
         a, b, _ = node.split(',')
-        # r = (float(a) / max_bc[0]) + (float(b) / max_bc[1]) - 1.0
         r = (float(a) / max_bc[0]) + (float(b) / max_bc[1])
 
         node_filename = f'{join(BASE_DIR, "levels", node.replace(",", "_"))}.txt'
         with open(node_filename, 'rt') as infile:
-            lines = [_.strip() for _ in infile.readlines()]
+            lines = [l.strip() for l in infile.readlines()]
 
         slices = tuple(rows_to_slices(lines, transpose))
         graph.add_node(node, slices=slices, r=r, max_r=r)

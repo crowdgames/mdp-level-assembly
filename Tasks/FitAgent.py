@@ -67,7 +67,7 @@ class FitAgent:
                 lvl += segment
                 lengths.append(len(segment))
                 size += 1 * '__' not in cur # small optimization to remove branching
-
+            
             lengths[0] += self.config.PADDING_SIZE 
             lengths[-1] += self.config.PADDING_SIZE
 
@@ -78,8 +78,6 @@ class FitAgent:
                 y*len(lvl[0])+self.config.PADDING_SIZE*2, 
                 nodes, 
                 lengths)
-
-            # BUG? counter.add a,b not a,b,c ??
 
             data.append(playthrough)
             reward_always_one = True
@@ -104,24 +102,25 @@ class FitAgent:
 
                 reward_always_one &= r==1.0
             
-            if not reward_always_one:
-                from Utility import slices_to_rows
-                print()
-                print()
-                print(nodes)
-                print(playthrough)
-                for r in slices_to_rows(lvl, False):
-                    print(r)
+            # if not reward_always_one:
+            #     from Utility import slices_to_rows
+            #     print('Reward was not always one!')
+            #     print()
+            #     print()
+            #     print(nodes)
+            #     print(playthrough)
+            #     for r in slices_to_rows(lvl, False):
+            #         print(r)
 
-                print()
-                print()
-                for n in nodes:
-                    print(n)
-                    for r in slices_to_rows(self.rl_agent.get_node_meta_data(n, 'slices'), False):
-                        print(r)
-                    print()
-                import sys
-                sys.exit(-1)
+            #     print()
+            #     print()
+            #     for n in nodes:
+            #         print(n)
+            #         for s in self.rl_agent.get_node_meta_data(n, 'slices'):
+            #             print(s)
+            #         print()
+            #     import sys
+            #     sys.exit(-1)
 
             cur = self.rl_agent.weighted_neighbor(cur)
             counter.add(cur)
