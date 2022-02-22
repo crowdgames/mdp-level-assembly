@@ -1,6 +1,6 @@
 from Tasks import *
 from Games import *
-from Players import *
+from Players import PLAYERS
 from Tasks.FitPlayerPersona import FitPlayerPersona
 import Utility
 import Directors
