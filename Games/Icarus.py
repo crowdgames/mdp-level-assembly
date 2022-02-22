@@ -6,7 +6,7 @@ TRANSPOSE = True
 START_NODE = '0,2,0'
 PADDING_SIZE = 2
 NAME = 'icarus'
-
+MAX_BC = None
 
 SOLIDS = set()
 SOLIDS.add('#')

@@ -60,7 +60,7 @@ elif args.mario:
 elif args.icarus:
     config = Icarus
 
-graph = Utility.get_graph(config.BASE_DIR, config.TRANSPOSE, args.empty_link)
+graph = Utility.get_graph(config, args.empty_link)
 agents = []
 if args.sarsa or args.all:
     agents.append(Directors.SARSA(graph, args.gamma))

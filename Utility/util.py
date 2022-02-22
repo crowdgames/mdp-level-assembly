@@ -56,9 +56,9 @@ def print_level(level, path=None, goals=None):
                 sys.stdout.write(t)
         sys.stdout.write('\n')
 
-def get_graph(BASE_DIR, transpose, allow_empty_link):
+def get_graph(config, allow_empty_link):
     # get json file that represents the graph
-    filename = join(BASE_DIR, f'links_{allow_empty_link}.json')
+    filename = join(config.BASE_DIR, f'links_{allow_empty_link}.json')
     print(f'Loading links from: {filename}') 
     with open(filename, 'r') as f:
         data = load_file(f)
@@ -66,11 +66,13 @@ def get_graph(BASE_DIR, transpose, allow_empty_link):
     # find max behavioral characteristic values. Note: there is kind of a cheat
     # here since I know that only two behavioral characteristics are used for
     # each game.
-    max_bc = [0.0,0.0]
+    max_bc = [0,0]
     for key in data.keys():
         a, b, _ = key.split(',')
-        max_bc[0] = max(max_bc[0], float(a))
-        max_bc[1] = max(max_bc[1], float(b))
+        max_bc[0] = max(max_bc[0], int(a))
+        max_bc[1] = max(max_bc[1], int(b))
+
+    config.MAX_BC = max_bc
 
     # build graph from json file
     graph = nx.DiGraph()
@@ -80,11 +82,11 @@ def get_graph(BASE_DIR, transpose, allow_empty_link):
         a, b, _ = node.split(',')
         r = (float(a) / max_bc[0]) + (float(b) / max_bc[1])
 
-        node_filename = f'{join(BASE_DIR, "levels", node.replace(",", "_"))}.txt'
+        node_filename = f'{join(config.BASE_DIR, "levels", node.replace(",", "_"))}.txt'
         with open(node_filename, 'rt') as infile:
             lines = [l.strip() for l in infile.readlines()]
 
-        slices = tuple(rows_to_slices(lines, transpose))
+        slices = tuple(rows_to_slices(lines, config.TRANSPOSE))
         graph.add_node(node, slices=slices, r=r, max_r=r)
 
         for next_node, edge_data in next_data.items():

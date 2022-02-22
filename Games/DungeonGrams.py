@@ -7,6 +7,7 @@ TRANSPOSE = False
 START_NODE = '0,0,0'
 PADDING_SIZE = 2
 NAME = 'DungeonGram'
+MAX_BC = None
 
 BASE_DIR = join('.', 'GramElitesData', 'DungeonData', 'gram_elites')
 S = '0_0_0'
