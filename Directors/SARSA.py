@@ -11,7 +11,7 @@ class SARSA(QTable):
 
         n = playthrough[0][0]
         n_1 = playthrough[1][0]
-        for n_2, _, _ in playthrough[2:]:
+        for n_2, _, _, _ in playthrough[2:]:
             N = self.get_node_meta_data(n, 'N') + 1
             self.set_node_meta_data(n, 'N', N)
 

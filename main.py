@@ -1,5 +1,7 @@
 from Tasks import *
 from Games import *
+from Players import *
+from Tasks.FitPlayerPersona import FitPlayerPersona
 import Utility
 import Directors
 
@@ -11,7 +13,6 @@ from json import dump as json_dump
 import argparse
 import sys
 import os
-
 
 start = time()
 
@@ -25,7 +26,8 @@ game_group.add_argument('--mario', action='store_true', help='Run Mario')
 game_group.add_argument('--icarus', action='store_true', help='Run Icarus')
 
 task_group = parser.add_mutually_exclusive_group(required=True)
-task_group.add_argument('--fit-to-agent', action='store_true', help='Fit to an agent')
+task_group.add_argument('--fit-agent', action='store_true', help='Fit to an agent')
+task_group.add_argument('--fit-persona', action='store_true', help='Fit to a player persona')
 task_group.add_argument('--get-level', action='store_true', help='Generate a level with a graph trained with --fit-to-agent')
 
 rl_agent_group = parser.add_mutually_exclusive_group(required=True)
@@ -38,7 +40,7 @@ rl_agent_group.add_argument('--greedy-max', action='store_true', help='Greedily 
 rl_agent_group.add_argument('--greedy-relative', action='store_true', help='Greedily choose where to go based on the reward')
 rl_agent_group.add_argument('--all', action='store_true', help='Run every agent')
 
-parser.add_argument('--segments', type=int, help='Number of segments to fit together', required=True)
+parser.add_argument('--segments', type=int, default=3, help='Number of segments to fit together')
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
 parser.add_argument('--max-iter', type=int, default=100, help='Max # of iterations for Value Iteration')
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
@@ -78,7 +80,7 @@ if args.greedy_relative or args.all:
     agents.append(Directors.GreedyRelative(graph))
 
 # run task
-if args.fit_to_agent:
+if args.fit_agent:
     for rl_agent in agents:
         print(f'Running Director: {rl_agent.NAME}')
         seed(args.seed)
@@ -90,9 +92,26 @@ if args.fit_to_agent:
 
         with open(join(config.BASE_DIR, f'fitagent_playthrough_{config.NAME}_{rl_agent.NAME}.json'), 'w') as f:
             json_dump(data, f, indent=2)
+
         print()
         print()
-        
+
+elif args.fit_persona:
+    for rl_agent in agents:
+        for PLAYER_NAME, PLAYER_EVAL in PLAYERS.items():
+            print(f'Running Director: {rl_agent.NAME} for player {PLAYER_NAME}')
+            seed(args.seed)
+            task = FitPlayerPersona(rl_agent, config, args.segments, PLAYER_EVAL)
+            data = task.run()
+
+            with open(join(config.BASE_DIR, f'player_{PLAYER_NAME}_agent_{config.NAME}_{rl_agent.NAME}.pkl'), 'wb') as f:
+                pkl_dump(rl_agent, f)
+
+            with open(join(config.BASE_DIR, f'player_{PLAYER_NAME}_fit_playthrough_{config.NAME}_{rl_agent.NAME}.json'), 'w') as f:
+                json_dump(data, f, indent=2)
+            print()
+            print()
+
 elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')
 

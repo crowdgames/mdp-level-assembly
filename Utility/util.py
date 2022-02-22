@@ -80,14 +80,16 @@ def get_graph(config, allow_empty_link):
     for node, next_data in data.items():
         # reward range is [-1,1]
         a, b, _ = node.split(',')
-        r = (float(a) / max_bc[0]) + (float(b) / max_bc[1])
+        a = float(a) / max_bc[0]
+        b = float(b) / max_bc[1]
+        r = a + b
 
         node_filename = f'{join(config.BASE_DIR, "levels", node.replace(",", "_"))}.txt'
         with open(node_filename, 'rt') as infile:
             lines = [l.strip() for l in infile.readlines()]
 
         slices = tuple(rows_to_slices(lines, config.TRANSPOSE))
-        graph.add_node(node, slices=slices, r=r, max_r=r)
+        graph.add_node(node, slices=slices, r=r, max_r=r, bc=[a,b])
 
         for next_node, edge_data in next_data.items():
             edge_data_use = edge_data['tree search']
@@ -115,14 +117,20 @@ def get_graph(config, allow_empty_link):
     for e in links:
         src, tgt = e.split('__')
         src_a, src_b, _ =  src.split(',')
-        src_r = (float(src_a) / max_bc[0]) + (float(src_b) / max_bc[1])
+        src_a = float(src_a) / max_bc[0]
+        src_b = float(src_b) / max_bc[1]
 
         tgt_a, tgt_b, _ =  tgt.split(',')
-        tgt_r = (float(tgt_a) / max_bc[0]) + (float(tgt_b) / max_bc[1])
+        tgt_a = float(tgt_a) / max_bc[0]
+        tgt_b = float(tgt_b) / max_bc[1]
 
-        mean = (src_r + tgt_r) / 2
-        graph.nodes[e]['r'] = mean
-        graph.nodes[e]['max_r'] = mean
+        mean_a = (src_a + tgt_a)/2
+        mean_b = (src_b + tgt_b)/2
+
+        max_r = mean_a + mean_b
+        graph.nodes[e]['r'] = max_r
+        graph.nodes[e]['max_r'] = max_r
+        graph.nodes[e]['bc'] = [mean_a, mean_b]
 
     # get largest strongly connected version of the graph to remove deadends
     biggest_comp = None

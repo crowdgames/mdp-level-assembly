@@ -14,10 +14,10 @@ class FitAgent(BaseFit):
         for n, l in zip(nodes, lengths):
             new_x = x - l
             if new_x > 0:
-                playthrough.append([n, 1.0])
+                playthrough.append([n, 1.0, 0.0])
                 x = new_x
             else:
-                playthrough.append([n, x / l])
+                playthrough.append([n, x / l, 0.0])
                 break
 
         return playthrough
@@ -27,10 +27,10 @@ class FitAgent(BaseFit):
         for n, l in zip(nodes, lengths):
             new_y = y - l
             if y > 0:
-                playthrough.append([n, 1.0])
+                playthrough.append([n, 1.0, 0.0])
                 y = new_y
             else:
-                playthrough.append([n, y / l])
+                playthrough.append([n, y / l, 0.0])
                 break
 
         return playthrough

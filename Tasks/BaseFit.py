@@ -36,22 +36,24 @@ class BaseFit:
 
     def update_from_playthrough(self, playthrough):
         for entry in playthrough:
-            node, r = entry
+            node, designer_r, player_r = entry
             if '__' in node:
+                max_r = self.rl_agent.get_node_meta_data(node, 'max_r')
                 self.rl_agent.set_node_meta_data(
                     node, 
                     'r', 
-                    self.rl_agent.get_node_meta_data(node, 'max_r') * r / self.counter.get(node, default=1))
+                    player_r + max_r * designer_r / self.counter.get(node, default=1))
             else:
                 a, b, _ = node.split(',')
                 index = 0
                 cur_node = f'{a},{b},{index}'
                 node_name = self.__node_no_index(cur_node)
                 while cur_node in self.rl_agent.G:
+                    max_r = self.rl_agent.get_node_meta_data(node, 'max_r')
                     self.rl_agent.set_node_meta_data(
                         cur_node, 
                         'r', 
-                        self.rl_agent.get_node_meta_data(node, 'max_r') * r / self.counter.get(node_name, default=1))
+                        player_r + max_r * designer_r / self.counter.get(node_name, default=1))
                     index +=1
                     cur_node = f'{a},{b},{index}'
 
