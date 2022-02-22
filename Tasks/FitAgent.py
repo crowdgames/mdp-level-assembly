@@ -17,10 +17,10 @@ class FitAgent:
         for n, l in zip(nodes, lengths):
             new_x = x - l
             if new_x > 0:
-                playthrough.append((n, 1.0))
+                playthrough.append([n, 1.0])
                 x = new_x
             else:
-                playthrough.append((n, x / l))
+                playthrough.append([n, x / l])
                 break
 
         return playthrough
@@ -30,10 +30,10 @@ class FitAgent:
         for n, l in zip(nodes, lengths):
             new_y = y - l
             if y > 0:
-                playthrough.append((n, 1.0))
+                playthrough.append([n, 1.0])
                 y = new_y
             else:
-                playthrough.append((n, y / l))
+                playthrough.append([n, y / l])
                 break
 
         return playthrough
@@ -81,7 +81,8 @@ class FitAgent:
 
             data.append(playthrough)
             reward_always_one = True
-            for node, r in playthrough:
+            for entry in playthrough:
+                node, r = entry
                 if '__' in node:
                     self.rl_agent.set_node_meta_data(
                         node, 
@@ -100,6 +101,7 @@ class FitAgent:
                         index +=1
                         cur_node = f'{a},{b},{index}'
 
+                entry.append(self.rl_agent.get_node_meta_data(node, 'r'))
                 reward_always_one &= r==1.0
             
             # if not reward_always_one:

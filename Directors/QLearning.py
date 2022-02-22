@@ -10,7 +10,7 @@ class QLearning(QTable):
             return
             
         n = playthrough[0][0]
-        for n_1, _ in playthrough[1:]:
+        for n_1, _, _ in playthrough[1:]:
             N = self.get_node_meta_data(n, 'N') + 1
             self.set_node_meta_data(n, 'N', N)
 

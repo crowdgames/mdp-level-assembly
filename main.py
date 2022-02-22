@@ -80,7 +80,7 @@ if args.greedy_relative or args.all:
 # run task
 if args.fit_to_agent:
     for rl_agent in agents:
-        print(f'Running agent: {rl_agent.NAME}')
+        print(f'Running Director: {rl_agent.NAME}')
         seed(args.seed)
         task = FitAgent(rl_agent, config, args.segments)
         data = task.run()
