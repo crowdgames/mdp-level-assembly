@@ -10,6 +10,7 @@ from random import seed
 from time import time
 from pickle import dump as pkl_dump
 from json import dump as json_dump
+from tqdm import trange
 import argparse
 import sys
 import os
@@ -46,6 +47,9 @@ parser.add_argument('--max-iter', type=int, default=100, help='Max # of iteratio
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
 parser.add_argument('--gamma', type=float, default=0.75, help='Discount factor for all RL algorithms')
 parser.add_argument('--empty-link', type=bool, default=True, help='Allow empty links')
+parser.add_argument('--runs', type=int, default=100, help='Number of runs for a person when --fit-person is used')
+parser.add_argument('--playthroughs', type=int, default=50, help='Number of levels played per director')
+
 
 args = parser.parse_args()
 
@@ -84,7 +88,7 @@ if args.fit_agent:
     for rl_agent in agents:
         print(f'Running Director: {rl_agent.NAME}')
         seed(args.seed)
-        task = FitAgent(rl_agent, config, args.segments)
+        task = FitAgent(rl_agent, config, args.segments, args.playthroughs)
         data = task.run()
 
         with open(join(config.BASE_DIR, f'agent_{config.NAME}_{rl_agent.NAME}.pkl'), 'wb') as f:
@@ -98,19 +102,17 @@ if args.fit_agent:
 
 elif args.fit_persona:
     for rl_agent in agents:
+        seed(args.seed)
         for PLAYER_NAME, PLAYER_EVAL in PLAYERS.items():
             print(f'Running Director: {rl_agent.NAME} for player {PLAYER_NAME}')
-            seed(args.seed)
-            task = FitPlayerPersona(rl_agent, config, args.segments, PLAYER_EVAL)
-            data = task.run()
-
-            with open(join(config.BASE_DIR, f'player_{PLAYER_NAME}_agent_{config.NAME}_{rl_agent.NAME}.pkl'), 'wb') as f:
-                pkl_dump(rl_agent, f)
+            data = []
+            for i in trange(args.runs):
+                seed(args.seed+i)
+                task = FitPlayerPersona(rl_agent, config, args.segments, args.playthroughs, PLAYER_EVAL)
+                data.append(task.run())
 
             with open(join(config.BASE_DIR, f'player_{PLAYER_NAME}_fit_playthrough_{config.NAME}_{rl_agent.NAME}.json'), 'w') as f:
                 json_dump(data, f, indent=2)
-            print()
-            print()
 
 elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')

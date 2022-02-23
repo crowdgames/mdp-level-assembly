@@ -8,5 +8,6 @@ python_version = "3.8"
 
 [packages]
 networkx = "*"
+tqdm = "*"
 
 [dev-packages]

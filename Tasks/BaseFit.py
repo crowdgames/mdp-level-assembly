@@ -1,10 +1,11 @@
 from Utility import Counter
 
 class BaseFit:
-    def __init__(self, rl_agent, config, segments):
+    def __init__(self, rl_agent, config, segments, playthroughs):
         self.rl_agent = rl_agent
         self.config = config
         self.segments = segments
+        self.playthroughs = playthroughs
         self.counter = Counter()
 
     def __node_no_index(self, node):

@@ -1,8 +1,8 @@
 from .BaseFit import BaseFit
 
 class FitAgent(BaseFit):
-    def __init__(self, rl_agent, config, segments):
-        super().__init__(rl_agent, config, segments)
+    def __init__(self, rl_agent, config, segments, playthroughs):
+        super().__init__(rl_agent, config, segments, playthroughs)
 
         if config.WRAPS:
             self.get_playthrough = self.__playthrough_on_y
@@ -40,7 +40,7 @@ class FitAgent(BaseFit):
         data = []
         self.rl_agent.update([])
 
-        for i in range(50):
+        for i in range(self.playthroughs):
             lvl, nodes, lengths = self.get_level(cur)
             cur = nodes[-1]
 
