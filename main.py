@@ -41,12 +41,15 @@ rl_agent_group.add_argument('--greedy-max', action='store_true', help='Greedily 
 rl_agent_group.add_argument('--greedy-relative', action='store_true', help='Greedily choose where to go based on the reward')
 rl_agent_group.add_argument('--all', action='store_true', help='Run every agent')
 
+empty_link_group = parser.add_mutually_exclusive_group(required=True)
+empty_link_group.add_argument('--allow-empty-link', action='store_true', help='Allow links to be empty')
+empty_link_group.add_argument('--no-empty-link', action='store_true', help='Allow links to be empty')
+
 parser.add_argument('--segments', type=int, default=3, help='Number of segments to fit together')
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
 parser.add_argument('--max-iter', type=int, default=100, help='Max # of iterations for Value Iteration')
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
 parser.add_argument('--gamma', type=float, default=0.75, help='Discount factor for all RL algorithms')
-parser.add_argument('--empty-link', type=bool, default=True, help='Allow empty links')
 parser.add_argument('--runs', type=int, default=100, help='Number of runs for a person when --fit-person is used')
 parser.add_argument('--playthroughs', type=int, default=50, help='Number of levels played per director')
 
@@ -66,7 +69,12 @@ elif args.mario:
 elif args.icarus:
     config = Icarus
 
-graph = Utility.get_graph(config, args.empty_link)
+if args.allow_empty_link:
+    allow_empty_link = True
+else:
+    allow_empty_link = False
+
+graph = Utility.get_graph(config, allow_empty_link)
 agents = []
 if args.sarsa or args.all:
     agents.append(Directors.SARSA(graph, args.gamma))
