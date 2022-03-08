@@ -14,7 +14,7 @@ class FitPlayerPersona(BaseFit):
             _, nodes, __ = self.get_level(cur)
             cur = nodes[-1]
 
-            playthrough = self.player_persona(nodes, self.rl_agent)
+            playthrough = self.player_persona(nodes, self.rl_agent, sum(self.config.MAX_BC))
             data.append(playthrough)
             self.update_from_playthrough(playthrough) # reward added to playthrough here
             

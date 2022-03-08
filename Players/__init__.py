@@ -1,4 +1,4 @@
-from random import random, uniform, choices
+from random import random, uniform
 
 '''
 All these functions return an array the size of the nodes array.
@@ -10,78 +10,106 @@ All these functions return an array the size of the nodes array.
 ]
 '''
 
-def bad_player_likes_hard_levels(nodes, director):
+def bad_player_likes_hard_levels(nodes, director, MAX_BC):
     playthrough = []
     for n in nodes:
         cur_bc = sum(director.get_node_meta_data(n, 'bc'))
-        if cur_bc < 0.5:
-            # player beat the level but did not enjoy it
-            playthrough.append([n, 1.0, 0.0]) 
-        elif cur_bc < 0.75:
-            # player beat the level, and kind of enjoyed it
-            playthrough.append([n, 1.0, 0.1])
-        elif random() > cur_bc / 2:
-            # player beat the level, and enjoyed it relative to its difficulty
-            playthrough.append([n, 1.0, cur_bc / 2])
+        agent_r = cur_bc / MAX_BC
+        if cur_bc < MAX_BC*0.3 or random() > cur_bc/ MAX_BC:
+            playthrough.append([n, 1.0, agent_r])
         else:
-            # player did not beat the whole level, but really enjoyed it
-            playthrough.append([n, uniform(0.1, 0.9), 1.0])
+            playthrough.append([n, uniform(0.1, 0.9), agent_r])
             break
 
     return playthrough
 
-def bad_player_likes_easy_levels(nodes, director):
+def bad_player_likes_easy_levels(nodes, director, MAX_BC):
     playthrough = []
     for n in nodes:
         cur_bc = sum(director.get_node_meta_data(n, 'bc'))
-        if cur_bc < 0.1:
-            # player beat the level but did not enjoy it
-            playthrough.append([n, 1.0, 1.0]) 
-        elif cur_bc < 0.5:
-            # player beat the level, and kind of enjoyed it
-            playthrough.append([n, 1.0, uniform(0.7, 0.9)])
+        agent_r = (MAX_BC - cur_bc) / MAX_BC
+        if cur_bc < MAX_BC*0.3 or random() > cur_bc / MAX_BC:
+            playthrough.append([n, 1.0, agent_r]) 
         else:
-            # player did not beat the whole level, but really enjoyed it
-            playthrough.append([n, uniform(0.1, 0.3), uniform(0.01, 0.2)])
+            playthrough.append([n, uniform(0.1, 0.3), agent_r])
             break
 
     return playthrough
 
-def good_player_likes_easy_levels(nodes, director):
+def good_player_likes_easy_levels(nodes, director, MAX_BC):
     playthrough = []
     for n in nodes:
         cur_bc = sum(director.get_node_meta_data(n, 'bc'))
-        if cur_bc < 0.1:
-            # player beat the level but did not enjoy it
-            playthrough.append([n, 1.0, 1.0]) 
-        elif cur_bc < 0.5:
-            # player beat the level, and kind of enjoyed it
-            playthrough.append([n, 1.0, uniform(0.7, 0.9)])
+        agent_r = (MAX_BC - cur_bc) / MAX_BC
+        
+        if cur_bc < MAX_BC*0.7 or random() > cur_bc / MAX_BC:
+            playthrough.append([n, 1.0, agent_r]) 
         else:
-            # player did not beat the whole level, but really enjoyed it
-            playthrough.append([n, choices([1.9, uniform(0.6, 0.95)], weights=[0.9, 0.1])[0], uniform(0.01, 0.2)])
+            playthrough.append([n, uniform(0.1, 0.8), agent_r])
             break
 
     return playthrough
 
-def mediocre_player_likes_high_a(nodes, director):
-    raise NotImplementedError()
+def mediocre_player_likes_high_a(nodes, director, MAX_BC):
+    playthrough = []
+    for n in nodes:
+        a, b = director.get_node_meta_data(n, 'bc')
+        cur_bc = a + b
+        if cur_bc < MAX_BC * 0.5 or random() > cur_bc / MAX_BC:
+            playthrough.append([n, 1.0, a]) 
+        else:
+            playthrough.append([n, uniform(0.5, 1.0), a])
+            break
 
-def mediocre_player_likes_high_b(nodes, director):
-    raise NotImplementedError()
+    return playthrough
 
-def mediocre_player_likes_hard_levels(nodes, director):
-    raise NotImplementedError()
+def mediocre_player_likes_high_b(nodes, director, MAX_BC):
+    playthrough = []
+    for n in nodes:
+        a, b = director.get_node_meta_data(n, 'bc')
+        cur_bc = a + b
+        if cur_bc < MAX_BC*0.4 or random() > cur_bc / MAX_BC:
+            playthrough.append([n, 1.0, b]) 
+        else:
+            playthrough.append([n, uniform(0.5, 1.0), b])
+            break
 
-def mediocre_player_likes_easy_levels(nodes, direcotr):
-    raise NotImplementedError()
+    return playthrough
+
+def mediocre_player_likes_hard_levels(nodes, director, MAX_BC):
+    playthrough = []
+    for n in nodes:
+        cur_bc = sum(director.get_node_meta_data(n, 'bc'))
+        agent_r = cur_bc / MAX_BC
+
+        if cur_bc < MAX_BC*0.4 or random() > cur_bc / MAX_BC:
+            playthrough.append([n, 1.0, agent_r]) 
+        else:
+            playthrough.append([n, uniform(0.5, 1.0), agent_r])
+            break
+
+    return playthrough
+
+def mediocre_player_likes_easy_levels(nodes, director, MAX_BC):
+    playthrough = []
+    for n in nodes:
+        cur_bc = sum(director.get_node_meta_data(n, 'bc'))
+        agent_r = (MAX_BC - cur_bc) / MAX_BC
+
+        if cur_bc < MAX_BC*0.4 or random() > cur_bc / MAX_BC:
+            playthrough.append([n, 1.0, agent_r]) 
+        else:
+            playthrough.append([n, uniform(0.5, 1.0), agent_r])
+            break
+
+    return playthrough
 
 PLAYERS = {
     'Bad Player Likes Hard Levels': bad_player_likes_hard_levels,
     'Bad Player Likes Easy Levels': bad_player_likes_easy_levels,
     'Good Player Likes Easy Levels': good_player_likes_easy_levels,
-    # 'Mediocre Player Likes High A': mediocre_player_likes_high_a,
-    # 'Mediocre Player Likes High B': mediocre_player_likes_high_b,
-    # 'Mediocre Player likes Hard Levels': mediocre_player_likes_hard_levels,
-    # 'Mediocre Player Likes Easy Levels': mediocre_player_likes_easy_levels
+    'Mediocre Player Likes High A': mediocre_player_likes_high_a,
+    'Mediocre Player Likes High B': mediocre_player_likes_high_b,
+    'Mediocre Player likes Hard Levels': mediocre_player_likes_hard_levels,
+    'Mediocre Player Likes Easy Levels': mediocre_player_likes_easy_levels
 }

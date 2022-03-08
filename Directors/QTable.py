@@ -43,8 +43,6 @@ class QTable:
 
         return choices(nodes, weights=weights, k=1)[0]
 
-    # TODO: just player reward without designer, just designer, and just 50/50 of both
-
     def get_node_meta_data(self, node, field_name):
         return self.G.nodes[node][field_name]
 
