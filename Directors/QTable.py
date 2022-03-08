@@ -1,5 +1,5 @@
 from random import choices
-from math import inf
+from math import inf, exp
 
 class QTable:
     def __init__(self, graph, gamma):
@@ -33,6 +33,17 @@ class QTable:
             weights.append(self.G.edges[e]['Q'])
 
         return choices(nodes, weights=weights, k=1)[0]
+
+    def softmax_neighbor(self, n):
+        nodes = []
+        weights = []
+        for e in self.G.out_edges(n):
+            nodes.append(e[1])
+            weights.append(exp(self.G.edges[e]['Q']))
+
+        return choices(nodes, weights=weights, k=1)[0]
+
+    # TODO: just player reward without designer, just designer, and just 50/50 of both
 
     def get_node_meta_data(self, node, field_name):
         return self.G.nodes[node][field_name]

@@ -36,14 +36,18 @@ class BaseFit:
         return lvl, nodes, lengths
 
     def update_from_playthrough(self, playthrough):
+        '''
+        This updates the rewards in the graph and the reward post the
+        playthrough is added to each playthrough entry
+        '''
         for entry in playthrough:
-            node, designer_r, player_r = entry
+            node, compleatability, player_r = entry
             if '__' in node:
                 max_r = self.rl_agent.get_node_meta_data(node, 'max_r')
                 self.rl_agent.set_node_meta_data(
                     node, 
                     'r', 
-                    player_r + max_r * designer_r / self.counter.get(node, default=1))
+                    player_r + max_r * compleatability / self.counter.get(node, default=1))
             else:
                 a, b, _ = node.split(',')
                 index = 0
@@ -54,8 +58,9 @@ class BaseFit:
                     self.rl_agent.set_node_meta_data(
                         cur_node, 
                         'r', 
-                        player_r + max_r * designer_r / self.counter.get(node_name, default=1))
+                        player_r + max_r * compleatability / self.counter.get(node_name, default=1))
                     index +=1
                     cur_node = f'{a},{b},{index}'
 
+            # add reward to playthrough entry
             entry.append(self.rl_agent.get_node_meta_data(node, 'r'))

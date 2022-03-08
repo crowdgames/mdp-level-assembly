@@ -10,7 +10,8 @@ class QLearning(QTable):
             return
             
         n = playthrough[0][0]
-        for n_1, _, _, _ in playthrough[1:]:
+        for entry_1 in playthrough[1:]:
+            n_1 = entry_1[0]
             N = self.get_node_meta_data(n, 'N') + 1
             self.set_node_meta_data(n, 'N', N)
 
@@ -25,4 +26,4 @@ class QLearning(QTable):
             n = n_1
 
     def get(self, node):
-        return self.weighted_neighbor(node)
+        return self.softmax_neighbor(node)

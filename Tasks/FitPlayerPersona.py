@@ -10,13 +10,13 @@ class FitPlayerPersona(BaseFit):
         data = []
         self.rl_agent.update([])
 
-        for i in range(self.playthroughs):
+        for _ in range(self.playthroughs):
             _, nodes, __ = self.get_level(cur)
             cur = nodes[-1]
 
             playthrough = self.player_persona(nodes, self.rl_agent)
             data.append(playthrough)
-            self.update_from_playthrough(playthrough)
+            self.update_from_playthrough(playthrough) # reward added to playthrough here
             
             cur = self.rl_agent.weighted_neighbor(cur)
             self.counter.add(cur)

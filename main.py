@@ -45,6 +45,11 @@ empty_link_group = parser.add_mutually_exclusive_group(required=True)
 empty_link_group.add_argument('--allow-empty-link', action='store_true', help='Allow links to be empty')
 empty_link_group.add_argument('--no-empty-link', action='store_true', help='Allow links to be empty')
 
+reward_group = parser.add_mutually_exclusive_group(required=True)
+reward_group.add_argument('--r-player', action='store_true', help='reward based on player only.')
+reward_group.add_argument('--r-designer', action='store_true', help='reward based on designer only.')
+reward_group.add_argument('--r-both', action='store_true', help='reward based on both designer and player only.')
+
 parser.add_argument('--segments', type=int, default=3, help='Number of segments to fit together')
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
 parser.add_argument('--max-iter', type=int, default=100, help='Max # of iterations for Value Iteration')
@@ -59,11 +64,11 @@ args = parser.parse_args()
 # Get Game 
 if args.dungeongram:
     config = DungeonGrams
-    assert 'Dungeon Grams is not yet supported'
+    raise NotImplementedError('Dungeon Grams is not yet supported')
 elif args.dungeongram_food:
     config = DungeonGrams
-    assert 'Dungeon Grams is not yet supported'
-    assert 'No support for dungeongrams with food linkers yet'
+    raise NotImplementedError('Dungeon Grams is not yet supported')
+    raise NotImplementedError('No support for dungeongrams with food linkers yet')
 elif args.mario:
     config = Mario
 elif args.icarus:
@@ -76,17 +81,17 @@ else:
 
 graph = Utility.get_graph(config, allow_empty_link)
 agents = []
-if args.sarsa or args.all:
+if args.sarsa:
     agents.append(Directors.SARSA(graph, args.gamma))
 if args.q or args.all:
     agents.append(Directors.QLearning(graph, args.gamma))
 if args.policy or args.all:
     agents.append(Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma))
-if args.value or args.all:
+if args.value:
     agents.append(Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta))
 if args.random or args.all:
     agents.append(Directors.Random(graph))
-if args.greedy_max or args.all:
+if args.greedy_max:
     agents.append(Directors.GreedyMax(graph))
 if args.greedy_relative or args.all:
     agents.append(Directors.GreedyRelative(graph))
