@@ -1,4 +1,5 @@
 from .BaseFit import BaseFit
+from tqdm import trange
 
 class FitPlayerPersona(BaseFit):
     def __init__(self, rl_agent, config, segments, playthroughs, player_persona):
@@ -10,7 +11,7 @@ class FitPlayerPersona(BaseFit):
         data = []
         self.rl_agent.update([])
 
-        for _ in range(self.playthroughs):
+        for _ in trange(self.playthroughs, leave=False):
             _, nodes, __ = self.get_level(cur)
             cur = nodes[-1]
 

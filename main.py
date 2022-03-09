@@ -10,7 +10,7 @@ from random import seed
 from time import time
 from pickle import dump as pkl_dump
 from json import dump as json_dump
-from tqdm import trange
+from tqdm import tqdm, trange
 import argparse
 import sys
 import os
@@ -22,7 +22,6 @@ parser.add_argument('--seed', type=int, default=0, help='Set seed for generation
 
 game_group = parser.add_mutually_exclusive_group(required=True)
 game_group.add_argument('--dungeongram', action='store_true', help='Run DungeonGrams')
-game_group.add_argument('--dungeongram-food', action='store_true', help='Run DungeonGrams with required food linkers')
 game_group.add_argument('--mario', action='store_true', help='Run Mario')
 game_group.add_argument('--icarus', action='store_true', help='Run Icarus')
 
@@ -56,7 +55,7 @@ parser.add_argument('--max-iter', type=int, default=100, help='Max # of iteratio
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
 parser.add_argument('--gamma', type=float, default=0.75, help='Discount factor for all RL algorithms')
 parser.add_argument('--runs', type=int, default=100, help='Number of runs for a person when --fit-person is used')
-parser.add_argument('--playthroughs', type=int, default=50, help='Number of levels played per director')
+parser.add_argument('--playthroughs', type=int, default=20, help='Number of levels played per director')
 
 
 args = parser.parse_args()
@@ -64,11 +63,6 @@ args = parser.parse_args()
 # Get Game 
 if args.dungeongram:
     config = DungeonGrams
-    raise NotImplementedError('Dungeon Grams is not yet supported')
-elif args.dungeongram_food:
-    config = DungeonGrams
-    raise NotImplementedError('Dungeon Grams is not yet supported')
-    raise NotImplementedError('No support for dungeongrams with food linkers yet')
 elif args.mario:
     config = Mario
 elif args.icarus:
@@ -104,28 +98,32 @@ if args.fit_agent:
         task = FitAgent(rl_agent, config, args.segments, args.playthroughs)
         data = task.run()
 
-        with open(join(config.BASE_DIR, f'agent_{config.NAME}_{rl_agent.NAME}.pkl'), 'wb') as f:
+        with open(join(config.BASE_DIR, f'agent_{config.NAME}_{rl_agent.NAME}_{allow_empty_link}.pkl'), 'wb') as f:
             pkl_dump(rl_agent, f)
 
-        with open(join(config.BASE_DIR, f'fitagent_playthrough_{config.NAME}_{rl_agent.NAME}.json'), 'w') as f:
+        with open(join(config.BASE_DIR, f'fitagent_playthrough_{config.NAME}_{rl_agent.NAME}_{allow_empty_link}.json'), 'w') as f:
             json_dump(data, f, indent=2)
 
         print()
         print()
 
 elif args.fit_persona:
+    to_run = []
     for rl_agent in agents:
-        seed(args.seed)
-        for PLAYER_NAME, PLAYER_EVAL in PLAYERS.items():
-            print(f'Running Director: {rl_agent.NAME} for player {PLAYER_NAME}')
-            data = []
-            for i in trange(args.runs):
-                seed(args.seed+i)
-                task = FitPlayerPersona(rl_agent, config, args.segments, args.playthroughs, PLAYER_EVAL)
-                data.append(task.run())
+        for p_name, p_eval in PLAYERS.items():
+            to_run.append((rl_agent, p_name, p_eval))
 
-            with open(join(config.BASE_DIR, f'player_{PLAYER_NAME}_fit_playthrough_{config.NAME}_{rl_agent.NAME}.json'), 'w') as f:
-                json_dump(data, f, indent=2)
+    progress_bar = tqdm(to_run, leave=False)
+    for rl_agent, p_name, p_eval in progress_bar:
+        progress_bar.set_description(f'{rl_agent.NAME} :: {p_name} :: {config.NAME}')
+        data = []
+        for i in trange(args.runs, leave=False):
+            seed(args.seed+i)
+            task = FitPlayerPersona(rl_agent, config, args.segments, args.playthroughs, p_eval)
+            data.append(task.run())
+
+        with open(join(config.BASE_DIR, f'player_{p_name}_fit_playthrough_{config.NAME}_{rl_agent.NAME}_{allow_empty_link}.json'), 'w') as f:
+            json_dump(data, f, indent=2)
 
 elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')
@@ -138,3 +136,4 @@ print("{:0>2}:{:0>2}:{:05.2f}".format(int(hours),int(minutes),seconds))
 
 # mac only
 os.popen('say "Done!"')
+print('Done!')

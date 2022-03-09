@@ -1,6 +1,6 @@
 from math import inf
-from operator import ne
 from random import choices
+from math import exp
 
 class MDP:
     def __init__(self, graph):
@@ -32,6 +32,16 @@ class MDP:
         offset = min(w) 
         if offset < 0:
             w = [a-offset+0.1 for a in w]
+
+        return choices(n, weights=w, k=1)[0]
+
+    def softmax_neighbor(self, node):
+        n = []
+        w = []
+
+        for neighbor in self.G.neighbors(node):
+            n.append(neighbor)
+            w.append(exp(self.G.nodes[neighbor]['U']))
 
         return choices(n, weights=w, k=1)[0]
 

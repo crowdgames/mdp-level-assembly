@@ -66,12 +66,22 @@ def get_graph(config, allow_empty_link):
     # find max behavioral characteristic values. Note: there is kind of a cheat
     # here since I know that only two behavioral characteristics are used for
     # each game.
+    dist = 1000
     max_bc = [0,0]
     for key in data.keys():
-        a, b, _ = key.split(',')
-        max_bc[0] = max(max_bc[0], int(a))
-        max_bc[1] = max(max_bc[1], int(b))
+        a, b, c = key.split(',')
+        a = int(a)
+        b = int(b)
+        c = int (c)
 
+        max_bc[0] = max(max_bc[0], a)
+        max_bc[1] = max(max_bc[1], b)
+
+        new_dist = a + b + c
+        if new_dist < dist:
+            dist = new_dist
+            config.START_NODE = key
+    
     config.MAX_BC = max_bc
 
     # build graph from json file

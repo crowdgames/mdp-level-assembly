@@ -58,7 +58,7 @@ def mediocre_player_likes_high_a(nodes, director, MAX_BC):
         if cur_bc < MAX_BC * 0.5 or random() > cur_bc / MAX_BC:
             playthrough.append([n, 1.0, a]) 
         else:
-            playthrough.append([n, uniform(0.5, 1.0), a])
+            playthrough.append([n, uniform(0.5, 0.6), a])
             break
 
     return playthrough
@@ -71,7 +71,7 @@ def mediocre_player_likes_high_b(nodes, director, MAX_BC):
         if cur_bc < MAX_BC*0.4 or random() > cur_bc / MAX_BC:
             playthrough.append([n, 1.0, b]) 
         else:
-            playthrough.append([n, uniform(0.5, 1.0), b])
+            playthrough.append([n, uniform(0.5, 0.6), b])
             break
 
     return playthrough
@@ -85,7 +85,7 @@ def mediocre_player_likes_hard_levels(nodes, director, MAX_BC):
         if cur_bc < MAX_BC*0.4 or random() > cur_bc / MAX_BC:
             playthrough.append([n, 1.0, agent_r]) 
         else:
-            playthrough.append([n, uniform(0.5, 1.0), agent_r])
+            playthrough.append([n, uniform(0.5, 0.6), agent_r])
             break
 
     return playthrough
@@ -99,17 +99,17 @@ def mediocre_player_likes_easy_levels(nodes, director, MAX_BC):
         if cur_bc < MAX_BC*0.4 or random() > cur_bc / MAX_BC:
             playthrough.append([n, 1.0, agent_r]) 
         else:
-            playthrough.append([n, uniform(0.5, 1.0), agent_r])
+            playthrough.append([n, uniform(0.5, 0.6), agent_r])
             break
 
     return playthrough
 
 PLAYERS = {
-    'Bad Player Likes Hard Levels': bad_player_likes_hard_levels,
-    'Bad Player Likes Easy Levels': bad_player_likes_easy_levels,
-    'Good Player Likes Easy Levels': good_player_likes_easy_levels,
-    'Mediocre Player Likes High A': mediocre_player_likes_high_a,
-    'Mediocre Player Likes High B': mediocre_player_likes_high_b,
-    'Mediocre Player likes Hard Levels': mediocre_player_likes_hard_levels,
+    # 'Bad Player Likes Hard Levels': bad_player_likes_hard_levels,
+    # 'Bad Player Likes Easy Levels': bad_player_likes_easy_levels,
+    # 'Good Player Likes Easy Levels': good_player_likes_easy_levels,
+    # 'Mediocre Player Likes High A': mediocre_player_likes_high_a,
+    # 'Mediocre Player Likes High B': mediocre_player_likes_high_b,
+    # 'Mediocre Player likes Hard Levels': mediocre_player_likes_hard_levels,
     'Mediocre Player Likes Easy Levels': mediocre_player_likes_easy_levels
 }
