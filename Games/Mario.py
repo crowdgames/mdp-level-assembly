@@ -8,6 +8,7 @@ START_NODE = '0,0,0'
 PADDING_SIZE = 2
 NAME = 'mario'
 MAX_BC = None
+NUM_BC = 2
 
 # view smb.json in TheVGLC
 SOLIDS = set()

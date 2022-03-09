@@ -42,25 +42,37 @@ class BaseFit:
         '''
         for entry in playthrough:
             node, compleatability, player_r = entry
+
+            # add design reward and total reward to playthrough for future
+            # analysis. Not strictly necessary but it's a better life.
+            entry.append(self.rl_agent.get_node_meta_data(node, 'design_r'))
+            entry.append(entry[-1] + player_r)
+
+            # update node meta data for future rewards
             if '__' in node:
+                # for a link node we update only that node
                 max_r = self.rl_agent.get_node_meta_data(node, 'max_r')
-                self.rl_agent.set_node_meta_data(
-                    node, 
-                    'r', 
-                    player_r + max_r * compleatability / self.counter.get(node, default=1))
+                design_r = max_r * compleatability / self.counter.get(node, default=1)
+
+                self.rl_agent.set_node_meta_data(node, 'r', player_r + design_r)
+                self.rl_agent.set_node_meta_data(node, 'design_r', design_r)
             else:
+                # for regular nodes we update it and all of its associated nodes by 
+                # looping through possible indexes till one that does not exist is
+                # found. This makes it so the player is less likely to see levels
+                # that are like what they have already played.
                 a, b, _ = node.split(',')
                 index = 0
                 cur_node = f'{a},{b},{index}'
                 node_name = self.__node_no_index(cur_node)
                 while cur_node in self.rl_agent.G:
                     max_r = self.rl_agent.get_node_meta_data(node, 'max_r')
-                    self.rl_agent.set_node_meta_data(
-                        cur_node, 
-                        'r', 
-                        player_r + max_r * compleatability / self.counter.get(node_name, default=1))
+                    design_r = max_r * compleatability / self.counter.get(node_name, default=1)
+
+                    self.rl_agent.set_node_meta_data(cur_node, 'r', player_r + design_r)
+                    self.rl_agent.set_node_meta_data(cur_node, 'design_r', design_r)
+                    
                     index +=1
                     cur_node = f'{a},{b},{index}'
 
-            # add reward to playthrough entry
-            entry.append(self.rl_agent.get_node_meta_data(node, 'r'))
+           

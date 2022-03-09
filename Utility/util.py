@@ -81,9 +81,9 @@ def get_graph(config, allow_empty_link):
         if new_dist < dist:
             dist = new_dist
             config.START_NODE = key
-    
-    config.MAX_BC = max_bc
 
+    config.MAX_BC = max_bc
+    
     # build graph from json file
     graph = nx.DiGraph()
     links = []
@@ -99,7 +99,7 @@ def get_graph(config, allow_empty_link):
             lines = [l.strip() for l in infile.readlines()]
 
         slices = tuple(rows_to_slices(lines, config.TRANSPOSE))
-        graph.add_node(node, slices=slices, r=r, max_r=r, bc=[a,b])
+        graph.add_node(node, slices=slices, r=r, design_r=r, max_r=r, bc=[a,b])
 
         for next_node, edge_data in next_data.items():
             edge_data_use = edge_data['tree search']
@@ -119,7 +119,7 @@ def get_graph(config, allow_empty_link):
                 edge_node = f'{node}__{next_node}'
                 links.append(edge_node)
 
-                graph.add_node(edge_node, slices=edge_slices, r=0, max_r=0) # updated below
+                graph.add_node(edge_node, slices=edge_slices, r=0, design_r=0, max_r=0) # updated below
                 graph.add_edge(node, edge_node)
                 graph.add_edge(edge_node, next_node)
 
@@ -139,6 +139,7 @@ def get_graph(config, allow_empty_link):
 
         max_r = mean_a + mean_b
         graph.nodes[e]['r'] = max_r
+        graph.nodes[e]['design_r'] = max_r
         graph.nodes[e]['max_r'] = max_r
         graph.nodes[e]['bc'] = [mean_a, mean_b]
 
