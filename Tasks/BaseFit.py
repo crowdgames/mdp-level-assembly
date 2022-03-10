@@ -36,6 +36,18 @@ class BaseFit:
 
         return lvl, nodes, lengths
 
+    def get_level_nodes(self, node):
+        nodes = [node]
+        size = 1
+
+        while size < self.segments:
+            node = self.rl_agent.get(node)
+            self.counter.add(self.__node_no_index(node))
+            nodes.append(node)
+            size += 1 * '__' not in node # small optimization to remove branching
+
+        return nodes
+
     def update_from_playthrough(self, playthrough):
         '''
         This updates the rewards in the graph and the reward post the

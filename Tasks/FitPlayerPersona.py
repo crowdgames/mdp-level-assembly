@@ -14,7 +14,7 @@ class FitPlayerPersona(BaseFit):
 
         for _ in trange(self.playthroughs, leave=False):
             # build the level and let the player play through it
-            _, nodes, __ = self.get_level(cur)
+            nodes = self.get_level_nodes(cur)
             playthrough = self.player_persona(nodes, self.rl_agent, self.config.NUM_BC)
             self.update_from_playthrough(playthrough) # reward added to playthrough here
             
