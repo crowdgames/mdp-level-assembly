@@ -1,4 +1,5 @@
 from Utility import Counter
+from Utility.RewardType import get_reward
 
 class BaseFit:
     def __init__(self, rl_agent, config, segments, playthroughs):
@@ -54,7 +55,7 @@ class BaseFit:
                 max_r = self.rl_agent.get_node_meta_data(node, 'max_r')
                 design_r = max_r * compleatability / self.counter.get(node, default=1)
 
-                self.rl_agent.set_node_meta_data(node, 'r', player_r + design_r)
+                self.rl_agent.set_node_meta_data(node, 'r', get_reward(self.config.REWARD_TYPE, design_r, player_r))
                 self.rl_agent.set_node_meta_data(node, 'design_r', design_r)
             else:
                 # for regular nodes we update it and all of its associated nodes by 
@@ -69,7 +70,7 @@ class BaseFit:
                     max_r = self.rl_agent.get_node_meta_data(node, 'max_r')
                     design_r = max_r * compleatability / self.counter.get(node_name, default=1)
 
-                    self.rl_agent.set_node_meta_data(cur_node, 'r', player_r + design_r)
+                    self.rl_agent.set_node_meta_data(cur_node, 'r', get_reward(self.config.REWARD_TYPE, design_r, player_r))
                     self.rl_agent.set_node_meta_data(cur_node, 'design_r', design_r)
                     
                     index +=1

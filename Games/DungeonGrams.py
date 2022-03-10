@@ -9,6 +9,7 @@ PADDING_SIZE = 2
 NAME = 'DungeonGram'
 MAX_BC = None
 NUM_BC = 2
+REWARD_TYPE = None
 
 
 BASE_DIR = join('.', 'GramElitesData', 'DungeonData', 'gram_elites')

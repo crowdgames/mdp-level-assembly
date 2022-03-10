@@ -8,6 +8,7 @@ PADDING_SIZE = 2
 NAME = 'icarus'
 MAX_BC = None
 NUM_BC = 2
+REWARD_TYPE = None
 
 SOLIDS = set()
 SOLIDS.add('#')

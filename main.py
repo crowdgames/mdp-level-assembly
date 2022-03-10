@@ -15,6 +15,8 @@ import argparse
 import sys
 import os
 
+from Utility.RewardType import RewardType
+
 start = time()
 
 parser = argparse.ArgumentParser(description='Graph Procedural Content Generation via Reinforcement Learning')
@@ -68,11 +70,23 @@ elif args.mario:
 elif args.icarus:
     config = Icarus
 
+# set whether empty links are allowed or not
 if args.allow_empty_link:
     allow_empty_link = True
 else:
     allow_empty_link = False
 
+# set the reward type
+if args.r_player:
+    config.REWARD_TYPE = Utility.RewardType.PLAYER
+elif args.r_designer:
+    config.REWARD_TYPE = Utility.RewardType.DESIGNER
+elif args.r_both:
+    config.REWARD_TYPE = Utility.RewardType.BOTH
+
+REWARD_StR = Utility.reward_type_to_str(config.REWARD_TYPE)
+
+# get Directors to use for the upcoming task
 graph = Utility.get_graph(config, allow_empty_link)
 agents = []
 if args.sarsa:
@@ -98,10 +112,12 @@ if args.fit_agent:
         task = FitAgent(rl_agent, config, args.segments, args.playthroughs)
         data = task.run()
 
-        with open(join(config.BASE_DIR, f'agent_{config.NAME}_{rl_agent.NAME}_{allow_empty_link}.pkl'), 'wb') as f:
+        f_name = f'agent_game_{config.NAME}_director_{rl_agent.NAME}_emptylink_{allow_empty_link}_reward_{REWARD_StR}.pkl'
+        with open(join(config.BASE_DIR, f_name), 'wb') as f:
             pkl_dump(rl_agent, f)
 
-        with open(join(config.BASE_DIR, f'fitagent_playthrough_{config.NAME}_{rl_agent.NAME}_{allow_empty_link}.json'), 'w') as f:
+        f_name =  f'fitagent_game_{config.NAME}_director_{rl_agent.NAME}_emptylink_{allow_empty_link}_reward_{REWARD_StR}.json'
+        with open(join(config.BASE_DIR, f_name), 'w') as f:
             json_dump(data, f, indent=2)
 
         print()
@@ -122,7 +138,8 @@ elif args.fit_persona:
             task = FitPlayerPersona(rl_agent, config, args.segments, args.playthroughs, p_eval)
             data.append(task.run())
 
-        with open(join(config.BASE_DIR, f'player_{p_name}_fit_playthrough_{config.NAME}_{rl_agent.NAME}_{allow_empty_link}.json'), 'w') as f:
+        f_name = f'player_{p_name}_game_{config.NAME}_director_{rl_agent.NAME}_emptylink_{allow_empty_link}_reward_{REWARD_StR}.json'
+        with open(join(config.BASE_DIR, f_name), 'w') as f:
             json_dump(data, f, indent=2)
 
 elif args.get_level:

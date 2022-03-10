@@ -9,6 +9,7 @@ PADDING_SIZE = 2
 NAME = 'mario'
 MAX_BC = None
 NUM_BC = 2
+REWARD_TYPE = None
 
 # view smb.json in TheVGLC
 SOLIDS = set()
