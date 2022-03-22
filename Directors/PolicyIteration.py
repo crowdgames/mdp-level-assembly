@@ -12,7 +12,7 @@ class PolicyIteration(MDP):
         self.NAME = 'policy'
             
     def update(self, _):
-        # create a random policy and rest utility
+        # create a random policy and reset utility to 0
         self.pi = {} 
         for n in self.G:
             self.pi[n] = choice(list(self.G.neighbors(n)))
@@ -24,10 +24,16 @@ class PolicyIteration(MDP):
             # simplified policy evaluation
             for _ in range(self.POLICY_ITER):
                 for n in self.G:
-                    # NOTE: P will always be 1, and is removed from the calculation
-                    # self.U[s] = self.R[s] + self.GAMMA * self.U[self.pi[s]]
-                    R = self.G.nodes[n]['r']
-                    self.set_node_meta_data(n, 'U', R + self.GAMMA * self.get_node_meta_data(self.pi[n], 'U'))
+                    # reward for current node
+                    R = self.G.nodes[n]['r'] 
+                    # target node according to policy
+                    N_p = self.pi[n] 
+                    # Utility of the node found by the policy
+                    U_p = self.get_node_meta_data(N_p, 'U')
+                    # the probability of the node found by the policy being selected
+                    P = self.G.nodes[n]['P'][N_p]
+                    # Updated utility of the current node
+                    self.set_node_meta_data(n, 'U', R + self.GAMMA * P * U_p)
 
             # policy improvement
             unchanged = True
@@ -50,5 +56,4 @@ class PolicyIteration(MDP):
                 break
 
     def get(self, node):
-        return self.best_neighbor(node)
-        # return self.softmax_neighbor(node)
+        return self._best_neighbor(node)

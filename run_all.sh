@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RUNS=10
+RUNS=20
 TASK="--fit-persona"
 # TASK="--fit-agent"
 

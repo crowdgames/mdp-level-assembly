@@ -129,4 +129,7 @@ dmypy.json
 .pyre/
 
 # test files
-test*.py
+test*.py3
+
+# don't include figures which can be seen in analysis.py / generated in it as well
+figure/*

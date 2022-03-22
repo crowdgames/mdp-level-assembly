@@ -20,7 +20,7 @@ class FitPlayerPersona(BaseFit):
             
             # rl agent learns from the playthrough and selects where to start from next time.
             self.rl_agent.update(playthrough)
-            cur = self.rl_agent.weighted_neighbor(nodes[-1])
+            cur = self.rl_agent.get(nodes[-1])
             self.counter.add(cur)
 
             # output data is updated 

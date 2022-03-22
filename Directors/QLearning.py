@@ -18,6 +18,9 @@ class QLearning(QTable):
             best = self.best_neighbor(n_1)
 
             ALPHA = (60.0/(59.0 + N))
+            raise NotImplementedError('multiply r by the transition probability!')
+            raise NotImplementedError('original probability table should also be used!')
+            
             R = self.get_node_meta_data(n, 'r')
             A = self.G.edges[(n_1, best)]['Q']
             B = self.G.edges[(n, n_1)]['Q']
@@ -26,4 +29,4 @@ class QLearning(QTable):
             n = n_1
 
     def get(self, node):
-        return self.softmax_neighbor(node)
+        return self.weighted_neighbor(node)

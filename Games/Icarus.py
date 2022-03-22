@@ -9,6 +9,7 @@ NAME = 'icarus'
 MAX_BC = None
 NUM_BC = 2
 REWARD_TYPE = None
+ALLOW_EMPTY_LINK = True
 
 SOLIDS = set()
 SOLIDS.add('#')

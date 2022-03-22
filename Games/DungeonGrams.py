@@ -10,11 +10,10 @@ NAME = 'DungeonGram'
 MAX_BC = None
 NUM_BC = 2
 REWARD_TYPE = None
-
+ALLOW_EMPTY_LINK = False
 
 BASE_DIR = join('.', 'GramElitesData', 'DungeonData', 'gram_elites')
 S = '0_0_0'
-
 
 def get_furthest_xy(lvl):
     return percent_playable(slices_to_rows(lvl, False), False, True, False, FLAW_NO_FLAW), 0

@@ -13,7 +13,7 @@ class QTable:
         for n in graph.nodes:
             graph.nodes[n]['N'] = 0
 
-    def best_neighbor(self, n):
+    def __best_neighbor(self, n):
         best_n = None
         best_q = -inf
 
@@ -25,7 +25,7 @@ class QTable:
 
         return best_n
 
-    def weighted_neighbor(self, n):
+    def __weighted_neighbor(self, n):
         nodes = []
         weights = []
         for e in self.G.out_edges(n):
@@ -34,7 +34,7 @@ class QTable:
 
         return choices(nodes, weights=weights, k=1)[0]
 
-    def softmax_neighbor(self, n):
+    def __softmax_neighbor(self, n):
         nodes = []
         weights = []
         for e in self.G.out_edges(n):
@@ -42,6 +42,9 @@ class QTable:
             weights.append(exp(self.G.edges[e]['Q']))
 
         return choices(nodes, weights=weights, k=1)[0]
+
+    def get(self, n):
+        return self.__weighted_neighbor(n)
 
     def get_node_meta_data(self, node, field_name):
         return self.G.nodes[node][field_name]

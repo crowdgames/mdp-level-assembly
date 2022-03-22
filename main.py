@@ -17,6 +17,16 @@ import os
 
 from Utility.RewardType import RewardType
 
+'''
+TODO:
+
+- n-gram based generation
+- probability update
+    - MDP
+    - Q
+    - greedy
+'''
+
 start = time()
 
 parser = argparse.ArgumentParser(description='Graph Procedural Content Generation via Reinforcement Learning')
@@ -42,10 +52,6 @@ rl_agent_group.add_argument('--greedy-max', action='store_true', help='Greedily 
 rl_agent_group.add_argument('--greedy-relative', action='store_true', help='Greedily choose where to go based on the reward')
 rl_agent_group.add_argument('--all', action='store_true', help='Run every agent')
 
-empty_link_group = parser.add_mutually_exclusive_group(required=True)
-empty_link_group.add_argument('--allow-empty-link', action='store_true', help='Allow links to be empty')
-empty_link_group.add_argument('--no-empty-link', action='store_true', help='Allow links to be empty')
-
 reward_group = parser.add_mutually_exclusive_group(required=True)
 reward_group.add_argument('--r-player', action='store_true', help='reward based on player only.')
 reward_group.add_argument('--r-designer', action='store_true', help='reward based on designer only.')
@@ -70,12 +76,6 @@ elif args.mario:
 elif args.icarus:
     config = Icarus
 
-# set whether empty links are allowed or not
-if args.allow_empty_link:
-    allow_empty_link = True
-else:
-    allow_empty_link = False
-
 # set the reward type
 if args.r_player:
     config.REWARD_TYPE = Utility.RewardType.PLAYER
@@ -87,7 +87,7 @@ elif args.r_both:
 REWARD_StR = Utility.reward_type_to_str(config.REWARD_TYPE)
 
 # get Directors to use for the upcoming task
-graph = Utility.get_graph(config, allow_empty_link)
+graph = Utility.get_graph(config, config.ALLOW_EMPTY_LINK)
 agents = []
 if args.sarsa:
     agents.append(Directors.SARSA(graph, args.gamma))
@@ -112,11 +112,11 @@ if args.fit_agent:
         task = FitAgent(rl_agent, config, args.segments, args.playthroughs)
         data = task.run()
 
-        f_name = f'agent_game_{config.NAME}_director_{rl_agent.NAME}_emptylink_{allow_empty_link}_reward_{REWARD_StR}.pkl'
+        f_name = f'agent_game_{config.NAME}_director_{rl_agent.NAME}_reward_{REWARD_StR}.pkl'
         with open(join(config.BASE_DIR, f_name), 'wb') as f:
             pkl_dump(rl_agent, f)
 
-        f_name =  f'fitagent_game_{config.NAME}_director_{rl_agent.NAME}_emptylink_{allow_empty_link}_reward_{REWARD_StR}.json'
+        f_name =  f'fitagent_game_{config.NAME}_director_{rl_agent.NAME}_reward_{REWARD_StR}.json'
         with open(join(config.BASE_DIR, f_name), 'w') as f:
             json_dump(data, f, indent=2)
 
@@ -138,7 +138,7 @@ elif args.fit_persona:
             task = FitPlayerPersona(rl_agent, config, args.segments, args.playthroughs, p_eval)
             data.append(task.run())
 
-        f_name = f'player_{p_name}_game_{config.NAME}_director_{rl_agent.NAME}_emptylink_{allow_empty_link}_reward_{REWARD_StR}.json'
+        f_name = f'player_{p_name}_game_{config.NAME}_director_{rl_agent.NAME}_reward_{REWARD_StR}.json'
         with open(join(config.BASE_DIR, f_name), 'w') as f:
             json_dump(data, f, indent=2)
 

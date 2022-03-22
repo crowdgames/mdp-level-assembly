@@ -9,19 +9,28 @@ class MDP:
             graph.nodes[n]['U'] = 0
             graph.nodes[n]['N'] = 0
 
-    def best_neighbor(self, node):
+            P = {}
+            out_edges = graph.out_edges(n)
+            probability = 1/len(out_edges)
+            for _, n_p in out_edges:
+                P[n_p] = probability
+
+            graph.nodes[n]['P'] = P
+
+    def _best_neighbor(self, node):
         best_n = None
         best_u = -inf
 
         for neighbor in self.G.neighbors(node):
-            u = self.G.nodes[neighbor]['U']
+            u = self.G.nodes[node]['P'][neighbor]*self.G.nodes[neighbor]['U']
             if u > best_u:
                 best_u = u
                 best_n = neighbor
 
         return best_n
 
-    def weighted_neighbor(self, node):
+    def _weighted_neighbor(self, node):
+        raise NotImplementedError('Not using P!')
         n = []
         w = []
 
@@ -35,7 +44,8 @@ class MDP:
 
         return choices(n, weights=w, k=1)[0]
 
-    def softmax_neighbor(self, node):
+    def _softmax_neighbor(self, node):
+        raise NotImplementedError('Not using P!')
         n = []
         w = []
 
