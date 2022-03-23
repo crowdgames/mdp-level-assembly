@@ -4,6 +4,8 @@ import networkx as nx
 from json import load as load_file
 from os.path import join
 
+from Directors.Keys import *
+
 
 def rows_to_slices(rows, transpose):
     if transpose:
@@ -17,17 +19,6 @@ def slices_to_rows(slices, transpose):
     else:
         return [''.join(_) for _ in [*zip(*slices)]][::-1]
 
-def select_random_next(graph, out_edges):
-    nexts = []
-    wts = []
-    for out_edge in out_edges:
-        nexts.append((out_edge[1]))
-        if 'weight' in graph.edges[out_edge]:
-            wts.append(graph.edges[out_edge]['weight'])
-        else:
-            wts.append(1)
-
-    return random.choices(nexts, weights=wts, k=1)[0]
 
 def print_level(level, path=None, goals=None):
     path_start = None
@@ -56,7 +47,15 @@ def print_level(level, path=None, goals=None):
                 sys.stdout.write(t)
         sys.stdout.write('\n')
 
-def get_graph(config, allow_empty_link):
+def __largest_connected_subgraph(graph):
+    biggest_comp = None
+    for comp in nx.strongly_connected_components(graph):
+        if biggest_comp == None or len(comp) > len(biggest_comp):
+            biggest_comp = comp
+
+    return graph.subgraph(biggest_comp).copy()
+
+def get_level_segment_graph(config, allow_empty_link):
     # get json file that represents the graph
     filename = join(config.BASE_DIR, f'links_{allow_empty_link}.json')
     print(f'Loading links from: {filename}') 
@@ -99,7 +98,16 @@ def get_graph(config, allow_empty_link):
             lines = [l.strip() for l in infile.readlines()]
 
         slices = tuple(rows_to_slices(lines, config.TRANSPOSE))
-        graph.add_node(node, slices=slices, r=r, design_r=r, max_r=r, bc=[a,b])
+
+        # level segments do not have have a designer preference in terms of probability
+        # selection. Multiplication by 1 results in no change.
+        graph.add_node(node)
+        graph.nodes[node][S] = slices
+        graph.nodes[node][D] = r
+        graph.nodes[node][R] = r
+        graph.nodes[node][C] = 1
+        graph.nodes[node][BC] = [a,b]
+        graph.nodes[node][PD] = 1
 
         for next_node, edge_data in next_data.items():
             edge_data_use = edge_data['tree search']
@@ -119,7 +127,11 @@ def get_graph(config, allow_empty_link):
                 edge_node = f'{node}__{next_node}'
                 links.append(edge_node)
 
-                graph.add_node(edge_node, slices=edge_slices, r=0, design_r=0, max_r=0) # updated below
+                graph.add_node(edge_node)
+                graph.nodes[edge_node][S] = slices
+                graph.nodes[edge_node][C] = 1
+                graph.nodes[edge_node][PD] = 1 # the rest are updated blow
+
                 graph.add_edge(node, edge_node)
                 graph.add_edge(edge_node, next_node)
 
@@ -138,15 +150,9 @@ def get_graph(config, allow_empty_link):
         mean_b = (src_b + tgt_b)/2
 
         max_r = mean_a + mean_b
-        graph.nodes[e]['r'] = max_r
-        graph.nodes[e]['design_r'] = max_r
-        graph.nodes[e]['max_r'] = max_r
-        graph.nodes[e]['bc'] = [mean_a, mean_b]
+        graph.nodes[e][R] = max_r
+        graph.nodes[e][D] = max_r
+        graph.nodes[e][BC] = [mean_a, mean_b]
 
-    # get largest strongly connected version of the graph to remove deadends
-    biggest_comp = None
-    for comp in nx.strongly_connected_components(graph):
-        if biggest_comp == None or len(comp) > len(biggest_comp):
-            biggest_comp = comp
-
-    return graph.subgraph(biggest_comp).copy()
+    # we want the graph to be fully connected
+    return __largest_connected_subgraph(graph)

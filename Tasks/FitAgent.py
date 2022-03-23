@@ -55,7 +55,6 @@ class FitAgent(BaseFit):
             self.update_from_playthrough(playthrough)
             
             cur = self.rl_agent.get(cur)
-            self.counter.add(cur)
             self.rl_agent.update(playthrough)
             print(f'{i}: {playthrough}')
 

@@ -1,6 +1,5 @@
 from .BaseFit import BaseFit
 from tqdm import trange
-from Players import build_summary
 
 class FitPlayerPersona(BaseFit):
     def __init__(self, rl_agent, config, segments, playthroughs, player_persona):
@@ -21,10 +20,9 @@ class FitPlayerPersona(BaseFit):
             # rl agent learns from the playthrough and selects where to start from next time.
             self.rl_agent.update(playthrough)
             cur = self.rl_agent.get(nodes[-1])
-            self.counter.add(cur)
 
             # output data is updated 
-            data.append(build_summary(nodes, playthrough))
+            data.append(playthrough.get_summary(nodes))
 
         return data
    

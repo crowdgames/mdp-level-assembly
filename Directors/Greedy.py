@@ -1,30 +1,23 @@
-from random import choices
 from math import inf
+from .Base import Base
+from .Keys import *
 
-class Greedy:
+class Greedy(Base):
     def __init__(self, graph):
+        super().__init__(graph, 'Greedy')
         self.G = graph
-        self.NAME = 'Greedy'
-
-    def get_node_meta_data(self, node, field_name):
-        return self.G.nodes[node][field_name]
-
-    def set_node_meta_data(self, node, field_name, value):
-        self.G.nodes[node][field_name] = value
 
     def update(self, _):
         pass
 
     def get(self, node):
-        raise NotImplementedError('not using probability!')
         best_n = None
         best_r = -inf
 
         for neighbor in self.G.neighbors(node):
-            r = self.G.nodes[neighbor]['r']
+            r = self.get_md(node, R) * self.get_p(node, neighbor)
             if r > best_r:
                 best_r = r
                 best_n = neighbor
 
-        print(best_r)
         return best_n

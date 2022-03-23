@@ -1,15 +1,9 @@
 from random import choice
+from .Base import Base
 
-class Random:
+class Random(Base):
     def __init__(self, graph):
-        self.G = graph
-        self.NAME = 'random'
-
-    def get_node_meta_data(self, node, field_name):
-        return self.G.nodes[node][field_name]
-
-    def set_node_meta_data(self, node, field_name, value):
-        self.G.nodes[node][field_name] = value
+        super().__init__(graph, 'Random')
 
     def update(self, _):
         pass

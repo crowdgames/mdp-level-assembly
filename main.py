@@ -12,7 +12,6 @@ from pickle import dump as pkl_dump
 from json import dump as json_dump
 from tqdm import tqdm, trange
 import argparse
-import sys
 import os
 
 from Utility.RewardType import RewardType
@@ -48,8 +47,7 @@ rl_agent_group.add_argument('--q', action='store_true', help='Q-Learning agent')
 rl_agent_group.add_argument('--policy', action='store_true', help='Policy Iteration agent')
 rl_agent_group.add_argument('--value', action='store_true', help='Value Iteration agent')
 rl_agent_group.add_argument('--random', action='store_true', help='Randomly choose where to go regardless of the player')
-rl_agent_group.add_argument('--greedy-max', action='store_true', help='Greedily choose where to go based on the max reward')
-rl_agent_group.add_argument('--greedy-relative', action='store_true', help='Greedily choose where to go based on the reward')
+rl_agent_group.add_argument('--greedy', action='store_true', help='Greedily choose where to go based on the reward')
 rl_agent_group.add_argument('--all', action='store_true', help='Run every agent')
 
 reward_group = parser.add_mutually_exclusive_group(required=True)
@@ -87,7 +85,7 @@ elif args.r_both:
 REWARD_StR = Utility.reward_type_to_str(config.REWARD_TYPE)
 
 # get Directors to use for the upcoming task
-graph = Utility.get_graph(config, config.ALLOW_EMPTY_LINK)
+graph = Utility.get_level_segment_graph(config, config.ALLOW_EMPTY_LINK)
 agents = []
 if args.sarsa:
     agents.append(Directors.SARSA(graph, args.gamma))
@@ -99,10 +97,8 @@ if args.value:
     agents.append(Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta))
 if args.random or args.all:
     agents.append(Directors.Random(graph))
-if args.greedy_max:
-    agents.append(Directors.GreedyMax(graph))
-if args.greedy_relative or args.all:
-    agents.append(Directors.GreedyRelative(graph))
+if args.greedy or args.all:
+    agents.append(Directors.Greedy(graph))
 
 # run task
 if args.fit_agent:

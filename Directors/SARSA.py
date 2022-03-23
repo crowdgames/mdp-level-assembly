@@ -1,9 +1,9 @@
 from .QTable import QTable
+from .Keys import *
 
 class SARSA(QTable):
     def __init__(self, graph, gamma):
-        super().__init__(graph, gamma)
-        self.NAME = 'sarsa'
+        super().__init__(graph, gamma, 'SARSA')
 
     def update(self, playthrough):
         if len(playthrough) < 3:
@@ -12,15 +12,12 @@ class SARSA(QTable):
         n = playthrough[0][0]
         n_1 = playthrough[1][0]
         for n_2, _, _, _ in playthrough[2:]:
-            N = self.get_node_meta_data(n, 'N') + 1
-            self.set_node_meta_data(n, 'N', N)
-
             R = self.get_node_meta_data(n, 'r')
-            ALPHA = (60.0/(59.0 + N))
-            A = self.G.edges[n_1, n_2]['Q'] 
-            B = self.G.edges[n, n_1]['Q']
+            ALPHA = (60.0/(59.0 + self.get_md(n, C)))
+            A = self.G.edges[n_1, n_2][Q] 
+            B = self.G.edges[n, n_1][Q]
 
-            self.G.edges[n, n_1]['Q'] += ALPHA*(R + self.GAMMA*A - B)
+            self.G.edges[n, n_1][Q] += ALPHA*(R + self.GAMMA*A - B)
 
             n = n_1
             n_1 = n_2
