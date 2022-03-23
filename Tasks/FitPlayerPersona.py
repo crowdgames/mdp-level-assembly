@@ -21,6 +21,11 @@ class FitPlayerPersona(BaseFit):
             self.rl_agent.update(playthrough)
             cur = self.rl_agent.get(nodes[-1])
 
+            # make sure the node in question is not a link. If it is then go to the 
+            # next node.
+            if '__' in cur:
+                cur = cur.split('__')[1]
+
             # output data is updated 
             data.append(playthrough.get_summary(nodes))
 
