@@ -6,20 +6,20 @@ class QLearning(QTable):
         super().__init__(graph, gamma, 'Q')
 
     def update(self, playthrough):
-        if len(playthrough) < 2:
+        if playthrough == None:
             return
             
-        n = playthrough[0][0]
-        for entry_1 in playthrough[1:]:
-            n_1 = entry_1[0]
+        n = playthrough.entries[0].node_name
+        for entry_1 in playthrough.entries[1:]:
+            n_1 = entry_1.node_name
             best = self._best_neighbor(n_1)
 
             ALPHA = (60.0/(59.0 + self.get_md(n, C)))
             
-            R = self.get_node_meta_data(n, R)
-            A = self.G.edges[(n_1, best)][Q]*self.get_p(n_1, best)
-            B = self.G.edges[(n, n_1)][Q]*self.get_p(n, n_1)
-            self.G.edges[(n, n_1)][Q] += ALPHA*(R + self.GAMMA*A - B)
+            r = self.get_md(n, R)
+            a = self.G.edges[(n_1, best)][Q]
+            b = self.G.edges[(n, n_1)][Q]
+            self.G.edges[(n, n_1)][Q] += ALPHA*(r + self.GAMMA*a - b)
 
             n = n_1
 

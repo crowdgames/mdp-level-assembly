@@ -9,7 +9,7 @@ class FitPlayerPersona(BaseFit):
     def run(self):
         cur = self.config.START_NODE
         data = []
-        self.rl_agent.update([])
+        self.rl_agent.update(None)
 
         for _ in trange(self.playthroughs, leave=False):
             # build the level and let the player play through it

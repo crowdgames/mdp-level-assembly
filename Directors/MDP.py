@@ -19,7 +19,7 @@ class MDP(Base):
         best_u = -inf
 
         for neighbor in self.G.neighbors(node):
-            new_u = self.get_p(node, neighbor) * self.get_md(neighbor, U)
+            new_u = self.get_md(neighbor, U)
 
             if new_u > best_u:
                 best_u = new_u

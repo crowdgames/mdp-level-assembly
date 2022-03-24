@@ -40,12 +40,18 @@ class BaseFit:
 
     def update_from_playthrough(self, playthrough):
         for entry in playthrough.entries:
-            # set the designer reward and total reward. Note that the designer reward
-            # is the max multiplied by the percent that the player made it through 
-            # the given segment in the entry. Total reward is not strictly necessary
-            # since it is reproducible via addition, but it is convenient to have for
-            # analysis.
-            entry.designer_reward = self.rl_agent.get_md(entry.node_name, D) * entry.percent_completable
+            # Set the designer reward and total reward.
+            #
+            #   The designer reward is the designer reward multiplied by the 
+            #   percent of the level segment that the player completed all 
+            #   divided by the number of times that node has been seen by the
+            #   player. This division is a penalty.
+            #
+            #   The total reward is the sum of the designer and player reward
+
+            c = self.rl_agent.get_md(entry.node_name, C)
+            d = self.rl_agent.get_md(entry.node_name, D)
+            entry.designer_reward = d * entry.percent_completable / c
             entry.total_reward = entry.designer_reward + entry.player_reward
 
             # update the reward based on the designer and the player
@@ -55,6 +61,6 @@ class BaseFit:
                 get_reward(self.config.REWARD_TYPE, entry.designer_reward, entry.player_reward))
 
             # update number of times the node has been seen
-            self.rl_agent.increment_count(entry.node_name)
+            self.rl_agent.set_md(entry.node_name, C, c+1)
 
            

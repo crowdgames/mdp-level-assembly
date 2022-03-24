@@ -35,10 +35,8 @@ class PolicyIteration(MDP):
                     n_p = self.pi[n] 
                     # Utility of the node found by the policy
                     u_p = self.get_md(n_p, U)
-                    # the probability of the node found by the policy being selected
-                    p = self.get_p(n, n_p)
                     # Updated utility of the current node
-                    self.set_md(n, 'U', r + self.GAMMA * p * u_p)
+                    self.set_md(n, 'U', r + self.GAMMA * u_p)
 
             # policy improvement
             unchanged = True

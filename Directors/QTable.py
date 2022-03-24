@@ -16,7 +16,7 @@ class QTable(Base):
         best_q = -inf
 
         for e in self.G.out_edges(n):
-            q = self.G.edges[e][Q]*self.get_p(*e)
+            q = self.G.edges[e][Q]
             if q > best_q:
                 best_q = q
                 best_n = e[1]
@@ -28,7 +28,7 @@ class QTable(Base):
         weights = []
         for e in self.G.out_edges(n):
             nodes.append(e[1])
-            weights.append(self.G.edges[e][Q]*self.get_p(*e))
+            weights.append(self.G.edges[e][Q])
 
         return choices(nodes, weights=weights, k=1)[0]
 
@@ -37,6 +37,6 @@ class QTable(Base):
         weights = []
         for e in self.G.out_edges(n):
             nodes.append(e[1])
-            weights.append(exp(self.G.edges[e][Q])*self.get_p(*e))
+            weights.append(exp(self.G.edges[e][Q]))
 
         return choices(nodes, weights=weights, k=1)[0]

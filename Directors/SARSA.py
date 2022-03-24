@@ -6,6 +6,7 @@ class SARSA(QTable):
         super().__init__(graph, gamma, 'SARSA')
 
     def update(self, playthrough):
+        raise NotImplementedError('Outdated implementation. Use q-learning as a reference.')
         if len(playthrough) < 3:
             return
 

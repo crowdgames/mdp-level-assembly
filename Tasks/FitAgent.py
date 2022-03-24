@@ -54,7 +54,13 @@ class FitAgent(BaseFit):
             data.append(playthrough)
             self.update_from_playthrough(playthrough)
             
+            # make sure the node in question is not a link. If it is then go to the 
+            # next node.
             cur = self.rl_agent.get(cur)
+            if '__' in cur:
+                cur = cur.split('__')[1]
+
+
             self.rl_agent.update(playthrough)
             print(f'{i}: {playthrough}')
 
