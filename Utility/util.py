@@ -91,7 +91,8 @@ def get_level_segment_graph(config, allow_empty_link):
         a, b, _ = node.split(',')
         a = float(a) / max_bc[0]
         b = float(b) / max_bc[1]
-        r = a + b
+        r = (a + b) / 2.0
+        assert r <= 1
 
         node_filename = f'{join(config.BASE_DIR, "levels", node.replace(",", "_"))}.txt'
         with open(node_filename, 'rt') as infile:
@@ -106,7 +107,7 @@ def get_level_segment_graph(config, allow_empty_link):
         graph.nodes[node][D] = r
         graph.nodes[node][R] = r
         graph.nodes[node][C] = 1
-        graph.nodes[node][BC] = [a,b]
+        graph.nodes[node][BC] = [a/2.0,b/2.0]
         graph.nodes[node][PD] = 1
 
         for next_node, edge_data in next_data.items():
@@ -146,10 +147,11 @@ def get_level_segment_graph(config, allow_empty_link):
         tgt_a = float(tgt_a) / max_bc[0]
         tgt_b = float(tgt_b) / max_bc[1]
 
-        mean_a = (src_a + tgt_a)/2
-        mean_b = (src_b + tgt_b)/2
+        mean_a = (src_a + tgt_a)/2.0
+        mean_b = (src_b + tgt_b)/2.0
 
-        max_r = mean_a + mean_b
+        max_r = (mean_a + mean_b)/2.0
+        assert max_r <= 1
         graph.nodes[e][R] = max_r
         graph.nodes[e][D] = max_r
         graph.nodes[e][BC] = [mean_a, mean_b]

@@ -15,12 +15,12 @@ def reward_type_to_str(r_type):
 
     raise ValueError(f'Unhandled reward type: {r_type} :: {type(r_type)}')
 
-def get_reward(r_type, designer_r, player_r):
+def get_reward(r_type, segment_entry):
     if r_type == RewardType.DESIGNER:
-        return designer_r
+        return segment_entry.designer_reward
     elif r_type == RewardType.PLAYER:
-        return player_r
+        return segment_entry.player_reward
     elif r_type == RewardType.BOTH:
-        return designer_r + player_r
+        return segment_entry.total_reward
 
     raise ValueError(f'Unhandled reward type: {r_type} :: {type(r_type)}')

@@ -5,7 +5,6 @@ from .Keys import *
 class Greedy(Base):
     def __init__(self, graph):
         super().__init__(graph, 'Greedy')
-        self.G = graph
 
     def update(self, _):
         pass
@@ -15,7 +14,7 @@ class Greedy(Base):
         best_r = -inf
 
         for neighbor in self.G.neighbors(node):
-            r = self.get_md(node, R)
+            r = self.get_md(neighbor, R)
             if r > best_r:
                 best_r = r
                 best_n = neighbor

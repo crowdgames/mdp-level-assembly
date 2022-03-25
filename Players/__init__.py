@@ -129,8 +129,7 @@ def mediocre_player_likes_high_b(nodes, director, MAX_BC):
     playthrough = Playthrough()
     for n in nodes:
         a, b = director.get_md(n, BC)
-        cur_bc = a + b
-        if cur_bc < MAX_BC * 0.5:
+        if a+b < MAX_BC * 0.5:
             playthrough.add(PlaythroughEntry(n, 1.0, b))
         else:
             playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), b))
@@ -176,3 +175,14 @@ PLAYERS = {
     # 'Mediocre Player Likes Hard Levels': mediocre_player_likes_hard_levels,
     # 'Mediocre Player Likes Easy Levels': mediocre_player_likes_easy_levels
 }
+
+# PLAYERS = {
+#     # 'Bad Player Likes Hard Levels': bad_player_likes_hard_levels,
+#     # 'Bad Player Likes Easy Levels': bad_player_likes_easy_levels,
+#     # 'Good Player Likes Easy Levels': good_player_likes_easy_levels,
+#     # 'Good Player Likes Hard Levels': good_player_likes_hard_levels,
+#     'Mediocre Player Likes High A': mediocre_player_likes_high_a,
+#     'Mediocre Player Likes High B': mediocre_player_likes_high_b,
+#     # 'Mediocre Player Likes Hard Levels': mediocre_player_likes_hard_levels,
+#     # 'Mediocre Player Likes Easy Levels': mediocre_player_likes_easy_levels
+# }

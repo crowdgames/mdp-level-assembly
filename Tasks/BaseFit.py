@@ -1,6 +1,8 @@
 from Utility.RewardType import get_reward
 from Directors.Keys import *
 
+from math import log
+
 class BaseFit:
     def __init__(self, rl_agent, config, segments, playthroughs):
         self.rl_agent = rl_agent
@@ -51,14 +53,15 @@ class BaseFit:
 
             c = self.rl_agent.get_md(entry.node_name, C)
             d = self.rl_agent.get_md(entry.node_name, D)
-            entry.designer_reward = d * entry.percent_completable / c
+            entry.designer_reward = (d * entry.percent_completable) / c
+            # entry.player_reward /= c
             entry.total_reward = entry.designer_reward + entry.player_reward
 
             # update the reward based on the designer and the player
             self.rl_agent.set_md(
                 entry.node_name, 
                 R, 
-                get_reward(self.config.REWARD_TYPE, entry.designer_reward, entry.player_reward))
+                get_reward(self.config.REWARD_TYPE, entry))
 
             # update number of times the node has been seen
             self.rl_agent.set_md(entry.node_name, C, c+1)

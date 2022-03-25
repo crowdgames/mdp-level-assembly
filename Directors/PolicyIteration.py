@@ -46,7 +46,7 @@ class PolicyIteration(MDP):
                 best_s = None
                 best_u = -inf
                 for n_p in self.G.neighbors(n):
-                    u_p = self.get_md(n_p, U) * self.get_p(n, n_p)
+                    u_p = self.get_md(n_p, U) 
                     if u_p > best_u:
                         best_s = n_p
                         best_u = u_p

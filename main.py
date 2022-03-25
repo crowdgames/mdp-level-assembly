@@ -88,17 +88,17 @@ REWARD_StR = Utility.reward_type_to_str(config.REWARD_TYPE)
 graph = Utility.get_level_segment_graph(config, config.ALLOW_EMPTY_LINK)
 agents = []
 if args.sarsa:
-    agents.append(Directors.SARSA(graph, args.gamma))
+    agents.append(lambda: Directors.SARSA(graph, args.gamma))
 if args.q or args.all:
-    agents.append(Directors.QLearning(graph, args.gamma))
+    agents.append(lambda: Directors.QLearning(graph, args.gamma))
 if args.policy or args.all:
-    agents.append(Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma))
+    agents.append(lambda: Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma))
 if args.value:
-    agents.append(Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta))
+    agents.append(lambda: Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta))
 if args.random or args.all:
-    agents.append(Directors.Random(graph))
+    agents.append(lambda: Directors.Random(graph))
 if args.greedy or args.all:
-    agents.append(Directors.Greedy(graph))
+    agents.append(lambda: Directors.Greedy(graph))
 
 # run task
 if args.fit_agent:
@@ -127,14 +127,15 @@ elif args.fit_persona:
 
     progress_bar = tqdm(to_run, leave=False)
     for rl_agent, p_name, p_eval in progress_bar:
-        progress_bar.set_description(f'{rl_agent.NAME} :: {p_name} :: {config.NAME}')
+        name = rl_agent().NAME # this is lazy but whatever
+        progress_bar.set_description(f'{name} :: {p_name} :: {config.NAME}')
         data = []
         for i in trange(args.runs, leave=False):
             seed(args.seed+i)
-            task = FitPlayerPersona(rl_agent, config, args.segments, args.playthroughs, p_eval)
+            task = FitPlayerPersona(rl_agent(), config, args.segments, args.playthroughs, p_eval)
             data.append(task.run())
 
-        f_name = f'player_{p_name}_game_{config.NAME}_director_{rl_agent.NAME}_reward_{REWARD_StR}.json'
+        f_name = f'player_{p_name}_game_{config.NAME}_director_{name}_reward_{REWARD_StR}.json'
         with open(join(config.BASE_DIR, f_name), 'w') as f:
             json_dump(data, f, indent=2)
 

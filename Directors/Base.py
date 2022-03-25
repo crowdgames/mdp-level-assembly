@@ -5,20 +5,17 @@ class Base:
         self.G = graph
         self.NAME = name
 
+        # reset everything to just be redundant
+        for n in self.G.nodes:
+            self.G.nodes[n][C] = 1
+            self.G.nodes[n][R] = self.G.nodes[n][D]
+            self.G.nodes[n][U] = 0 # redundant
+
     def get(self, node):
         raise NotImplementedError('Caller must implement the "get" method.')
 
     def update(self, playthrough):
         raise NotImplementedError('Caller must implement the "update" method.')
-
-    def get_p(self, cur_n, next_n):
-        numerator = self.get_md(next_n, C) * self.get_md(next_n, PD)
-        total = numerator
-
-        for n in self.G.neighbors(cur_n):
-            total +=  self.get_md(n, C) * self.get_md(n, PD)
-
-        return numerator / total
 
     def increment_count(self, node):
         self.G.nodes[node][C] += 1

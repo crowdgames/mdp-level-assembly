@@ -33,7 +33,7 @@ class MDP(Base):
 
         for neighbor in self.G.neighbors(node):
             n.append(neighbor)
-            w.append(self.get_md(neighbor, U)*self.get_p(neighbor))
+            w.append(self.get_md(neighbor, U))
 
         offset = min(w) 
         if offset < 0:
@@ -47,7 +47,7 @@ class MDP(Base):
 
         for neighbor in self.G.neighbors(node):
             n.append(neighbor)
-            w.append(self.get_md(neighbor, U)*self.get_p(neighbor))
+            w.append(self.get_md(neighbor, U))
 
         return choices(n, weights=w, k=1)[0]
 
