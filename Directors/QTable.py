@@ -1,4 +1,4 @@
-from random import choices
+from random import choices, choice, random
 from math import inf, exp
 from .Base import Base
 from .Keys import *
@@ -40,3 +40,9 @@ class QTable(Base):
             weights.append(exp(self.G.edges[e][Q]))
 
         return choices(nodes, weights=weights, k=1)[0]
+
+    def epsilon_greedy_neighbor(self, n):
+        if random() < 0.1:
+            return choice(list(self.G.neighbors(n)))
+
+        return self._best_neighbor(n)

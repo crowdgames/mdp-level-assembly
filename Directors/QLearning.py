@@ -24,4 +24,6 @@ class QLearning(QTable):
             n = n_1
 
     def get(self, node):
-        return self._weighted_neighbor(node)
+        return self.epsilon_greedy_neighbor(node)
+        # return self._weighted_neighbor(node)
+        

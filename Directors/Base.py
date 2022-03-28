@@ -8,8 +8,8 @@ class Base:
         # reset everything to just be redundant
         for n in self.G.nodes:
             self.G.nodes[n][C] = 1
-            self.G.nodes[n][R] = self.G.nodes[n][D]
             self.G.nodes[n][U] = 0 # redundant
+            self.G.nodes[n][R] = self.G.nodes[n][D]
 
     def get(self, node):
         raise NotImplementedError('Caller must implement the "get" method.')
@@ -25,5 +25,5 @@ class Base:
         return self.G.nodes[node][field_name]
 
     def set_md(self, node, field_name, value):
-        # set meta data
+        # set node meta data
         self.G.nodes[node][field_name] = value

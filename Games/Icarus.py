@@ -1,3 +1,4 @@
+from tkinter import SOLID
 from Utility.SummervilleAgent import find_path
 from os.path import join
 
@@ -10,6 +11,8 @@ MAX_BC = None
 NUM_BC = 2
 REWARD_TYPE = None
 ALLOW_EMPTY_LINK = True
+GRAMMAR_SIZE = 2
+GRAM = None
 
 SOLIDS = set()
 SOLIDS.add('#')
@@ -83,15 +86,18 @@ JUMPS = [
 ]
 
 BASE_DIR = join('.', 'GramElitesData', 'IcarusData', 'gram_elites')
+TRAINING_LEVELS_DIR = 'IcarusLevels'
 S = '0_0_0'
-
 
 def get_furthest_xy(lvl):
     play_slices = list(lvl)
 
     # add an area for the player to start at the bottom
-    play_slices.insert(0, '----------------')
-    play_slices.insert(0, '################')
+    if play_slices[0] == '################':
+        play_slices.insert(1, '----------------')
+    else:
+        play_slices.insert(0, '----------------')
+        play_slices.insert(0, '################')
 
     # extend the top by copying the blocks
     # should ensure the player can jump up above the top but not by landing on what was therex
@@ -109,4 +115,13 @@ def get_furthest_xy(lvl):
     formatted_lvl.pop()
     formatted_lvl.pop()
 
-    return x / len(lvl), y /len(lvl[0])
+    return x / len(lvl[0]), y /len(lvl)
+
+def player_reward(slice):
+    total = 0
+    for char in slice:
+        if char in SOLIDS:
+            total += 1
+            continue
+
+    return total/len(slice)

@@ -14,7 +14,7 @@ class Greedy(Base):
         best_r = -inf
 
         for neighbor in self.G.neighbors(node):
-            r = self.get_md(neighbor, R)
+            r = self.get_md((neighbor), R)
             if r > best_r:
                 best_r = r
                 best_n = neighbor

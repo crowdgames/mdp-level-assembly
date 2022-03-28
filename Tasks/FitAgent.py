@@ -1,4 +1,5 @@
 from .BaseFit import BaseFit
+from Players import Playthrough, PlaythroughEntry
 
 class FitAgent(BaseFit):
     def __init__(self, rl_agent, config, segments, playthroughs):
@@ -10,27 +11,27 @@ class FitAgent(BaseFit):
             self.get_playthrough = self.__playthrough_on_x
 
     def __playthrough_on_x(self, x, y, nodes, lengths):
-        playthrough = []
+        playthrough = Playthrough()
         for n, l in zip(nodes, lengths):
             new_x = x - l
             if new_x > 0:
-                playthrough.append([n, 1.0, 0.0])
+                playthrough.add(PlaythroughEntry(n, 1.0, 0.0))
                 x = new_x
             else:
-                playthrough.append([n, x / l, 0.0])
+                playthrough.add(PlaythroughEntry(n, x/l, 0.0))
                 break
 
         return playthrough
 
     def __playthrough_on_y(self, x, y, nodes, lengths):
-        playthrough = []
+        playthrough =  Playthrough()
         for n, l in zip(nodes, lengths):
             new_y = y - l
             if y > 0:
-                playthrough.append([n, 1.0, 0.0])
+                playthrough.add(PlaythroughEntry(n, 1.0, 0.0))
                 y = new_y
             else:
-                playthrough.append([n, y / l, 0.0])
+                playthrough.add(PlaythroughEntry(n, y/l, 0.0))
                 break
 
         return playthrough
@@ -38,7 +39,7 @@ class FitAgent(BaseFit):
     def run(self):
         cur = self.config.START_NODE
         data = []
-        self.rl_agent.update([])
+        self.rl_agent.update(None)
 
         for i in range(self.playthroughs):
             lvl, nodes, lengths = self.get_level(cur)
@@ -60,9 +61,8 @@ class FitAgent(BaseFit):
             if '__' in cur:
                 cur = cur.split('__')[1]
 
-
             self.rl_agent.update(playthrough)
-            print(f'{i}: {playthrough}')
+            print(f'{i}: {playthrough.get_summary(nodes)}')
 
         return data
    

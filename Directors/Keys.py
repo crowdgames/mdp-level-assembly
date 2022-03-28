@@ -22,3 +22,6 @@ S = 'S'
 
 # the behavioral characteristics associated with a node
 BC = 'BC'
+
+# The prior for the n-gram graph
+P = 'prior'

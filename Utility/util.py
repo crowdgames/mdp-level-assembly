@@ -3,8 +3,10 @@ import networkx as nx
 
 from json import load as load_file
 from os.path import join
+from os import listdir
 
 from Directors.Keys import *
+from .NGram import NGram
 
 
 def rows_to_slices(rows, transpose):
@@ -55,6 +57,38 @@ def __largest_connected_subgraph(graph):
 
     return graph.subgraph(biggest_comp).copy()
 
+def get_n_gram_graph(config):
+    print('NOTE :: this implementation will only work for Icarus with the reversed')
+    config.START_NODE = '0'
+    gram = NGram(config.GRAMMAR_SIZE)
+
+    for filename in listdir(config.TRAINING_LEVELS_DIR):
+        filepath = join(config.TRAINING_LEVELS_DIR, filename)
+        with open(filepath) as f:
+            lines = [l.strip() for l in reversed(f.readlines())]
+            gram.add_sequence(lines)
+
+    graph = nx.DiGraph()
+
+    for prior in gram.grammar:
+        key = str(prior)
+        graph.add_node(key)
+        graph.nodes[key][P] = prior
+        graph.nodes[key][S] = [prior[-1]] 
+        graph.nodes[key][R] = 1 # this is set by an agent
+        graph.nodes[key][D] = 1 # this is set by an agent
+
+    for prior in gram.grammar:
+        prior_key = str(prior)
+        for neighbor in gram.grammar[prior].keys():
+            n_prior = prior[1:] + (neighbor,)
+            graph.add_edge(prior_key, str(n_prior))
+
+    config.START_NODE = prior_key
+
+    # we want the graph to be fully connected
+    return __largest_connected_subgraph(graph), gram
+
 def get_level_segment_graph(config, allow_empty_link):
     # get json file that represents the graph
     filename = join(config.BASE_DIR, f'links_{allow_empty_link}.json')
@@ -71,7 +105,7 @@ def get_level_segment_graph(config, allow_empty_link):
         a, b, c = key.split(',')
         a = int(a)
         b = int(b)
-        c = int (c)
+        c = int(c)
 
         max_bc[0] = max(max_bc[0], a)
         max_bc[1] = max(max_bc[1], b)

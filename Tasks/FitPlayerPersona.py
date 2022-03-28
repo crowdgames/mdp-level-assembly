@@ -2,9 +2,10 @@ from .BaseFit import BaseFit
 from tqdm import trange
 
 class FitPlayerPersona(BaseFit):
-    def __init__(self, rl_agent, config, segments, playthroughs, player_persona):
+    def __init__(self, rl_agent, config, segments, playthroughs, player_persona, need_full_level):
         super().__init__(rl_agent, config, segments, playthroughs)
         self.player_persona = player_persona
+        self.need_full_level = need_full_level
 
     def run(self):
         cur = self.config.START_NODE
@@ -12,9 +13,16 @@ class FitPlayerPersona(BaseFit):
         self.rl_agent.update(None)
 
         for _ in trange(self.playthroughs, leave=False):
-            # build the level and let the player play through it
-            nodes = self.get_level_nodes(cur)
-            playthrough = self.player_persona(nodes, self.rl_agent, self.config.NUM_BC)
+            if self.need_full_level:
+                # an agent is going to play the game
+                lvl, nodes, lengths = self.get_level(cur)
+                playthrough = self.player_persona(lvl, nodes, lengths)
+                assert self.config.GRAM.sequence_is_possible(lvl)
+            else:
+                # surrogate is going to play it
+                nodes = self.get_level_nodes(cur)
+                playthrough = self.player_persona(nodes, self.rl_agent, self.config.NUM_BC)
+
             self.update_from_playthrough(playthrough) # reward added to playthrough here
             
             # rl agent learns from the playthrough and selects where to start from next time.

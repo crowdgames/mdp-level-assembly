@@ -1,6 +1,7 @@
+from Players.GramPlayer import GramPlayer
 from Tasks import *
 from Games import *
-from Players import PLAYERS
+from Players.SegmentPlayers import PLAYERS as SEGMENT_PLAYERS
 from Tasks.FitPlayerPersona import FitPlayerPersona
 import Utility
 import Directors
@@ -40,6 +41,10 @@ task_group = parser.add_mutually_exclusive_group(required=True)
 task_group.add_argument('--fit-agent', action='store_true', help='Fit to an agent')
 task_group.add_argument('--fit-persona', action='store_true', help='Fit to a player persona')
 task_group.add_argument('--get-level', action='store_true', help='Generate a level with a graph trained with --fit-to-agent')
+
+graph_group = parser.add_mutually_exclusive_group(required=True)
+graph_group.add_argument('--segment-graph', action='store_true', help='segment based generation for graph')
+graph_group.add_argument('--n-gram-graph', action='store_true', help='n-gram based generation for graph')
 
 rl_agent_group = parser.add_mutually_exclusive_group(required=True)
 rl_agent_group.add_argument('--sarsa', action='store_true', help='SARSA agent')
@@ -85,7 +90,17 @@ elif args.r_both:
 REWARD_StR = Utility.reward_type_to_str(config.REWARD_TYPE)
 
 # get Directors to use for the upcoming task
-graph = Utility.get_level_segment_graph(config, config.ALLOW_EMPTY_LINK)
+if args.segment_graph:
+    graph = Utility.get_level_segment_graph(config, config.ALLOW_EMPTY_LINK)
+    PLAYERS = SEGMENT_PLAYERS
+else:
+    graph, gram = Utility.get_n_gram_graph(config)
+    PLAYERS = {
+        'agent': GramPlayer(config).get
+    }
+
+    config.GRAM = gram
+
 agents = []
 if args.sarsa:
     agents.append(lambda: Directors.SARSA(graph, args.gamma))
@@ -103,18 +118,19 @@ if args.greedy or args.all:
 # run task
 if args.fit_agent:
     for rl_agent in agents:
-        print(f'Running Director: {rl_agent.NAME}')
+        agent = rl_agent()
+        print(f'Running Director: {agent.NAME}')
         seed(args.seed)
-        task = FitAgent(rl_agent, config, args.segments, args.playthroughs)
+        task = FitAgent(agent, config, args.segments, args.playthroughs)
         data = task.run()
 
-        f_name = f'agent_game_{config.NAME}_director_{rl_agent.NAME}_reward_{REWARD_StR}.pkl'
-        with open(join(config.BASE_DIR, f_name), 'wb') as f:
-            pkl_dump(rl_agent, f)
+        # f_name = f'agent_game_{config.NAME}_director_{agent.NAME}_reward_{REWARD_StR}.pkl'
+        # with open(join(config.BASE_DIR, f_name), 'wb') as f:
+        #     pkl_dump(agent, f)
 
-        f_name =  f'fitagent_game_{config.NAME}_director_{rl_agent.NAME}_reward_{REWARD_StR}.json'
-        with open(join(config.BASE_DIR, f_name), 'w') as f:
-            json_dump(data, f, indent=2)
+        # f_name =  f'fitagent_game_{config.NAME}_director_{agent.NAME}_reward_{REWARD_StR}.json'
+        # with open(join(config.BASE_DIR, f_name), 'w') as f:
+        #     json_dump(data, f, indent=2)
 
         print()
         print()
@@ -130,9 +146,10 @@ elif args.fit_persona:
         name = rl_agent().NAME # this is lazy but whatever
         progress_bar.set_description(f'{name} :: {p_name} :: {config.NAME}')
         data = []
+
         for i in trange(args.runs, leave=False):
             seed(args.seed+i)
-            task = FitPlayerPersona(rl_agent(), config, args.segments, args.playthroughs, p_eval)
+            task = FitPlayerPersona(rl_agent(), config, args.segments, args.playthroughs, p_eval, args.n_gram_graph)
             data.append(task.run())
 
         f_name = f'player_{p_name}_game_{config.NAME}_director_{name}_reward_{REWARD_StR}.json'

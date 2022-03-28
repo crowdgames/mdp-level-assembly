@@ -150,7 +150,7 @@ def find_path(levelStr, start, jumps, solids, wrapx, heuristic):
 
             if next_node[1] not in dist or next_node[0] < dist[next_node[1]]:
                 best_x = max(best_x, next_node[1][0])
-                best_y = max(best_y, next_node[1][1])
+                best_y = min(best_y, next_node[1][1])
 
                 dist[next_node[1]] = next_node[0]
                 prev[next_node[1]] = node[1]
@@ -183,10 +183,11 @@ def find_path(levelStr, start, jumps, solids, wrapx, heuristic):
             break
 
     if DEBUG_DISPLAY:
+        print(best_x, start[1]-best_y)
         import sys
         sys.exit(-1)
     
-    return best_x, best_y 
+    return best_x, start[1]-best_y 
     # if end_node == None:
     #     return None
 
