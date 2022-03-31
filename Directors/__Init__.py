@@ -1,3 +1,4 @@
+from .OnlineValueIteration import OnlineValueIteration
 from .PolicyIteration import PolicyIteration
 from .ValueIteration import ValueIteration
 from .QLearning import QLearning

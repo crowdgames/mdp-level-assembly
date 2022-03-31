@@ -1,21 +1,38 @@
-#!/bin/bash
+# #!/bin/bash
 
-# TYPE="--segment-graph"
-# RUNS=20
-# TASK="--fit-persona"
-# GAME="--mario"
-# SEGMENTS=5
-
-TYPE="--n-gram-graph"
-RUNS=100
+TYPE="--segment-graph"
+RUNS="--runs 20"
 TASK="--fit-persona"
 GAME="--icarus"
-SEGMENTS=40
+SEGMENTS="--segments 5"
+PLAYTHROUGHS="--playthroughs 50"
+AGENT='--all'
+
+echo "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+
+echo "pypy3 main.py --r-player ${GAME} ${TASK}  ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+screen -dm bash -c "pypy3 main.py --r-player ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+
+echo "pypy3 main.py --r-designer ${GAME} ${TASK}  ${AGENT} ${RUNS} ${AGENT} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+screen -dm bash -c "pypy3 main.py --r-designer ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+
+
+TYPE="--n-gram-graph"
+RUNS="--runs 10"
+TASK="--fit-persona"
+GAME="--mario"
+SEGMENTS="--segments 40"
 PLAYTHROUGHS="--playthroughs 100"
+AGENT='--all'
 
+echo "pypy3 main.py --r-both ${GAME} ${TASK}  ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK}  ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 
-screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --all --runs ${RUNS} --segments ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
-screen -dm bash -c "pypy3 main.py --r-player ${GAME} ${TASK} --all --runs ${RUNS} --segments ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
-screen -dm bash -c "pypy3 main.py --r-designer ${GAME} ${TASK} --all  --runs ${RUNS} --segments ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+echo "pypy3 main.py --r-player ${GAME} ${TASK}  ${AGENT} ${RUNS}  ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+screen -dm bash -c "pypy3 main.py --r-player ${GAME} ${TASK}  ${AGENT} ${RUNS}  ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+
+echo "pypy3 main.py --r-designer ${GAME} ${TASK}  ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+screen -dm bash -c "pypy3 main.py --r-designer ${GAME} ${TASK}  ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 
 echo "all process started"

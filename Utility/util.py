@@ -2,6 +2,7 @@ import random, sys
 import networkx as nx
 
 from json import load as load_file
+from random import uniform
 from os.path import join
 from os import listdir
 
@@ -64,9 +65,7 @@ def get_n_gram_graph(config):
 
     for filename in listdir(config.TRAINING_LEVELS_DIR):
         filepath = join(config.TRAINING_LEVELS_DIR, filename)
-        with open(filepath) as f:
-            lines = [l.strip() for l in reversed(f.readlines())]
-            gram.add_sequence(lines)
+        gram.add_sequence(config.read_file(filepath))
 
     graph = nx.DiGraph()
 
@@ -141,7 +140,7 @@ def get_level_segment_graph(config, allow_empty_link):
         graph.nodes[node][D] = r
         graph.nodes[node][R] = r
         graph.nodes[node][C] = 1
-        graph.nodes[node][BC] = [a/2.0,b/2.0]
+        graph.nodes[node][BC] = [a,b]
         graph.nodes[node][PD] = 1
 
         for next_node, edge_data in next_data.items():

@@ -25,18 +25,16 @@ class PolicyIteration(MDP):
         self._reset_utility()
 
         # run policy iteration
-        for _ in range(0, self.MAX_ITERATIONS, self.POLICY_ITER):
+        unchanged = True
+        while unchanged:
             # simplified policy evaluation
-            for _ in range(self.POLICY_ITER):
+            for __ in range(self.POLICY_ITER):
                 for n in self.G:
-                    # reward for current node
-                    r = self.G.nodes[n][R] 
-                    # target node according to policy
-                    n_p = self.pi[n] 
-                    # Utility of the node found by the policy
-                    u_p = self.get_md(n_p, U)
+                    # get utility of the policy's best node
+                    u = self.get_md(self.pi[n] , U)
+
                     # Updated utility of the current node
-                    self.set_md(n, 'U', r + self.GAMMA * u_p)
+                    self.set_md(n, U, self.get_md(n, R) + self.GAMMA * u)
 
             # policy improvement
             unchanged = True
@@ -55,8 +53,7 @@ class PolicyIteration(MDP):
                     self.pi[n] = best_s
                     unchanged = False
 
-            if unchanged:
-                break
 
     def get(self, node):
         return self._best_neighbor(node)
+        # return self._epsilon_greedy_neighbor(node)

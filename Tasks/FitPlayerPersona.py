@@ -3,7 +3,7 @@ from tqdm import trange
 
 class FitPlayerPersona(BaseFit):
     def __init__(self, rl_agent, config, segments, playthroughs, player_persona, need_full_level):
-        super().__init__(rl_agent, config, segments, playthroughs)
+        super().__init__(rl_agent, config, segments, playthroughs, not need_full_level)
         self.player_persona = player_persona
         self.need_full_level = need_full_level
 
@@ -26,8 +26,10 @@ class FitPlayerPersona(BaseFit):
             self.update_from_playthrough(playthrough) # reward added to playthrough here
             
             # rl agent learns from the playthrough and selects where to start from next time.
+            # important to note that this is based on where the player was at last and not
+            # the last node that they could have visited.
             self.rl_agent.update(playthrough)
-            cur = self.rl_agent.get(nodes[-1])
+            cur = self.rl_agent.get(playthrough.entries[-1].node_name)
 
             # make sure the node in question is not a link. If it is then go to the 
             # next node.

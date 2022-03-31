@@ -30,4 +30,5 @@ class ValueIteration(MDP):
             #     break
 
     def get(self, node):
-        return self._best_neighbor(node)
+        # return self._best_neighbor(node)
+        return self._epsilon_greedy_neighbor(node)

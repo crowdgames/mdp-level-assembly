@@ -15,10 +15,10 @@ class GramPlayer:
         for n, l in zip(nodes, lengths):
             new_x = x - l
             if new_x > 0:
-                playthrough.add(PlaythroughEntry(n, 1.0, 0.0))
+                playthrough.add(PlaythroughEntry(n, 1.0, 0.0, 0.0, 0.0, 0.0))
                 x = new_x
             else:
-                playthrough.add(PlaythroughEntry(n, 0.0, 0.0))
+                playthrough.add(PlaythroughEntry(n, 0.0, 0.0, 0.0, 0.0, 0.0))
                 break
 
         return playthrough
@@ -28,10 +28,10 @@ class GramPlayer:
         for n, l in zip(nodes, lengths):
             new_y = y - l
             if y > 0:
-                playthrough.add(PlaythroughEntry(n, 1.0, 0.0))
+                playthrough.add(PlaythroughEntry(n, 1.0, 0.0, 0.0, 0.0, 0.0))
                 y = new_y
             else:
-                playthrough.add(PlaythroughEntry(n, 0.0, 0.0))
+                playthrough.add(PlaythroughEntry(n, 0.0, 0.0, 0.0, 0.0, 0.0))
                 break
         
         return playthrough

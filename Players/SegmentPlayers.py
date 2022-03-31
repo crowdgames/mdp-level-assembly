@@ -10,9 +10,9 @@ def bad_player_likes_hard_levels(nodes, director, MAX_BC):
         cur_bc = sum(director.get_md(n, BC))
         agent_r = cur_bc / MAX_BC
         if cur_bc < MAX_BC * 0.2:
-            playthrough.add(PlaythroughEntry(n, 1.0, agent_r))
+            playthrough.add(PlaythroughEntry(n, 1.0, agent_r, 0.0, 0.0, 0.0))
         else:
-            playthrough.add(PlaythroughEntry(n, uniform(0.1, 0.9), agent_r))
+            playthrough.add(PlaythroughEntry(n, uniform(0.1, 0.9), agent_r, 0.0, 0.0, 0.0))
             break
 
     return playthrough
@@ -23,9 +23,9 @@ def bad_player_likes_easy_levels(nodes, director, MAX_BC):
         cur_bc = sum(director.get_md(n, BC))
         agent_r = (MAX_BC - cur_bc) / MAX_BC
         if cur_bc < MAX_BC*0.2:
-            playthrough.add(PlaythroughEntry(n, 1.0, agent_r))
+            playthrough.add(PlaythroughEntry(n, 1.0, agent_r, 0.0, 0.0, 0.0))
         else:
-            playthrough.add(PlaythroughEntry(n, uniform(0.1, 0.3), agent_r))
+            playthrough.add(PlaythroughEntry(n, uniform(0.1, 0.3), agent_r, 0.0, 0.0, 0.0))
             break
 
     return playthrough
@@ -37,9 +37,9 @@ def good_player_likes_easy_levels(nodes, director, MAX_BC):
         agent_r = (MAX_BC - cur_bc) / MAX_BC
 
         if cur_bc < MAX_BC*0.8:
-            playthrough.add(PlaythroughEntry(n, 1.0, agent_r))
+            playthrough.add(PlaythroughEntry(n, 1.0, agent_r, 0.0, 0.0, 0.0))
         else:
-            playthrough.add(PlaythroughEntry(n, uniform(0.6, 0.95), agent_r))
+            playthrough.add(PlaythroughEntry(n, uniform(0.6, 0.95), agent_r, 0.0, 0.0, 0.0))
             break
 
     return playthrough
@@ -51,9 +51,9 @@ def good_player_likes_hard_levels(nodes, director, MAX_BC):
         agent_r = cur_bc / MAX_BC
         
         if cur_bc < MAX_BC*0.8:
-            playthrough.add(PlaythroughEntry(n, 1.0, agent_r))
+            playthrough.add(PlaythroughEntry(n, 1.0, agent_r, 0.0, 0.0, 0.0))
         else:
-            playthrough.add(PlaythroughEntry(n, uniform(0.6, 0.95), agent_r))
+            playthrough.add(PlaythroughEntry(n, uniform(0.6, 0.95), agent_r, 0.0, 0.0, 0.0))
             break
 
     return playthrough
@@ -64,21 +64,22 @@ def mediocre_player_likes_high_a(nodes, director, MAX_BC):
         a, b = director.get_md(n, BC)
         cur_bc = a + b
         if cur_bc < MAX_BC * 0.5:
-            playthrough.add(PlaythroughEntry(n, 1.0, a))
+            playthrough.add(PlaythroughEntry(n, 1.0, a, 0.0, 0.0, 0.0))
         else:
-            playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), a))
+            playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), a, 0.0, 0.0, 0.0))
             break
 
     return playthrough
 
 def mediocre_player_likes_high_b(nodes, director, MAX_BC):
     playthrough = Playthrough()
+
     for n in nodes:
         a, b = director.get_md(n, BC)
         if a+b < MAX_BC * 0.5:
-            playthrough.add(PlaythroughEntry(n, 1.0, b))
+            playthrough.add(PlaythroughEntry(n, 1.0, b, 0.0, 0.0, 0.0))
         else:
-            playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), b))
+            playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), b, 0.0, 0.0, 0.0))
             break
 
     return playthrough
@@ -90,9 +91,9 @@ def mediocre_player_likes_hard_levels(nodes, director, MAX_BC):
         agent_r = cur_bc / MAX_BC
 
         if cur_bc < MAX_BC * 0.5:
-            playthrough.add(PlaythroughEntry(n, 1.0, agent_r))
+            playthrough.add(PlaythroughEntry(n, 1.0, agent_r, 0.0, 0.0))
         else:
-            playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), agent_r))
+            playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), agent_r, 0.0, 0.0))
             break
 
     return playthrough
@@ -104,9 +105,9 @@ def mediocre_player_likes_easy_levels(nodes, director, MAX_BC):
         agent_r = (MAX_BC - cur_bc) / MAX_BC
 
         if cur_bc < MAX_BC*0.4:
-            playthrough.add(PlaythroughEntry(n, 1.0, agent_r))
+            playthrough.add(PlaythroughEntry(n, 1.0, agent_r, 0.0, 0.0, 0.0))
         else:
-            playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), agent_r))
+            playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), agent_r, 0.0, 0.0, 0.0))
             break
 
     return playthrough

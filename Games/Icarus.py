@@ -86,8 +86,14 @@ JUMPS = [
 ]
 
 BASE_DIR = join('.', 'GramElitesData', 'IcarusData', 'gram_elites')
-TRAINING_LEVELS_DIR = 'IcarusLevels'
+TRAINING_LEVELS_DIR = join('TrainingLevels', 'Icarus')
 S = '0_0_0'
+
+def read_file(filepath):
+    with open(filepath) as f:
+        lines = [l.strip() for l in reversed(f.readlines())]
+
+    return lines
 
 def get_furthest_xy(lvl):
     play_slices = list(lvl)

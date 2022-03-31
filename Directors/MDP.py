@@ -1,5 +1,5 @@
 from math import inf
-from random import choices
+from random import choices, random, choice
 from math import exp
 
 from .Base import Base
@@ -47,8 +47,17 @@ class MDP(Base):
 
         for neighbor in self.G.neighbors(node):
             n.append(neighbor)
-            w.append(self.get_md(neighbor, U))
+            w.append(exp(self.get_md(neighbor, U)))
 
         return choices(n, weights=w, k=1)[0]
+
+    def _epsilon_greedy_neighbor(self, node):
+        if random() < 0.1:
+            return choice(list(self.G.neighbors(node)))
+
+        return self._epsilon_greedy_neighbor(node)
+        # return self._best_neighbor(node)
+
+        
 
         

@@ -1,5 +1,6 @@
+from Games.Icarus import TRAINING_LEVELS_DIR
 from Utility.SummervilleAgent import find_path
-from Utility import slices_to_rows
+from Utility import slices_to_rows, rows_to_slices
 from os.path import join
 
 WRAPS = False
@@ -11,6 +12,9 @@ MAX_BC = None
 NUM_BC = 2
 REWARD_TYPE = None
 ALLOW_EMPTY_LINK = True
+
+GRAMMAR_SIZE = 3
+TRAINING_LEVELS_DIR
 
 
 # view smb.json in TheVGLC
@@ -92,7 +96,15 @@ JUMPS = [
 ]
 
 BASE_DIR = join('.', 'GramElitesData', 'MarioData', 'gram_elites')
+TRAINING_LEVELS_DIR = join('TrainingLevels', 'Mario')
 S = '0_0_0'
+
+
+def read_file(filepath):
+    with open(filepath) as f:
+        lines = [l.strip() for l in f.readlines()]
+
+    return rows_to_slices(lines, False)
 
 def get_furthest_xy(lvl):
     lvl.insert(0, 'X-------------')
@@ -112,3 +124,12 @@ def get_furthest_xy(lvl):
     lvl.pop()
 
     return x, y
+
+def player_reward(slice):
+    total = 0
+    for char in slice:
+        if char in SOLIDS:
+            total += 1
+            continue
+
+    return total/len(slice)
