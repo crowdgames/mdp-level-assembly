@@ -1,7 +1,7 @@
 # #!/bin/bash
 
 TYPE="--segment-graph"
-RUNS="--runs 20"
+RUNS="--runs 50"
 TASK="--fit-persona"
 GAME="--icarus"
 SEGMENTS="--segments 5"
@@ -17,9 +17,13 @@ screen -dm bash -c "pypy3 main.py --r-player ${GAME} ${TASK} ${AGENT} ${RUNS} ${
 echo "pypy3 main.py --r-designer ${GAME} ${TASK}  ${AGENT} ${RUNS} ${AGENT} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 screen -dm bash -c "pypy3 main.py --r-designer ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 
+TASK="--switch-persona"
+echo "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"  
+screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}" 
+
 
 TYPE="--n-gram-graph"
-RUNS="--runs 10"
+RUNS="--runs 50"
 TASK="--fit-persona"
 GAME="--mario"
 SEGMENTS="--segments 40"

@@ -1,7 +1,7 @@
 from Players.GramPlayer import GramPlayer
 from Tasks import *
 from Games import *
-from Players.SegmentPlayers import PLAYERS as SEGMENT_PLAYERS
+from Players.SegmentPlayers import PLAYERS as SEGMENT_PLAYERS, bad_player_likes_easy_levels, good_player_likes_hard_levels, mediocre_player_likes_high_a, mediocre_player_likes_high_b
 from Tasks.FitPlayerPersona import FitPlayerPersona
 import Utility
 import Directors
@@ -40,6 +40,7 @@ game_group.add_argument('--icarus', action='store_true', help='Run Icarus')
 task_group = parser.add_mutually_exclusive_group(required=True)
 task_group.add_argument('--fit-agent', action='store_true', help='Fit to an agent')
 task_group.add_argument('--fit-persona', action='store_true', help='Fit to a player persona')
+task_group.add_argument('--switch-persona', action='store_true', help='Fit to two player personas')
 task_group.add_argument('--get-level', action='store_true', help='Generate a level with a graph trained with --fit-to-agent')
 
 graph_group = parser.add_mutually_exclusive_group(required=True)
@@ -176,6 +177,41 @@ elif args.fit_persona:
         }
 
         f_name = f'player_{p_name}_game_{config.NAME}_director_{name}_reward_{REWARD_StR}.json'
+        with open(join(config.BASE_DIR, f_name), 'w') as f:
+            json_dump(res, f, indent=2)
+
+elif args.switch_persona:
+    for rl_agent in tqdm(agents, leave=False):
+        data = []
+        for i in trange(args.runs, leave=False):
+            seed(args.seed+i)
+            players = [
+                bad_player_likes_easy_levels,
+                good_player_likes_hard_levels
+            ]
+
+            task = SwitchPlayerPersona(rl_agent(), config, args.segments, args.playthroughs, players, args.n_gram_graph)
+            data.append(task.run())
+
+        res = {
+            'data': data,
+            'info': {
+                'seed': args.seed,
+                'segments': args.segments,
+                'theta': args.theta,
+                'max_iter': args.max_iter,
+                'policy_iter': args.policy_iter,
+                'gamma': args.gamma,
+                'runs': args.runs,
+                'playthroughs': args.playthroughs,
+                'players': [
+                    'Bad Player Likes Easy Levels',
+                    'Good Player Likes Hard Levels'
+                ]
+            }
+        }
+
+        f_name = f'switch_game_{config.NAME}_director_{rl_agent().NAME}_reward_{REWARD_StR}.json'
         with open(join(config.BASE_DIR, f_name), 'w') as f:
             json_dump(res, f, indent=2)
 
