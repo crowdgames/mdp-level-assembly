@@ -75,12 +75,12 @@ class BaseFit:
 
             # update number of times every node has been seen for every elite
             # in the same cell as the node in the entry.  
-            if self.using_segments:
-                new_count = c+1  
-                for node in self.__get_cell_nodes(e.node_name, self.rl_agent.G):
-                    self.rl_agent.set_md(node, C, new_count)
-                    if node != e.node_name:
-                        r = self.rl_agent.get_md(node, R)
-                        self.rl_agent.set_md(node, R, r/new_count)
+            # if self.using_segments:
+            new_count = c+1  
+            for node in self.__get_cell_nodes(e.node_name, self.rl_agent.G):
+                self.rl_agent.set_md(node, C, new_count)
+                if node != e.node_name:
+                    r = self.rl_agent.get_md(node, R)
+                    self.rl_agent.set_md(node, R, r/new_count)
 
            

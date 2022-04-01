@@ -24,6 +24,11 @@ class FitPlayerPersona(BaseFit):
                 playthrough = self.player_persona(nodes, self.rl_agent, self.config.NUM_BC)
 
             self.update_from_playthrough(playthrough) # reward added to playthrough here
+            # print(lvl)
+            # for e in playthrough.entries:
+            #     print(f'{e.node_name}: {e.reward}')
+            # import sys
+            # sys.exit(-1)
             
             # rl agent learns from the playthrough and selects where to start from next time.
             # important to note that this is based on where the player was at last and not

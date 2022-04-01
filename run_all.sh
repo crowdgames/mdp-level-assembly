@@ -1,7 +1,7 @@
 # #!/bin/bash
 
 TYPE="--segment-graph"
-RUNS="--runs 50"
+RUNS="--runs 100"
 TASK="--fit-persona"
 GAME="--icarus"
 SEGMENTS="--segments 5"
@@ -23,7 +23,7 @@ screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SE
 
 
 TYPE="--n-gram-graph"
-RUNS="--runs 50"
+RUNS="--runs 100"
 TASK="--fit-persona"
 GAME="--mario"
 SEGMENTS="--segments 40"

@@ -59,8 +59,6 @@ def __largest_connected_subgraph(graph):
     return graph.subgraph(biggest_comp).copy()
 
 def get_n_gram_graph(config):
-    print('NOTE :: this implementation will only work for Icarus with the reversed')
-    config.START_NODE = '0'
     gram = NGram(config.GRAMMAR_SIZE)
 
     for filename in listdir(config.TRAINING_LEVELS_DIR):

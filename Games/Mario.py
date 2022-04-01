@@ -1,4 +1,3 @@
-from Games.Icarus import TRAINING_LEVELS_DIR
 from Utility.SummervilleAgent import find_path
 from Utility import slices_to_rows, rows_to_slices
 from os.path import join
@@ -14,7 +13,7 @@ REWARD_TYPE = None
 ALLOW_EMPTY_LINK = True
 
 GRAMMAR_SIZE = 3
-TRAINING_LEVELS_DIR
+TRAINING_LEVELS_DIR = join('TrainingLevels', 'Mario')
 
 
 # view smb.json in TheVGLC

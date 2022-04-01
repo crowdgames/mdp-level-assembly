@@ -1,3 +1,4 @@
+from copy import deepcopy
 from Players.GramPlayer import GramPlayer
 from Tasks import *
 from Games import *
@@ -105,19 +106,19 @@ else:
 
 agents = []
 if args.sarsa:
-    agents.append(lambda: Directors.SARSA(graph, args.gamma))
+    agents.append(lambda: Directors.SARSA(deepcopy(graph), args.gamma))
 if args.q or args.all:
-    agents.append(lambda: Directors.QLearning(graph, args.gamma))
+    agents.append(lambda: Directors.QLearning(deepcopy(graph), args.gamma))
 if args.policy or args.all:
-    agents.append(lambda: Directors.PolicyIteration(graph, args.max_iter, args.policy_iter, args.gamma))
+    agents.append(lambda: Directors.PolicyIteration(deepcopy(graph), args.max_iter, args.policy_iter, args.gamma))
 if args.online_value:
-    agents.append(lambda: Directors.OnlineValueIteration(graph, args.gamma))
+    agents.append(lambda: Directors.OnlineValueIteration(deepcopy(graph), args.gamma))
 if args.value:
-    agents.append(lambda: Directors.ValueIteration(graph, args.max_iter, args.gamma, args.theta))
+    agents.append(lambda: Directors.ValueIteration(deepcopy(graph), args.max_iter, args.gamma, args.theta))
 if args.random or args.all:
-    agents.append(lambda: Directors.Random(graph))
+    agents.append(lambda: Directors.Random(deepcopy(graph)))
 if args.greedy or args.all:
-    agents.append(lambda: Directors.Greedy(graph))
+    agents.append(lambda: Directors.Greedy(deepcopy(graph)))
 
 # run task
 if args.fit_agent:
@@ -144,7 +145,7 @@ elif args.fit_persona:
     for rl_agent in agents:
         for p_name, p_eval in PLAYERS.items():
             to_run.append((rl_agent, p_name, p_eval))
-
+            
             name = rl_agent().NAME
             f_name = f'player_{p_name}_game_{config.NAME}_director_{name}_reward_{REWARD_StR}.json'
             path = join(config.BASE_DIR, f_name)
@@ -187,7 +188,7 @@ elif args.switch_persona:
             seed(args.seed+i)
             players = [
                 bad_player_likes_easy_levels,
-                good_player_likes_hard_levels
+                good_player_likes_hard_levels,
             ]
 
             task = SwitchPlayerPersona(rl_agent(), config, args.segments, args.playthroughs, players, args.n_gram_graph)
@@ -206,7 +207,7 @@ elif args.switch_persona:
                 'playthroughs': args.playthroughs,
                 'players': [
                     'Bad Player Likes Easy Levels',
-                    'Good Player Likes Hard Levels'
+                    'Good Player Likes Hard Levels',
                 ]
             }
         }
