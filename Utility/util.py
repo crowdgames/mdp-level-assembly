@@ -133,6 +133,7 @@ def get_level_segment_graph(config, allow_empty_link):
 
         # level segments do not have have a designer preference in terms of probability
         # selection. Multiplication by 1 results in no change.
+        
         graph.add_node(node)
         graph.nodes[node][S] = slices
         graph.nodes[node][D] = r

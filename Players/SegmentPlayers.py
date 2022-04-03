@@ -63,7 +63,7 @@ def mediocre_player_likes_high_a(nodes, director, MAX_BC):
     for n in nodes:
         a, b = director.get_md(n, BC)
         cur_bc = a + b
-        if cur_bc < MAX_BC * 0.5:
+        if cur_bc < MAX_BC * 0.3:
             playthrough.add(PlaythroughEntry(n, 1.0, a, 0.0, 0.0, 0.0))
         else:
             playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), a, 0.0, 0.0, 0.0))
@@ -76,7 +76,8 @@ def mediocre_player_likes_high_b(nodes, director, MAX_BC):
 
     for n in nodes:
         a, b = director.get_md(n, BC)
-        if a+b < MAX_BC * 0.3:
+        cur_bc = a + b
+        if cur_bc < MAX_BC * 0.3:
             playthrough.add(PlaythroughEntry(n, 1.0, b, 0.0, 0.0, 0.0))
         else:
             playthrough.add(PlaythroughEntry(n, uniform(0.4, 0.7), b, 0.0, 0.0, 0.0))

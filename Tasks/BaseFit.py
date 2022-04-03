@@ -1,5 +1,9 @@
 from Utility.RewardType import get_reward
 from Directors.Keys import *
+from Utility import BC
+
+from tqdm import trange
+
 
 class BaseFit:
     def __init__(self, rl_agent, config, segments, playthroughs, using_segments):
@@ -82,5 +86,51 @@ class BaseFit:
                 if node != e.node_name:
                     r = self.rl_agent.get_md(node, R)
                     self.rl_agent.set_md(node, R, r/new_count)
+
+    def _fit(self, cur, data, player_persona, num_playthroughs):
+        for _ in trange(num_playthroughs, leave=False):
+            if self.need_full_level:
+                # an agent is going to play the game
+                lvl, nodes, lengths = self.get_level(cur)
+                playthrough = player_persona(lvl, nodes, lengths)
+                assert self.config.GRAM.sequence_is_possible(lvl)
+            else:
+                # surrogate is going to play it
+                nodes = self.get_level_nodes(cur)
+                playthrough = player_persona(nodes, self.rl_agent, self.config.NUM_BC)
+
+            # reward added to playthrough here
+            self.update_from_playthrough(playthrough) 
+            
+            # rl agent learns from the playthrough
+            self.rl_agent.update(playthrough)
+
+            # Get the next node to start from
+            if len(nodes) != len(playthrough.entries):
+                # the player beat the full level so we get the last node they
+                # reached
+                cur = self.rl_agent.get(playthrough.entries[-1].node_name)
+            else:
+                # the player lost so we select the easiest node that the player
+                # could have reached and use that
+                lowest_r = 1000000
+                for n in nodes:
+                    if '__' in n:
+                        continue
+
+                    r = sum(self.rl_agent.get_md(n, BC))
+                    if r < lowest_r:
+                        r = lowest_r
+                        cur = n
+
+            # make sure the node in question is not a link. If it is then go to the 
+            # next node.
+            if '__' in cur:
+                cur = cur.split('__')[1]
+
+            # output data is updated 
+            data.append(playthrough.get_summary(nodes))
+
+        return cur
 
            
