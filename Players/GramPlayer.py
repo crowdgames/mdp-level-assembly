@@ -19,8 +19,10 @@ class GramPlayer:
                 playthrough.add(PlaythroughEntry(n, 1.0, 0.0, 0.0, 0.0, 0.0))
                 
             else:
-                playthrough.add(PlaythroughEntry(n, 0.0, 0.0, 0.0, 0.0, 0.0))
+                playthrough.add(PlaythroughEntry(n, cur_x/len(nodes), 0.0, 0.0, 0.0, 0.0))
                 break
+
+            cur_x += 1
         
         return playthrough
 

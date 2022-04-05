@@ -188,8 +188,8 @@ elif args.switch_persona:
         for i in trange(args.runs, leave=False):
             seed(args.seed+i)
             players = [
-                good_player_likes_hard_levels,
                 bad_player_likes_easy_levels,
+                good_player_likes_hard_levels,
             ]
 
             task = SwitchPlayerPersona(rl_agent(), config, args.segments, args.playthroughs, players, args.n_gram_graph)
@@ -207,8 +207,8 @@ elif args.switch_persona:
                 'runs': args.runs,
                 'playthroughs': args.playthroughs,
                 'players': [
-                    'Good Player Likes Hard Levels',
                     'Bad Player Likes Easy Levels',
+                    'Good Player Likes Hard Levels',
                 ]
             }
         }

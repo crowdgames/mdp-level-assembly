@@ -35,7 +35,7 @@ class PolicyIteration(MDP):
 
                     # Updated utility of the current node
                     self.set_md(n, U, self.get_md(n, R) + self.GAMMA * u)
-
+            
             # policy improvement
             unchanged = True
             for n in self.G:
@@ -52,7 +52,6 @@ class PolicyIteration(MDP):
                 if old != best_s:
                     self.pi[n] = best_s
                     unchanged = False
-
 
     def get(self, node):
         return self._best_neighbor(node)

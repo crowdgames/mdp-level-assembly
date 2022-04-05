@@ -1,4 +1,4 @@
-from Utility.RewardType import get_reward
+from Utility.RewardType import get_reward, RewardType
 from Directors.Keys import *
 from Utility import BC
 
@@ -83,7 +83,7 @@ class BaseFit:
             new_count = c+1  
             for node in self.__get_cell_nodes(e.node_name, self.rl_agent.G):
                 self.rl_agent.set_md(node, C, new_count)
-                if node != e.node_name:
+                if self.config.REWARD_TYPE != RewardType.PLAYER and node != e.node_name:
                     r = self.rl_agent.get_md(node, R)
                     self.rl_agent.set_md(node, R, r/new_count)
 
@@ -106,7 +106,7 @@ class BaseFit:
             self.rl_agent.update(playthrough)
 
             # Get the next node to start from
-            if len(nodes) != len(playthrough.entries):
+            if len(nodes) != len(playthrough.entries) or BC not in self.rl_agent.G.nodes:
                 # the player beat the full level so we get the last node they
                 # reached
                 cur = self.rl_agent.get(playthrough.entries[-1].node_name)

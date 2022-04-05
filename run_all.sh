@@ -1,7 +1,7 @@
 # #!/bin/bash
 
 TYPE="--segment-graph"
-RUNS="--runs 3"
+RUNS="--runs 100"
 TASK="--fit-persona"
 GAME="--icarus"
 SEGMENTS="--segments 5"
