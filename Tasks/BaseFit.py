@@ -59,6 +59,8 @@ class BaseFit:
 
     def update_from_playthrough(self, playthrough):
         for e in playthrough.entries:
+            self.rl_agent.visited.add(e.node_name)
+            
             # Set the designer reward and total reward.
             #
             #   The designer reward is the designer reward multiplied by the 
@@ -70,9 +72,9 @@ class BaseFit:
             c = self.rl_agent.get_md(e.node_name, C)
             d = self.rl_agent.get_md(e.node_name, D)
 
-            e.designer_reward = (d * e.percent_completable) / c
+            e.designer_reward = d / c
             e.total_reward = e.designer_reward + e.player_reward
-            e.reward = get_reward(self.config.REWARD_TYPE, e)
+            e.reward = get_reward(self.config.REWARD_TYPE, e) * e.percent_completable
 
             # update the reward based on the designer and the player
             self.rl_agent.set_md(e.node_name, R, e.reward)
@@ -105,23 +107,9 @@ class BaseFit:
             # rl agent learns from the playthrough
             self.rl_agent.update(playthrough)
 
-            # Get the next node to start from
-            if len(nodes) != len(playthrough.entries) or BC not in self.rl_agent.G.nodes:
-                # the player beat the full level so we get the last node they
-                # reached
-                cur = self.rl_agent.get(playthrough.entries[-1].node_name)
-            else:
-                # the player lost so we select the easiest node that the player
-                # could have reached and use that
-                lowest_r = 1000000
-                for n in nodes:
-                    if '__' in n:
-                        continue
-
-                    r = sum(self.rl_agent.get_md(n, BC))
-                    if r < lowest_r:
-                        r = lowest_r
-                        cur = n
+            # get next starting node
+            cur = self.rl_agent.get_starting_node()
+            # cur = self.rl_agent.get(self.rl_agent.get_starting_node())
 
             # make sure the node in question is not a link. If it is then go to the 
             # next node.
@@ -133,4 +121,38 @@ class BaseFit:
 
         return cur
 
-           
+            # # Get the next node to start from
+            # # print(1, len(nodes), len(playthrough.entries), playthrough.entries[0].to_dict())
+            # if len(nodes) == len(playthrough.entries) or not self.using_segments:
+            #     # the player beat the full level so we get the last node they
+            #     # reached
+            #     cur = self.rl_agent.get(playthrough.entries[-1].node_name)
+
+            #     # print()
+            #     # print()
+            #     # print('=============')
+            #     # for e in playthrough.entries:
+            #     #     print(e.percent_completable)
+            #     # print(not self.using_segments)
+            #     # print(len(nodes), '!=', len(playthrough.entries))
+            #     # print(len(nodes) == len(playthrough.entries), 'or', not self.using_segments)
+            #     # print(len(nodes) == len(playthrough.entries) or not self.using_segments)
+            #     # print('=============')
+            # else:
+            #     # the player lost so we select the easiest node that the player
+            #     # could have reached and use that
+            #     lowest_r = self.rl_agent.get_md(cur, D)
+            #     for n in nodes:
+            #         r = self.rl_agent.get_md(n, D)
+            #         if r < lowest_r:
+            #             r = lowest_r
+            #             cur = n
+
+            #     # print()
+            #     # print()
+            #     # print('=============')
+            #     # temp_cur = cur
+            #     # temp = self.rl_agent.get_md(cur, D)
+            #     # print(temp, '-->', self.rl_agent.get_md(cur, D))
+            #     # print(temp_cur, '-->', cur)
+            #     # print('=============')

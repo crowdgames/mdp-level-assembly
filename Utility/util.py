@@ -81,7 +81,7 @@ def get_n_gram_graph(config):
             n_prior = prior[1:] + (neighbor,)
             graph.add_edge(prior_key, str(n_prior))
 
-    config.START_NODE = prior_key
+    config.START_NODE = str(list(gram.grammar.keys())[0])
 
     # we want the graph to be fully connected
     return __largest_connected_subgraph(graph), gram
@@ -138,6 +138,7 @@ def get_level_segment_graph(config, allow_empty_link):
         graph.nodes[node][S] = slices
         graph.nodes[node][D] = r
         graph.nodes[node][R] = r
+        # graph.nodes[node][R] = 1-r/config.NUM_BC
         graph.nodes[node][C] = 1
         graph.nodes[node][BC] = [a,b]
         graph.nodes[node][PD] = 1
@@ -184,7 +185,8 @@ def get_level_segment_graph(config, allow_empty_link):
 
         max_r = (mean_a + mean_b)/2.0
         assert max_r <= 1
-        graph.nodes[e][R] = max_r
+        graph.nodes[e][R] = r
+        # graph.nodes[e][R] = 1 - 1/config.NUM_BC
         graph.nodes[e][D] = max_r
         graph.nodes[e][BC] = [mean_a, mean_b]
 

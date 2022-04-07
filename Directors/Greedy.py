@@ -20,3 +20,15 @@ class Greedy(Base):
                 best_n = neighbor
 
         return best_n
+
+    def get_starting_node(self):
+        best_n = None
+        best_r = 0
+        for n in self.visited:
+            r = self.get_md(n, R)
+            if r > best_r:
+                best_r = r
+                best_n = n
+
+        return best_n
+

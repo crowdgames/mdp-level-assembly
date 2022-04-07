@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, choices
 from math import inf
 from .MDP import MDP
 from .Keys import *
@@ -10,7 +10,15 @@ class PolicyIteration(MDP):
         self.GAMMA = gamma
         self.MAX_ITERATIONS = max_iterations
         self.POLICY_ITER = policy_iter
-            
+
+    def __get_u(self, n):
+        return self.get_md(self.pi[n], U)
+        # if self.get_md(n, C) > 1:
+        #     return self.get_md(self.pi[n], U)
+
+        # return 4 + self.get_md(self.pi[n], U)
+        # return 4
+
     def update(self, _):
         # create a random policy
         self.pi = {} 
@@ -31,7 +39,7 @@ class PolicyIteration(MDP):
             for __ in range(self.POLICY_ITER):
                 for n in self.G:
                     # get utility of the policy's best node
-                    u = self.get_md(self.pi[n] , U)
+                    u = self.__get_u(n)
 
                     # Updated utility of the current node
                     self.set_md(n, U, self.get_md(n, R) + self.GAMMA * u)
@@ -55,4 +63,20 @@ class PolicyIteration(MDP):
 
     def get(self, node):
         return self._best_neighbor(node)
-        # return self._epsilon_greedy_neighbor(node)
+
+    # def get_starting_node(self):
+    #     best_n = None
+    #     best_r = 0
+    #     for n in self.visited:
+    #         r = self.__get_u(n)
+    #         if r > best_r:
+    #             best_r = r
+    #             best_n = n
+
+    #     return best_n
+
+    def get_starting_node(self):
+        nodes = list(self.visited)
+        weights = [self.__get_u(n) for n in nodes]
+
+        return choices(nodes, weights=weights, k=1)[0]

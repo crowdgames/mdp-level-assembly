@@ -1,4 +1,5 @@
 from .Keys import *
+import networkx as nx
 
 class Base:
     def __init__(self, graph, name):
@@ -11,8 +12,13 @@ class Base:
             self.G.nodes[n][U] = 0 # redundant
             self.G.nodes[n][R] = self.G.nodes[n][D]
 
+        self.visited = set()
+
     def get(self, node):
         raise NotImplementedError('Caller must implement the "get" method.')
+
+    def get_starting_node(self):
+        raise NotImplementedError('Caller must implement the "get_starting_node" method.')
 
     def update(self, playthrough):
         raise NotImplementedError('Caller must implement the "update" method.')

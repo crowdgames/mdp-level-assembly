@@ -184,12 +184,16 @@ elif args.fit_persona:
 
 elif args.switch_persona:
     for rl_agent in tqdm(agents, leave=False):
+        f_name = f'switch_game_{config.NAME}_director_{rl_agent().NAME}_reward_{REWARD_StR}.json'
+        if os.path.exists(join(config.BASE_DIR, f_name)):
+            os.remove(join(config.BASE_DIR,f_name))
+
         data = []
         for i in trange(args.runs, leave=False):
             seed(args.seed+i)
             players = [
+                mediocre_player_likes_high_a,
                 bad_player_likes_easy_levels,
-                good_player_likes_hard_levels,
             ]
 
             task = SwitchPlayerPersona(rl_agent(), config, args.segments, args.playthroughs, players, args.n_gram_graph)
@@ -207,8 +211,8 @@ elif args.switch_persona:
                 'runs': args.runs,
                 'playthroughs': args.playthroughs,
                 'players': [
+                    'Mediocre Player Likes High A',
                     'Bad Player Likes Easy Levels',
-                    'Good Player Likes Hard Levels',
                 ]
             }
         }

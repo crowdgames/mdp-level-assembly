@@ -184,8 +184,8 @@ def find_path(levelStr, start, jumps, solids, wrapx, heuristic):
 
     if DEBUG_DISPLAY:
         print(best_x, start[1]-best_y)
-        import sys
-        sys.exit(-1)
+        # import sys
+        # sys.exit(-1)
     
     return best_x, start[1]-best_y 
     # if end_node == None:
