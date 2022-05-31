@@ -44,6 +44,7 @@ task_group.add_argument('--fit-agent', action='store_true', help='Fit to an agen
 task_group.add_argument('--fit-persona', action='store_true', help='Fit to a player persona')
 task_group.add_argument('--switch-persona', action='store_true', help='Fit to two player personas')
 task_group.add_argument('--get-level', action='store_true', help='Generate a level with a graph trained with --fit-to-agent')
+task_group.add_argument('--v-n-gram', action='store_true', help='get n-gram visualizations')
 
 graph_group = parser.add_mutually_exclusive_group(required=True)
 graph_group.add_argument('--segment-graph', action='store_true', help='segment based generation for graph')
@@ -71,6 +72,7 @@ parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations
 parser.add_argument('--gamma', type=float, default=0.75, help='Discount factor for all RL algorithms')
 parser.add_argument('--runs', type=int, default=100, help='Number of runs for a person when --fit-person is used')
 parser.add_argument('--playthroughs', type=int, default=20, help='Number of levels played per director')
+
 
 
 args = parser.parse_args()
@@ -192,7 +194,7 @@ elif args.switch_persona:
         for i in trange(args.runs, leave=False):
             seed(args.seed+i)
             players = [
-                mediocre_player_likes_high_a,
+                good_player_likes_hard_levels,
                 bad_player_likes_easy_levels,
             ]
 
@@ -223,6 +225,9 @@ elif args.switch_persona:
 
 elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')
+
+elif args.v_n_gram:
+    Visualization.GetNGramLevels(config, agents).run()
 
 end = time()
 

@@ -24,57 +24,89 @@ config = Icarus
 #     font_size=10, font_weight='bold', with_labels=True, dpi=1000)
 # plt.show()
 
+
+
+import argparse, math, pickle, pprint, random, sys
+import networkx as nx
+
+
+
+
+def print_graph_dot(graph):
+    print('digraph G {')
+    print('  graph [fontname="courier", splines="spline", overlap="false"];')
+    print('  node [fontname="courier", shape="box"];')
+    print('  edge [fontname="courier"];')
+    for nid in graph.nodes:
+        slices =  graph.nodes[nid]['S'] if 'S' in graph.nodes[nid] else []
+        label = slices
+        
+        fillcolor = '#eeeeee'
+        if len(graph.in_edges(nid)) == 0:
+            fillcolor = '#555555'
+        if len(graph.out_edges(nid)) == 0:
+            fillcolor = '#555555'
+
+        print('  "%s" [label="%s"; style="filled"; fillcolor="%s"];' % (nid, label, fillcolor))
+
+    for ea, eb in graph.edges:
+        print('  "%s" -> "%s";' % (ea, eb))
+    
+    print('}')
+
+
 full_graph = Utility.get_level_segment_graph(config, True)
+print_graph_dot(full_graph)
 
-compressed_graph = nx.DiGraph()
-links = []
-for n in full_graph.nodes:
-    if '__' in n:
-        links.append(n)
+# compressed_graph = nx.DiGraph()
+# links = []
+# for n in full_graph.nodes:
+#     if '__' in n:
+#         links.append(n)
 
-for l in links:
-    src, tgt = l.split('__')
-    full_graph.remove_node(l)
-    full_graph.add_edge(src, tgt)
+# for l in links:
+#     src, tgt = l.split('__')
+#     full_graph.remove_node(l)
+#     full_graph.add_edge(src, tgt)
 
-labeldict = {}
-pos_nodes = {}
-for n in full_graph.nodes:
-    a,b,_=n.split(',')
-    compressed_graph.add_node(f'{a},{b}', pos=(int(a), int(b)))
-    labeldict[f'{a},{b}'] = f'{full_graph.nodes[n]["R"]:0.02f}'
-    pos_nodes[f'{a},{b}'] = (int(a)+0.3,int(b)-0.4)
+# labeldict = {}
+# pos_nodes = {}
+# for n in full_graph.nodes:
+#     a,b,_=n.split(',')
+#     compressed_graph.add_node(f'{a},{b}', pos=(int(a), int(b)))
+#     labeldict[f'{a},{b}'] = f'{full_graph.nodes[n]["R"]:0.02f}'
+#     pos_nodes[f'{a},{b}'] = (int(a)+0.3,int(b)-0.4)
 
-for src, tgt in full_graph.edges:
-    src_a, src_b, _ = src.split(',')
-    tgt_a, tgt_b, _ = tgt.split(',')
-    compressed_graph.add_edge(f'{src_a},{src_b}', f'{tgt_a},{tgt_b}')
+# for src, tgt in full_graph.edges:
+#     src_a, src_b, _ = src.split(',')
+#     tgt_a, tgt_b, _ = tgt.split(',')
+#     compressed_graph.add_edge(f'{src_a},{src_b}', f'{tgt_a},{tgt_b}')
     
 
-pos = nx.get_node_attributes(compressed_graph, 'pos')
+# pos = nx.get_node_attributes(compressed_graph, 'pos')
 
-color_map = []
-for res in compressed_graph.in_degree():
-    node_key, in_edges = res
-    if in_edges == 0:
-        color_map.append('gray')
-    elif compressed_graph.out_degree(node_key) == 0:
-        color_map.append('green')
-    else:
-        color_map.append('brown')
+# color_map = []
+# for res in compressed_graph.in_degree():
+#     node_key, in_edges = res
+#     if in_edges == 0:
+#         color_map.append('gray')
+#     elif compressed_graph.out_degree(node_key) == 0:
+#         color_map.append('green')
+#     else:
+#         color_map.append('brown')
 
 
-plt.figure(figsize=(15,15))
-# plt.xlim(min_cor, max_cor)
-# plt.ylim(min_cor, max_cor)
+# plt.figure(figsize=(15,15))
+# # plt.xlim(min_cor, max_cor)
+# # plt.ylim(min_cor, max_cor)
 
-nx.draw(compressed_graph, pos, node_color=color_map, node_size=60, with_labels=False, arrowsize=15)
-nx.draw_networkx_labels(compressed_graph, pos=pos_nodes, labels=labeldict) 
+# nx.draw(compressed_graph, pos, node_color=color_map, node_size=60, with_labels=False, arrowsize=15)
+# nx.draw_networkx_labels(compressed_graph, pos=pos_nodes, labels=labeldict) 
 
-save_path = os.path.join('figure', f'{config.NAME}_compressed_graph.pdf')
+# save_path = os.path.join('figure', f'{config.NAME}_compressed_graph.pdf')
 
-print(f'Saving to: {save_path}')
-plt.savefig(save_path, bbox_inches="tight") 
+# print(f'Saving to: {save_path}')
+# plt.savefig(save_path, bbox_inches="tight") 
 
 # save_path = os.path.join('figure', f'dda_grid_{config.NAME}.pdf')
 # for src in data:

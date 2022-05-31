@@ -132,3 +132,6 @@ def player_reward(slice):
             continue
 
     return total/len(slice)
+
+def level_to_str(columns):
+    return '\n'.join(slices_to_rows(columns, False))
