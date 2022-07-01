@@ -1,24 +1,18 @@
 from .Keys import *
-import networkx as nx
 
 class Base:
     def __init__(self, graph, name):
         self.G = graph
         self.NAME = name
 
-        # reset everything to just be redundant
-        for n in self.G.nodes:
-            self.G.nodes[n][C] = 1
-            self.G.nodes[n][U] = 0 # redundant
-            self.G.nodes[n][R] = self.G.nodes[n][D]
-
-        self.visited = set()
+        self.__visited = set()
+        self.__easiest_node = None
+        self.__easiest_node_val = 10000
+        self.__hardest_node = None
+        self.__hardest_node_val = -10000
 
     def get(self, node):
         raise NotImplementedError('Caller must implement the "get" method.')
-
-    def get_starting_node(self):
-        raise NotImplementedError('Caller must implement the "get_starting_node" method.')
 
     def update(self, playthrough):
         raise NotImplementedError('Caller must implement the "update" method.')
@@ -33,3 +27,27 @@ class Base:
     def set_md(self, node, field_name, value):
         # set node meta data
         self.G.nodes[node][field_name] = value
+
+    def add_to_visited(self, node):
+        if node not in self.__visited:
+            d = self.get_md(node, DR)
+
+            if d < self.__easiest_node_val:
+                self.__easiest_node_val = d
+                self.__easiest_node = node
+
+            if d > self.__hardest_node_val:
+                self.__hardest_node_val = d
+                self.__hardest_node = node
+
+            self.__visited.add(node)
+
+    def hardest_node(self):
+        return self.__hardest_node, self.__hardest_node_val
+
+    def easiest_node(self):
+        return self.__easiest_node, self.__easiest_node_val
+
+    def visited_iter(self):
+        return iter(self.__visited)
+

@@ -26,5 +26,5 @@ class SARSA(QTable):
     def get(self, node):
         return self.weighted_neighbor(node)
 
-    def get_starting_node(self):
-        raise NotImplementedError('Caller must implement the "get_starting_node" method.')
+    # def get_starting_node(self):
+    #     raise NotImplementedError('Caller must implement the "get_starting_node" method.')

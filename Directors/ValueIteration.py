@@ -33,5 +33,5 @@ class ValueIteration(MDP):
         # return self._best_neighbor(node)
         return self._epsilon_greedy_neighbor(node)
 
-    def get_starting_node(self):
-        raise NotImplementedError('Caller must implement the "get_starting_node" method.')
+    # def get_starting_node(self):
+    #     raise NotImplementedError('Caller must implement the "get_starting_node" method.')

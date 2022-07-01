@@ -19,15 +19,6 @@ import os
 
 from Utility.RewardType import RewardType
 
-'''
-TODO:
-
-- n-gram based generation
-- probability update
-    - MDP
-    - Q
-    - greedy
-'''
 
 start = time()
 
@@ -69,13 +60,15 @@ parser.add_argument('--segments', type=int, default=3, help='Number of segments 
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
 parser.add_argument('--max-iter', type=int, default=500, help='Max # of iterations for Value Iteration')
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
-parser.add_argument('--gamma', type=float, default=0.75, help='Discount factor for all RL algorithms')
+parser.add_argument('--gamma', type=float, default=0.8, help='Discount factor for all RL algorithms')
 parser.add_argument('--runs', type=int, default=100, help='Number of runs for a person when --fit-person is used')
 parser.add_argument('--playthroughs', type=int, default=20, help='Number of levels played per director')
+parser.add_argument('--hide-tqdm', action='store_true', help='Hide tqdm bars')
 
 
 
 args = parser.parse_args()
+args.hide_tqdm != args.hide_tqdm
 
 # Get Game 
 if args.dungeongram:
@@ -125,12 +118,13 @@ if args.greedy or args.all:
 
 # run task
 if args.fit_agent:
-    for rl_agent in agents:
-        agent = rl_agent()
-        print(f'Running Director: {agent.NAME}')
-        seed(args.seed)
-        task = FitAgent(agent, config, args.segments, args.playthroughs)
-        data = task.run()
+    raise NotImplementedError('This feature is no longer used')
+    # for rl_agent in agents:
+        # agent = rl_agent()
+        # print(f'Running Director: {agent.NAME}')
+        # seed(args.seed)
+        # task = FitAgent(agent, config, args.segments, args.playthroughs)
+        # data = task.run()
 
         # f_name = f'agent_game_{config.NAME}_director_{agent.NAME}_reward_{REWARD_StR}.pkl'
         # with open(join(config.BASE_DIR, f_name), 'wb') as f:
@@ -140,8 +134,8 @@ if args.fit_agent:
         # with open(join(config.BASE_DIR, f_name), 'w') as f:
         #     json_dump(data, f, indent=2)
 
-        print()
-        print()
+        # print()
+        # print()
 
 elif args.fit_persona:
     to_run = []
@@ -155,15 +149,23 @@ elif args.fit_persona:
             if os.path.exists(path):
                 os.remove(path)
 
-    progress_bar = tqdm(to_run, leave=False)
+    progress_bar = tqdm(to_run, leave=False, disable=args.hide_tqdm)
     for rl_agent, p_name, p_eval in progress_bar:
         name = rl_agent().NAME # this is lazy but whatever
         progress_bar.set_description(f'{name} :: {p_name} :: {config.NAME}')
         data = []
 
-        for i in trange(args.runs, leave=False):
+        for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
             seed(args.seed+i)
-            task = FitPlayerPersona(rl_agent(), config, args.segments, args.playthroughs, p_eval, args.n_gram_graph)
+            task = FitPlayerPersona(
+                rl_agent(), 
+                config, 
+                args.segments, 
+                args.playthroughs, 
+                p_eval, 
+                args.n_gram_graph, 
+                args.hide_tqdm)
+
             data.append(task.run())
 
         res = {
@@ -185,20 +187,28 @@ elif args.fit_persona:
             json_dump(res, f, indent=2)
 
 elif args.switch_persona:
-    for rl_agent in tqdm(agents, leave=False):
+    for rl_agent in tqdm(agents, leave=False, disable=args.hide_tqdm):
         f_name = f'switch_game_{config.NAME}_director_{rl_agent().NAME}_reward_{REWARD_StR}.json'
         if os.path.exists(join(config.BASE_DIR, f_name)):
             os.remove(join(config.BASE_DIR,f_name))
 
         data = []
-        for i in trange(args.runs, leave=False):
+        for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
             seed(args.seed+i)
             players = [
                 good_player_likes_hard_levels,
                 bad_player_likes_easy_levels,
             ]
 
-            task = SwitchPlayerPersona(rl_agent(), config, args.segments, args.playthroughs, players, args.n_gram_graph)
+            task = SwitchPlayerPersona(
+                rl_agent(), 
+                config, 
+                args.segments, 
+                args.playthroughs, 
+                players, 
+                args.n_gram_graph,
+                args.hide_tqdm)
+
             data.append(task.run())
 
         res = {

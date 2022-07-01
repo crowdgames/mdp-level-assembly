@@ -1,17 +1,16 @@
-from Utility.RewardType import get_reward, RewardType
+from Utility.RewardType import set_reward
 from Directors.Keys import *
-from Utility import BC
 
 from tqdm import trange
 
-
 class BaseFit:
-    def __init__(self, rl_agent, config, segments, playthroughs, using_segments):
+    def __init__(self, rl_agent, config, segments, playthroughs, using_segments, hide_tqdm):
         self.rl_agent = rl_agent
         self.config = config
         self.segments = segments
         self.playthroughs = playthroughs
         self.using_segments = using_segments
+        self.hide_tqdm = hide_tqdm
 
     def get_level(self, node):
         lvl = []
@@ -36,10 +35,12 @@ class BaseFit:
         nodes = [node]
         size = 1
 
+        # print()
         while size < self.segments:
             node = self.rl_agent.get(node)
             nodes.append(node)
             size += 1 * '__' not in node # small optimization to remove branching
+        # print()
 
         return nodes
 
@@ -59,7 +60,7 @@ class BaseFit:
 
     def update_from_playthrough(self, playthrough):
         for e in playthrough.entries:
-            self.rl_agent.visited.add(e.node_name)
+            self.rl_agent.add_to_visited(e.node_name)
             
             # Set the designer reward and total reward.
             #
@@ -68,29 +69,59 @@ class BaseFit:
             #   divided by the number of times that node has been seen by the
             #   player. This division is a penalty.
             #
-            #   The total reward is the sum of the designer and player reward
-            c = self.rl_agent.get_md(e.node_name, C)
-            d = self.rl_agent.get_md(e.node_name, D)
+            # set reward in the graph
+            node = e.node_name
+            self.rl_agent.set_md(node, PC, e.percent_completable)
+            self.rl_agent.set_md(node, PR, e.player_reward)
+            COUNT = self.rl_agent.get_md(node, C) + 1
+            self.rl_agent.set_md(node, C, COUNT)
+            set_reward(self.config.REWARD_TYPE, self.rl_agent.G, node)
 
-            e.designer_reward = d / c
-            e.total_reward = e.designer_reward + e.player_reward
-            e.reward = get_reward(self.config.REWARD_TYPE, e) * e.percent_completable
-
-            # update the reward based on the designer and the player
-            self.rl_agent.set_md(e.node_name, R, e.reward)
+            # update playthrough entry
+            e.designer_reward = self.rl_agent.get_md(node, DR)
+            e.total_reward = self.rl_agent.get_md(node, TR)
+            e.reward = self.rl_agent.get_md(node, TR)
 
             # update number of times every node has been seen for every elite
             # in the same cell as the node in the entry.  
             # if self.using_segments:
-            new_count = c+1  
             for node in self.__get_cell_nodes(e.node_name, self.rl_agent.G):
-                self.rl_agent.set_md(node, C, new_count)
-                if self.config.REWARD_TYPE != RewardType.PLAYER and node != e.node_name:
-                    r = self.rl_agent.get_md(node, R)
-                    self.rl_agent.set_md(node, R, r/new_count)
+                self.rl_agent.set_md(node, C, COUNT)
+                if node != e.node_name:
+                    set_reward(self.config.REWARD_TYPE, self.rl_agent.G, node)
+
+    def __get_starting_node(self, playthrough):
+        player_won = all([e.percent_completable == 1.0 for e in playthrough.entries])
+
+        # get hardest node the player played through
+        e = playthrough.entries[-1]
+        hn_key = e.node_name
+        hn_val = self.rl_agent.get_md(hn_key, DR)
+        
+        node = None
+        if player_won:
+            # If the player won, find the next hardest node. I do think using a
+            # a selection based on a Pareto frontier would be more interesting.
+            node = self.rl_agent.get(hn_key)
+        else:
+            # else, pick a node in between the easiest and hardest node that the
+            # player has already visited
+            en_key, en_val = self.rl_agent.easiest_node()
+            tgt = (en_val + hn_val) / 2.0
+            best_val = abs(tgt - en_val)
+            node = en_key
+
+            for n in self.rl_agent.visited_iter():
+                val = self.rl_agent.get_md(n, DR)
+                diff = abs(tgt - val)
+                if diff < best_val:
+                    best_val = diff
+                    node = n
+
+        return node
 
     def _fit(self, cur, data, player_persona, num_playthroughs):
-        for _ in trange(num_playthroughs, leave=False):
+        for _ in trange(num_playthroughs, leave=False, disable=self.hide_tqdm):
             if self.need_full_level:
                 # an agent is going to play the game
                 lvl, nodes, lengths = self.get_level(cur)
@@ -108,7 +139,7 @@ class BaseFit:
             self.rl_agent.update(playthrough)
 
             # get next starting node
-            cur = self.rl_agent.get_starting_node()
+            cur = self.__get_starting_node(playthrough)
             # cur = self.rl_agent.get(self.rl_agent.get_starting_node())
 
             # make sure the node in question is not a link. If it is then go to the 
@@ -120,39 +151,3 @@ class BaseFit:
             data.append(playthrough.get_summary(nodes))
 
         return cur
-
-            # # Get the next node to start from
-            # # print(1, len(nodes), len(playthrough.entries), playthrough.entries[0].to_dict())
-            # if len(nodes) == len(playthrough.entries) or not self.using_segments:
-            #     # the player beat the full level so we get the last node they
-            #     # reached
-            #     cur = self.rl_agent.get(playthrough.entries[-1].node_name)
-
-            #     # print()
-            #     # print()
-            #     # print('=============')
-            #     # for e in playthrough.entries:
-            #     #     print(e.percent_completable)
-            #     # print(not self.using_segments)
-            #     # print(len(nodes), '!=', len(playthrough.entries))
-            #     # print(len(nodes) == len(playthrough.entries), 'or', not self.using_segments)
-            #     # print(len(nodes) == len(playthrough.entries) or not self.using_segments)
-            #     # print('=============')
-            # else:
-            #     # the player lost so we select the easiest node that the player
-            #     # could have reached and use that
-            #     lowest_r = self.rl_agent.get_md(cur, D)
-            #     for n in nodes:
-            #         r = self.rl_agent.get_md(n, D)
-            #         if r < lowest_r:
-            #             r = lowest_r
-            #             cur = n
-
-            #     # print()
-            #     # print()
-            #     # print('=============')
-            #     # temp_cur = cur
-            #     # temp = self.rl_agent.get_md(cur, D)
-            #     # print(temp, '-->', self.rl_agent.get_md(cur, D))
-            #     # print(temp_cur, '-->', cur)
-            #     # print('=============')

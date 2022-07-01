@@ -41,17 +41,17 @@ class QLearning(QTable):
 
     #     return best_n
 
-    def get_starting_node(self):
-        nodes = []
-        weights = []
-        for n in self.visited:
-            best_q = 0
-            for e in self.G.out_edges(n):
-                q = self.G.edges[e][Q]
-                if q > best_q:
-                    best_q = q
+    # def get_starting_node(self):
+    #     nodes = []
+    #     weights = []
+    #     for n in self.visited:
+    #         best_q = 0
+    #         for e in self.G.out_edges(n):
+    #             q = self.G.edges[e][Q]
+    #             if q > best_q:
+    #                 best_q = q
 
-            nodes.append(n)
-            weights.append(best_q)
+    #         nodes.append(n)
+    #         weights.append(best_q)
 
-        return choices(nodes, weights=weights, k=1)[0]
+    #     return choices(nodes, weights=weights, k=1)[0]

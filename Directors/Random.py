@@ -11,8 +11,8 @@ class Random(Base):
     def get(self, node):
         return choice(list(self.G.neighbors(node)))
 
-    def get_starting_node(self):
-        raise NotImplementedError('Caller must implement the "get_starting_node" method.')
+    # def get_starting_node(self):
+    #     raise NotImplementedError('Caller must implement the "get_starting_node" method.')
 
-    def get_starting_node(self):
-        return choice(list(self.visited))
+    # def get_starting_node(self):
+    #     return choice(list(self.visited))

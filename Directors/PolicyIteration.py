@@ -13,11 +13,11 @@ class PolicyIteration(MDP):
 
     def __get_u(self, n):
         return self.get_md(self.pi[n], U)
-        # if self.get_md(n, C) > 1:
+        # if self.get_md(n, C) >= 2:
         #     return self.get_md(self.pi[n], U)
 
-        # return 4 + self.get_md(self.pi[n], U)
-        # return 4
+        # return 2 + self.get_md(self.pi[n], U)
+        # return 2
 
     def update(self, _):
         # create a random policy
@@ -33,19 +33,20 @@ class PolicyIteration(MDP):
         self._reset_utility()
 
         # run policy iteration
-        unchanged = True
-        while unchanged:
-            # simplified policy evaluation
+        i = 0
+        while True:
+            # policy evaluation
             for __ in range(self.POLICY_ITER):
                 for n in self.G:
-                    # get utility of the policy's best node
-                    u = self.__get_u(n)
-
-                    # Updated utility of the current node
-                    self.set_md(n, U, self.get_md(n, R) + self.GAMMA * u)
+                    r = self.get_md(n, R)
+                    max_u = max(self.get_md(n_p, U) for n_p in self.G.neighbors(n))
+                    self.set_md(n, U, r + self.GAMMA * max_u)
+                    # r = self.get_md(n, R)
+                    # u = r + self.GAMMA*self.get_md(self.pi[n], U) 
+                    # self.set_md(n, U, u)
             
             # policy improvement
-            unchanged = True
+            changed = False
             for n in self.G:
                 old = self.pi[n]
 
@@ -59,24 +60,28 @@ class PolicyIteration(MDP):
 
                 if old != best_s:
                     self.pi[n] = best_s
-                    unchanged = False
+                    changed = True
+            
+            i += 1 
+            if not changed:
+                break
+            
+        print()
+        print(f'\n{i} iterations to converge\n')
+        def __p(k):
+            print(k)
+            print(f'\tC: {self.get_md(k, C)}')
+            print(f'\tU: {self.get_md(k, U)}')
+            print(f'\tR: {self.get_md(k, R)}')
+
+            for n in self.G.neighbors(k):
+                print(f'\t\t{n} :: {self.pi[k] == n} :: {self.get_md(n, R)} :: {self.get_md(n, U)}')
+
+        for k in self.visited_iter():
+            __p(k)
+
+        print()
 
     def get(self, node):
-        return self._best_neighbor(node)
-
-    # def get_starting_node(self):
-    #     best_n = None
-    #     best_r = 0
-    #     for n in self.visited:
-    #         r = self.__get_u(n)
-    #         if r > best_r:
-    #             best_r = r
-    #             best_n = n
-
-    #     return best_n
-
-    def get_starting_node(self):
-        nodes = list(self.visited)
-        weights = [self.__get_u(n) for n in nodes]
-
-        return choices(nodes, weights=weights, k=1)[0]
+        print(f'{node} -> {self.pi[node]}')
+        return self.pi[node]

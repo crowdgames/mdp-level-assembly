@@ -9,6 +9,10 @@ from os import listdir
 from Directors.Keys import *
 from .NGram import NGram
 
+DEFAULT_PERCENT_COMPLETABLE = 1
+DEFAULT_PLAYER_REWARD = 0
+DEFAULT_COUNT = 1
+
 
 def rows_to_slices(rows, transpose):
     if transpose:
@@ -73,7 +77,7 @@ def get_n_gram_graph(config):
         graph.nodes[key][P] = prior
         graph.nodes[key][S] = [prior[-1]] 
         graph.nodes[key][R] = 1 # this is set by an agent
-        graph.nodes[key][D] = 1 # this is set by an agent
+        graph.nodes[key][DR] = 1 # this is set by an agent
 
     for prior in gram.grammar:
         prior_key = str(prior)
@@ -85,6 +89,10 @@ def get_n_gram_graph(config):
 
     # we want the graph to be fully connected
     return __largest_connected_subgraph(graph), gram
+
+def __convert_str(string, div):
+    return float(string) / div
+    # return float(string) * 0.1
 
 def get_level_segment_graph(config, allow_empty_link):
     # get json file that represents the graph
@@ -120,10 +128,10 @@ def get_level_segment_graph(config, allow_empty_link):
     for node, next_data in data.items():
         # reward range is [-1,1]
         a, b, _ = node.split(',')
-        a = float(a) / max_bc[0]
-        b = float(b) / max_bc[1]
+        a = __convert_str(a, max_bc[0])
+        b = __convert_str(b, max_bc[1])
         r = (a + b) / 2.0
-        assert r <= 1
+        # assert r <= 1
 
         node_filename = f'{join(config.BASE_DIR, "levels", node.replace(",", "_"))}.txt'
         with open(node_filename, 'rt') as infile:
@@ -133,15 +141,16 @@ def get_level_segment_graph(config, allow_empty_link):
 
         # level segments do not have have a designer preference in terms of probability
         # selection. Multiplication by 1 results in no change.
-        
         graph.add_node(node)
         graph.nodes[node][S] = slices
-        graph.nodes[node][D] = r
-        graph.nodes[node][R] = r
-        # graph.nodes[node][R] = 1-r/config.NUM_BC
+        graph.nodes[node][OR] = r
+        graph.nodes[node][DR] = r
+        # graph.nodes[node][R] = r + 1
         graph.nodes[node][C] = 1
+        graph.nodes[node][R] = r
         graph.nodes[node][BC] = [a,b]
-        graph.nodes[node][PD] = 1
+        graph.nodes[node][PC] = DEFAULT_PERCENT_COMPLETABLE
+        graph.nodes[node][PR] = DEFAULT_PLAYER_REWARD
 
         for next_node, edge_data in next_data.items():
             edge_data_use = edge_data['tree search']
@@ -163,8 +172,10 @@ def get_level_segment_graph(config, allow_empty_link):
 
                 graph.add_node(edge_node)
                 graph.nodes[edge_node][S] = slices
-                graph.nodes[edge_node][C] = 1
-                graph.nodes[edge_node][PD] = 1 # the rest are updated blow
+                graph.nodes[edge_node][C] = DEFAULT_COUNT
+                graph.nodes[edge_node][PR] = DEFAULT_PLAYER_REWARD
+                graph.nodes[edge_node][PC] = DEFAULT_PERCENT_COMPLETABLE
+                # the rest are updated blow
 
                 graph.add_edge(node, edge_node)
                 graph.add_edge(edge_node, next_node)
@@ -173,21 +184,20 @@ def get_level_segment_graph(config, allow_empty_link):
     for e in links:
         src, tgt = e.split('__')
         src_a, src_b, _ =  src.split(',')
-        src_a = float(src_a) / max_bc[0]
-        src_b = float(src_b) / max_bc[1]
+        src_a = __convert_str(src_a, max_bc[0])
+        src_b = __convert_str(src_b, max_bc[1])
 
         tgt_a, tgt_b, _ =  tgt.split(',')
-        tgt_a = float(tgt_a) / max_bc[0]
-        tgt_b = float(tgt_b) / max_bc[1]
+        tgt_a = __convert_str(tgt_a, max_bc[0])
+        tgt_b = __convert_str(tgt_b, max_bc[1])
 
         mean_a = (src_a + tgt_a)/2.0
         mean_b = (src_b + tgt_b)/2.0
 
-        max_r = (mean_a + mean_b)/2.0
-        assert max_r <= 1
+        graph.nodes[e][OR] = r
+        # graph.nodes[e][R] = r + 1
         graph.nodes[e][R] = r
-        # graph.nodes[e][R] = 1 - 1/config.NUM_BC
-        graph.nodes[e][D] = max_r
+        graph.nodes[e][DR] = (mean_a + mean_b)/2.0
         graph.nodes[e][BC] = [mean_a, mean_b]
 
     # we want the graph to be fully connected

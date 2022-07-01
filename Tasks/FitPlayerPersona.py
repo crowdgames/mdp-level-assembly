@@ -1,8 +1,8 @@
 from .BaseFit import BaseFit
 
 class FitPlayerPersona(BaseFit):
-    def __init__(self, rl_agent, config, segments, playthroughs, player_persona, need_full_level):
-        super().__init__(rl_agent, config, segments, playthroughs, not need_full_level)
+    def __init__(self, rl_agent, config, segments, playthroughs, player_persona, need_full_level, hide_tqdm):
+        super().__init__(rl_agent, config, segments, playthroughs, not need_full_level, hide_tqdm)
         self.player_persona = player_persona
         self.need_full_level = need_full_level
 
