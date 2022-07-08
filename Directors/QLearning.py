@@ -25,33 +25,27 @@ class QLearning(QTable):
 
             n = n_1
 
-    def get(self, node):
-        return self.epsilon_greedy_neighbor(node)
-        # return self._weighted_neighbor(node)
+    def get(self, node, k):
+        nodes = [node]
+        size = 1
+        while size < k:
+            node = self.epsilon_greedy_neighbor(node)
+            nodes.append(node)
+            size += 1 * '__' not in node # small optimization to remove branching
 
-    # def get_starting_node(self):
-    #     best_n = None
-    #     best_q = 0
-    #     for n in self.visited:
-    #         for e in self.G.out_edges(n):
-    #             q = self.G.edges[e][Q]
-    #             if q > best_q:
-    #                 best_q = q
-    #                 best_n = n
+        return nodes
 
-    #     return best_n
+    def get_starting_node(self):
+        nodes = []
+        weights = []
+        for n in self.visited_iter():
+            best_q = 0
+            for e in self.G.out_edges(n):
+                q = self.G.edges[e][Q]
+                if q > best_q:
+                    best_q = q
 
-    # def get_starting_node(self):
-    #     nodes = []
-    #     weights = []
-    #     for n in self.visited:
-    #         best_q = 0
-    #         for e in self.G.out_edges(n):
-    #             q = self.G.edges[e][Q]
-    #             if q > best_q:
-    #                 best_q = q
+            nodes.append(n)
+            weights.append(best_q)
 
-    #         nodes.append(n)
-    #         weights.append(best_q)
-
-    #     return choices(nodes, weights=weights, k=1)[0]
+        return choices(nodes, weights=weights, k=1)[0]

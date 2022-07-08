@@ -11,7 +11,7 @@ class Base:
         self.__hardest_node = None
         self.__hardest_node_val = -10000
 
-    def get(self, node):
+    def get(self, node, k):
         raise NotImplementedError('Caller must implement the "get" method.')
 
     def update(self, playthrough):
@@ -50,4 +50,7 @@ class Base:
 
     def visited_iter(self):
         return iter(self.__visited)
+
+    def get_starting_node(self):
+        raise NotImplementedError('Director must implement get_starting_node.')
 

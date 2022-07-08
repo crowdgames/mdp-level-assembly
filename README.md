@@ -30,3 +30,6 @@ pypy3 -m unittest
 ## Future Work
 
 Binary search like approach to selecting the next level. If the user lost, select the visited node between the easiest difficulty possible and the hardest level from the level selection they just played.
+
+
+Visited nodes should be nodes that the player fails to beat

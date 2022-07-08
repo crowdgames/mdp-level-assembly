@@ -8,11 +8,15 @@ class Random(Base):
     def update(self, _):
         pass
 
-    def get(self, node):
-        return choice(list(self.G.neighbors(node)))
+    def get(self, node, k):
+        nodes = [node]
+        size = 1
+        while size < k:
+            node = choice(list(self.G.neighbors(node)))
+            nodes.append(node)
+            size += 1 * '__' not in node # small optimization to remove branching
 
-    # def get_starting_node(self):
-    #     raise NotImplementedError('Caller must implement the "get_starting_node" method.')
+        return nodes
 
-    # def get_starting_node(self):
-    #     return choice(list(self.visited))
+    def get_starting_node(self):
+        return choice(list(self.visited_iter()))

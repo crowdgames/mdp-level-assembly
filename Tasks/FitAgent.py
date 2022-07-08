@@ -2,8 +2,8 @@ from .BaseFit import BaseFit
 from Players import Playthrough, PlaythroughEntry
 
 class FitAgent(BaseFit):
-    def __init__(self, rl_agent, config, segments, playthroughs):
-        super().__init__(rl_agent, config, segments, playthroughs)
+    def __init__(self, director, config, segments, playthroughs):
+        super().__init__(director, config, segments, playthroughs)
 
         if config.WRAPS:
             self.get_playthrough = self.__playthrough_on_y
@@ -39,7 +39,7 @@ class FitAgent(BaseFit):
     def run(self):
         cur = self.config.START_NODE
         data = []
-        self.rl_agent.update(None)
+        self.director.update(None)
 
         for i in range(self.playthroughs):
             lvl, nodes, lengths = self.get_level(cur)
@@ -57,11 +57,11 @@ class FitAgent(BaseFit):
             
             # make sure the node in question is not a link. If it is then go to the 
             # next node.
-            cur = self.rl_agent.get(cur)
+            cur = self.director.get(cur)
             if '__' in cur:
                 cur = cur.split('__')[1]
 
-            self.rl_agent.update(playthrough)
+            self.director.update(playthrough)
             print(f'{i}: {playthrough.get_summary(nodes)}')
 
         return data

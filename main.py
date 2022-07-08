@@ -60,12 +60,10 @@ parser.add_argument('--segments', type=int, default=3, help='Number of segments 
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
 parser.add_argument('--max-iter', type=int, default=500, help='Max # of iterations for Value Iteration')
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
-parser.add_argument('--gamma', type=float, default=0.8, help='Discount factor for all RL algorithms')
+parser.add_argument('--gamma', type=float, default=0.4, help='Discount factor for all RL algorithms')
 parser.add_argument('--runs', type=int, default=100, help='Number of runs for a person when --fit-person is used')
 parser.add_argument('--playthroughs', type=int, default=20, help='Number of levels played per director')
 parser.add_argument('--hide-tqdm', action='store_true', help='Hide tqdm bars')
-
-
 
 args = parser.parse_args()
 args.hide_tqdm != args.hide_tqdm
@@ -105,8 +103,8 @@ if args.sarsa:
     agents.append(lambda: Directors.SARSA(deepcopy(graph), args.gamma))
 if args.q or args.all:
     agents.append(lambda: Directors.QLearning(deepcopy(graph), args.gamma))
-if args.policy or args.all:
-    agents.append(lambda: Directors.PolicyIteration(deepcopy(graph), args.max_iter, args.policy_iter, args.gamma))
+# if args.policy or args.all:
+#     agents.append(lambda: Directors.PolicyIteration(deepcopy(graph), args.max_iter, args.policy_iter, args.gamma))
 if args.online_value:
     agents.append(lambda: Directors.OnlineValueIteration(deepcopy(graph), args.gamma))
 if args.value:

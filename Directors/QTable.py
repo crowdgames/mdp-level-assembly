@@ -9,8 +9,8 @@ class QTable(Base):
         self.GAMMA = gamma
 
         for e in graph.out_edges():
-            # graph.edges[e][Q] = 0
-            graph.edges[e][Q] = self.get_md(e[1], DR) 
+            graph.edges[e][Q] = 0
+            # graph.edges[e][Q] = self.get_md(e[1], DR) 
 
     def _best_neighbor(self, n):
         best_n = None
