@@ -23,6 +23,11 @@ class PolicyIteration(MDP):
         # return 2 + self.get_md(n, U)
 
     def update(self, _):
+        # TODO: what if I made P the likelihood of the player actually beating the level?
+        # That is actually modelling how likely the player will make it to the next level.
+        # We can start with 1.0 (maybe 0.5?) for everything and adjust as the player plays.
+        # I think that will be killer.
+        
         # create a random policy
         self.pi = {} 
         for n in self.G:
