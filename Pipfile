@@ -7,7 +7,7 @@ verify_ssl = true
 python_version = "3.8"
 
 [packages]
-networkx = "*"
 tqdm = "*"
+gdm = {git = "https://github.com/bi3mer/GDM.git"}
 
 [dev-packages]

@@ -1,23 +1,14 @@
+from sre_constants import JUMP
+from typing import Set, List, Tuple 
+
 from Utility.SummervilleAgent import find_path
-from Utility import slices_to_rows, rows_to_slices
+from Utility import RewardType, slices_to_rows, rows_to_slices
 from os.path import join
 
-WRAPS = False
-TRANSPOSE = False
-START_NODE = '0,0,0'
-PADDING_SIZE = 2
-NAME = 'mario'
-MAX_BC = None
-NUM_BC = 2
-REWARD_TYPE = None
-ALLOW_EMPTY_LINK = True
-
-GRAMMAR_SIZE = 3
-TRAINING_LEVELS_DIR = join('TrainingLevels', 'Mario')
-
+from .Config import Config
 
 # view smb.json in TheVGLC
-SOLIDS = set()
+SOLIDS: Set[str] = set()
 SOLIDS.add('X')
 SOLIDS.add('S')
 SOLIDS.add('?')
@@ -35,7 +26,7 @@ ENEMIES.add('B')
 ENEMIES.add('b')
 
 # modified from past work by seth cooper
-JUMPS = [
+JUMPS: List[List[Tuple[int, int]]] = [
     [
         [0,-1],
         [0,-2],
@@ -94,18 +85,13 @@ JUMPS = [
     ]
 ]
 
-BASE_DIR = join('.', 'GramElitesData', 'MarioData', 'gram_elites')
-TRAINING_LEVELS_DIR = join('TrainingLevels', 'Mario')
-S = '0_0_0'
-
-
-def read_file(filepath):
+def read_file(filepath: str) -> List[str]:
     with open(filepath) as f:
         lines = [l.strip() for l in f.readlines()]
 
     return rows_to_slices(lines, False)
 
-def get_furthest_xy(lvl):
+def get_furthest_xy(config: Config, lvl: List[str]) -> Tuple[int, int]:
     lvl.insert(0, 'X-------------')
     lvl.insert(0, 'X-------------')
     lvl.append('X-------------')
@@ -115,7 +101,7 @@ def get_furthest_xy(lvl):
     START = (0, len(formatted_lvl)-2, -1)
     heuristic = lambda pos: (len(lvl) - 1 - pos[0])**2
 
-    x, y = find_path(formatted_lvl, START, JUMPS, SOLIDS, WRAPS, heuristic)
+    x, y = find_path(formatted_lvl, START, config.JUMPS, config.SOLIDS, config.WRAPS, heuristic)
     
     lvl.pop(0)
     lvl.pop(0)
@@ -124,7 +110,7 @@ def get_furthest_xy(lvl):
 
     return x, y
 
-def player_reward(slice):
+def player_reward(slice: List[str]) -> float:
     total = 0
     for char in slice:
         if char in SOLIDS:
@@ -133,5 +119,33 @@ def player_reward(slice):
 
     return total/len(slice)
 
-def level_to_str(columns):
+def level_to_str(columns: List[str]) -> str:
     return '\n'.join(slices_to_rows(columns, False))
+
+MARIO = Config(
+    WRAPS=False,
+    TRANSPOSE=False,
+    START_NODE = '0,0,0',
+    PADDING_SIZE = 2,
+    NAME = 'mario',
+    MAX_BC = -1000000000,
+    NUM_BC = 2,
+    REWARD_TYPE = RewardType.BOTH,
+    ALLOW_EMPTY_LINK = True,
+    SOLIDS=SOLIDS,
+    JUMPS=JUMPS,
+    GRAMMAR_SIZE=3,
+    BASE_DIR=join('.', 'GramElitesData', 'MarioData', 'gram_elites'),
+    TRAINING_LEVELS_DIR = join('TrainingLevels', 'Mario'),
+    read_file=read_file,
+    get_furthest_xy=get_furthest_xy,
+    player_reward=player_reward,
+    level_to_str=level_to_str
+)
+
+
+
+
+
+
+

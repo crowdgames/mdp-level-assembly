@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "969e8e5d6c39c2cfbaaf45ef4771f43b1a46831ee9cf2531eda7ec42fc868442"
+            "sha256": "5c9b7e81eaa4cea2270cc73c92271df640a5f33ee31b8fb4bb746dab0e1ddbc8"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,21 +16,17 @@
         ]
     },
     "default": {
-        "networkx": {
-            "hashes": [
-                "sha256:80b6b89c77d1dfb64a4c7854981b60aeea6360ac02c6d4e4913319e0a313abef",
-                "sha256:c0946ed31d71f1b732b5aaa6da5a0388a345019af232ce2f49c766e2d6795c51"
-            ],
-            "index": "pypi",
-            "version": "==2.6.3"
+        "gdm": {
+            "git": "https://github.com/bi3mer/GDM.git",
+            "ref": "091e6f0ddff193cba0081ac64c55d34c92d223e2"
         },
         "tqdm": {
             "hashes": [
-                "sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c",
-                "sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d"
+                "sha256:40be55d30e200777a307a7585aee69e4eabb46b4ec6a4b4a5f2d9f11e7d5408d",
+                "sha256:74a2cdefe14d11442cedf3ba4e21a3b84ff9a2dbdc6cfae2c34addb2a14a5ea6"
             ],
             "index": "pypi",
-            "version": "==4.62.3"
+            "version": "==4.64.0"
         }
     },
     "develop": {}

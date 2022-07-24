@@ -1,33 +1,35 @@
-import random, sys
-import networkx as nx
+from typing import List
 
 from json import load as load_file
-from random import uniform
+from GDM.Graph import Graph
 from os.path import join
-from os import listdir
+import sys
 
-from Directors.Keys import *
+from Utility.Keys import DEATH, START
+
+from .CustomNode import CustomNode
 from .NGram import NGram
 
 DEFAULT_PERCENT_COMPLETABLE = 1
 DEFAULT_PLAYER_REWARD = 0
 DEFAULT_COUNT = 1
+FAIL_PROB = 0.2
 
 
-def rows_to_slices(rows, transpose):
+def rows_to_slices(rows: List[str], transpose: bool) -> List[str]:
     if transpose:
         return list(reversed(rows))
     else:
         return [''.join(_)[::-1] for _ in [*zip(*rows)]]
 
-def slices_to_rows(slices, transpose):
+def slices_to_rows(slices: List[str], transpose: bool) -> List[str]:
     if transpose:
         return list(reversed(slices))
     else:
         return [''.join(_) for _ in [*zip(*slices)]][::-1]
 
 
-def print_level(level, path=None, goals=None):
+def print_level(level: List[str], path=None, goals=None):
     path_start = None
     path_end = None
     path_set = set()
@@ -54,47 +56,40 @@ def print_level(level, path=None, goals=None):
                 sys.stdout.write(t)
         sys.stdout.write('\n')
 
-def __largest_connected_subgraph(graph):
-    biggest_comp = None
-    for comp in nx.strongly_connected_components(graph):
-        if biggest_comp == None or len(comp) > len(biggest_comp):
-            biggest_comp = comp
-
-    return graph.subgraph(biggest_comp).copy()
-
 def get_n_gram_graph(config):
-    gram = NGram(config.GRAMMAR_SIZE)
+    raise NotImplementedError('get_n_gram_graph not reimplemented for GDM yet.')
+    # gram = NGram(config.GRAMMAR_SIZE)
 
-    for filename in listdir(config.TRAINING_LEVELS_DIR):
-        filepath = join(config.TRAINING_LEVELS_DIR, filename)
-        gram.add_sequence(config.read_file(filepath))
+    # for filename in listdir(config.TRAINING_LEVELS_DIR):
+    #     filepath = join(config.TRAINING_LEVELS_DIR, filename)
+    #     gram.add_sequence(config.read_file(filepath))
 
-    graph = nx.DiGraph()
+    # graph = Graph()
 
-    for prior in gram.grammar:
-        key = str(prior)
-        graph.add_node(key)
-        graph.nodes[key][P] = prior
-        graph.nodes[key][S] = [prior[-1]] 
-        graph.nodes[key][R] = 1 # this is set by an agent
-        graph.nodes[key][DR] = 1 # this is set by an agent
+    # for prior in gram.grammar:
+    #     key = str(prior)
+    #     graph.add_node(key)
+    #     graph.nodes[key][P] = prior
+    #     graph.nodes[key][S] = [prior[-1]] 
+    #     graph.nodes[key][R] = 1 # this is set by an agent
+    #     graph.nodes[key][DR] = 1 # this is set by an agent
 
-    for prior in gram.grammar:
-        prior_key = str(prior)
-        for neighbor in gram.grammar[prior].keys():
-            n_prior = prior[1:] + (neighbor,)
-            graph.add_edge(prior_key, str(n_prior))
+    # for prior in gram.grammar:
+    #     prior_key = str(prior)
+    #     for neighbor in gram.grammar[prior].keys():
+    #         n_prior = prior[1:] + (neighbor,)
+    #         graph.add_edge(prior_key, str(n_prior))
 
-    config.START_NODE = str(list(gram.grammar.keys())[0])
+    # config.START_NODE = str(list(gram.grammar.keys())[0])
 
-    # we want the graph to be fully connected
-    return __largest_connected_subgraph(graph), gram
+    # # we want the graph to be fully connected
+    # return __largest_connected_subgraph(graph), gram
 
-def __convert_str(string, div):
+def __convert_str(string: str, div: float) -> float:
     return float(string) / div
     # return float(string) * 0.1
 
-def get_level_segment_graph(config, allow_empty_link):
+def get_level_segment_graph(config, allow_empty_link: bool):
     # get json file that represents the graph
     filename = join(config.BASE_DIR, f'links_{allow_empty_link}.json')
     print(f'Loading links from: {filename}') 
@@ -123,8 +118,11 @@ def get_level_segment_graph(config, allow_empty_link):
     config.MAX_BC = max_bc
     
     # build graph from json file
-    graph = nx.DiGraph()
     links = []
+    G = Graph()
+    G.add_default_node(START, reward=0)
+    G.add_default_node(DEATH, reward=0, terminal=True)
+    
     for node, next_data in data.items():
         # reward range is [-1,1]
         a, b, _ = node.split(',')
@@ -141,16 +139,14 @@ def get_level_segment_graph(config, allow_empty_link):
 
         # level segments do not have have a designer preference in terms of probability
         # selection. Multiplication by 1 results in no change.
-        graph.add_node(node)
-        graph.nodes[node][S] = slices
-        graph.nodes[node][OR] = r
-        graph.nodes[node][DR] = r
-        # graph.nodes[node][R] = r + 1
-        graph.nodes[node][C] = 1
-        graph.nodes[node][R] = r
-        graph.nodes[node][BC] = [a,b]
-        graph.nodes[node][PC] = DEFAULT_PERCENT_COMPLETABLE
-        graph.nodes[node][PR] = DEFAULT_PLAYER_REWARD
+        if node in G.nodes:
+            temp_node = G.get_node(node)
+            temp_node.reward = r
+            temp_node.designer_reward = r
+            temp_node.slices = slices
+            temp_node.behavioral_characteristics = (a,b)
+        else:
+            G.add_node(CustomNode(node, r, 0, False, set(), r, 0, 0, slices, (a,b)))
 
         for next_node, edge_data in next_data.items():
             edge_data_use = edge_data['tree search']
@@ -158,27 +154,24 @@ def get_level_segment_graph(config, allow_empty_link):
             if edge_data_use['percent_playable'] != 1.0:
                 continue
             
-            assert (node, next_node) not in graph.edges
+            assert (node, next_node) not in G.edges
+
+            if next_node not in G.nodes:
+                G.add_node(CustomNode(next_node, 0, 0, False, set(), 0, 0, 0, (), ()))
 
             # If the link is not empty than we create a node for that link. If it
             # is empty, then no node is created and we create an edge directly
             # between the two nodes.
             edge_slices = tuple(edge_data_use['link'])
             if len(edge_slices) == 0:
-                graph.add_edge(node, next_node)
+                G.add_default_edge(node, next_node, [(next_node, 1-FAIL_PROB), (DEATH, FAIL_PROB)])
             else:
                 edge_node = f'{node}__{next_node}'
                 links.append(edge_node)
 
-                graph.add_node(edge_node)
-                graph.nodes[edge_node][S] = slices
-                graph.nodes[edge_node][C] = DEFAULT_COUNT
-                graph.nodes[edge_node][PR] = DEFAULT_PLAYER_REWARD
-                graph.nodes[edge_node][PC] = DEFAULT_PERCENT_COMPLETABLE
-                # the rest are updated blow
-
-                graph.add_edge(node, edge_node)
-                graph.add_edge(edge_node, next_node)
+                G.add_node(CustomNode(edge_node, 0, 0, False, set(), 0, 0, 0, slices, (-1, -1)))
+                G.add_default_edge(node, edge_node, [(edge_node, 1-FAIL_PROB), (DEATH, FAIL_PROB)])
+                G.add_default_edge(edge_node, next_node, [(next_node, 1-FAIL_PROB), (DEATH, FAIL_PROB)])
 
     # edges are the mean reward of the two nodes that they connect
     for e in links:
@@ -194,11 +187,26 @@ def get_level_segment_graph(config, allow_empty_link):
         mean_a = (src_a + tgt_a)/2.0
         mean_b = (src_b + tgt_b)/2.0
 
-        graph.nodes[e][OR] = r
-        # graph.nodes[e][R] = r + 1
-        graph.nodes[e][R] = r
-        graph.nodes[e][DR] = (mean_a + mean_b)/2.0
-        graph.nodes[e][BC] = [mean_a, mean_b]
+        node = G.get_node(e)
+        node.reward = r
+        node.designer_reward = (mean_a + mean_b)/2.0
+        node.behavioral_characteristics = (mean_a, mean_b)
 
-    # we want the graph to be fully connected
-    return __largest_connected_subgraph(graph)
+    # add link to starting node
+    G.add_default_edge(START, config.START_NODE, [(config.START_NODE, 1-FAIL_PROB), (DEATH, FAIL_PROB)])
+
+    # clean nodes
+    node_removed = True
+    while node_removed:
+        node_removed = False
+        remove = []
+        for node in G.nodes.values():
+            if len(node.neighbors) == 0 and not node.is_terminal:
+                remove.append(node.name)
+
+        for node in remove:
+            G.remove_node(node)
+            node_removed = True
+
+
+    return G

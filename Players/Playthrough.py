@@ -1,11 +1,14 @@
+from typing import List, Dict
+from .PlaythroughEntry import PlaythroughEntry
+
 class Playthrough:
     def __init__(self):
-        self.entries = []
+        self.entries: List[PlaythroughEntry] = []
 
-    def add(self, playthrough_entry):
+    def add(self, playthrough_entry: PlaythroughEntry):
         self.entries.append(playthrough_entry)
 
-    def get_summary(self, nodes):
+    def get_summary(self, nodes: List[str]) -> Dict:
         percent_complete = 0
         percent_player_reward = 0
         percent_design_reward = 0

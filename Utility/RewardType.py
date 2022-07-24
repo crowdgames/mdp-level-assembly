@@ -1,5 +1,7 @@
-from Directors.Keys import *
 from enum import Enum
+from GDM.Graph import Graph
+
+from Utility.CustomNode import CustomNode
 
 class RewardType(Enum):
     DESIGNER = 0
@@ -16,18 +18,13 @@ def reward_type_to_str(r_type):
 
     raise ValueError(f'Unhandled reward type: {r_type} :: {type(r_type)}')
 
-def set_reward(r_type, graph, node_name):
-    node = graph.nodes[node_name]
-    node[DR] = node[OR] / node[C]
-    node[TR] = node[DR] + node[PR]
-
-    if r_type == RewardType.DESIGNER or r_type == RewardType.BOTH:
-        r = node[DR]
-
-    if r_type == RewardType.PLAYER or r_type == RewardType.BOTH:
-        r = node[PR]
-    
-    if r_type == RewardType.BOTH:
-        r = node[TR]
-    
-    node[R] = r / node[PC]
+def set_reward(r_type: RewardType, node: CustomNode):
+    percent_completable = max(0.01, node.percent_completable) # prevent divide by zero
+    if r_type == RewardType.PLAYER:
+        node.reward = node.player_reward
+    elif r_type == RewardType.DESIGNER:
+        node.reward = node.designer_reward / (node.visited_count * percent_completable)
+    elif r_type == RewardType.BOTH:
+        node.reward = (node.designer_reward/(node.visited_count*percent_completable)) + node.player_reward
+    else:
+        raise NotImplementedError(f'Unhandled reward type: {r_type}')

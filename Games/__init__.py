@@ -1,3 +1,5 @@
-from . import DungeonGrams
+# from .Icarus import Icarus
 from . import Icarus
-from . import Mario
+from .Mario import MARIO
+
+print("Update Icarus config!")

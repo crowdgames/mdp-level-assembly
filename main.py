@@ -1,12 +1,16 @@
-from copy import deepcopy
+from Games.Config import Config
 from Players.GramPlayer import GramPlayer
 from Tasks import *
 from Games import *
 from Players.SegmentPlayers import *
+from Utility import Keys
+from Utility.CustomNode import CustomNode
 SEGMENT_PLAYERS = PLAYERS
 from Tasks.FitPlayerPersona import FitPlayerPersona
 import Utility
-import Directors
+
+from GDM.Baseline import random_policy, greed_policy
+from GDM.ADP import policy_iteration, value_iteration
 
 from os.path import join
 from random import seed
@@ -18,6 +22,13 @@ import argparse
 import os
 
 from Utility.RewardType import RewardType
+
+'''
+TODO: the G needs a starting node
+TODO: starting node needs to be connected to first node at the start
+TODO: starting node needs all edges removed except the easiest node
+TODO: handle when the fail node is reached
+'''
 
 
 start = time()
@@ -31,22 +42,18 @@ game_group.add_argument('--mario', action='store_true', help='Run Mario')
 game_group.add_argument('--icarus', action='store_true', help='Run Icarus')
 
 task_group = parser.add_mutually_exclusive_group(required=True)
-task_group.add_argument('--fit-agent', action='store_true', help='Fit to an agent')
 task_group.add_argument('--fit-persona', action='store_true', help='Fit to a player persona')
 task_group.add_argument('--switch-persona', action='store_true', help='Fit to two player personas')
-task_group.add_argument('--get-level', action='store_true', help='Generate a level with a graph trained with --fit-to-agent')
+task_group.add_argument('--get-level', action='store_true', help='Generate a level with a G trained with --fit-to-agent')
 task_group.add_argument('--v-n-gram', action='store_true', help='get n-gram visualizations')
 
-graph_group = parser.add_mutually_exclusive_group(required=True)
-graph_group.add_argument('--segment-graph', action='store_true', help='segment based generation for graph')
-graph_group.add_argument('--n-gram-graph', action='store_true', help='n-gram based generation for graph')
+G_group = parser.add_mutually_exclusive_group(required=True)
+G_group.add_argument('--segment-graph', action='store_true', help='segment based generation for G')
+G_group.add_argument('--n-gram-graph', action='store_true', help='n-gram based generation for G')
 
 rl_agent_group = parser.add_mutually_exclusive_group(required=True)
-rl_agent_group.add_argument('--sarsa', action='store_true', help='SARSA Agent')
-rl_agent_group.add_argument('--q', action='store_true', help='Q-Learning Agent')
 rl_agent_group.add_argument('--policy', action='store_true', help='Policy Iteration Agent')
 rl_agent_group.add_argument('--value', action='store_true', help='Value Iteration Agent')
-rl_agent_group.add_argument('--online-value', action='store_true', help='Online Value Iteration Agent')
 rl_agent_group.add_argument('--random', action='store_true', help='Randomly choose where to go regardless of the player')
 rl_agent_group.add_argument('--greedy', action='store_true', help='Greedily choose where to go based on the reward')
 rl_agent_group.add_argument('--all', action='store_true', help='Run every agent')
@@ -69,12 +76,15 @@ args = parser.parse_args()
 args.hide_tqdm != args.hide_tqdm
 
 # Get Game 
-if args.dungeongram:
-    config = DungeonGrams
-elif args.mario:
-    config = Mario
+config: Config 
+if args.mario:
+    config = MARIO
 elif args.icarus:
     config = Icarus
+else:
+    print('Unrecognized game type')
+    import sys
+    sys.exit(-1)
 
 # set the reward type
 if args.r_player:
@@ -88,75 +98,59 @@ REWARD_StR = Utility.reward_type_to_str(config.REWARD_TYPE)
 
 # get Directors to use for the upcoming task
 if args.segment_graph:
-    graph = Utility.get_level_segment_graph(config, config.ALLOW_EMPTY_LINK)
+    G: Graph = Utility.get_level_segment_graph(config, config.ALLOW_EMPTY_LINK)
     PLAYERS = SEGMENT_PLAYERS
 else:
-    graph, gram = Utility.get_n_gram_graph(config)
+    G, gram = Utility.get_n_gram_graph(config)
     PLAYERS = {
         'agent': GramPlayer(config).get
     }
 
     config.GRAM = gram
 
-agents = []
-if args.sarsa:
-    agents.append(lambda: Directors.SARSA(deepcopy(graph), args.gamma))
-if args.q or args.all:
-    agents.append(lambda: Directors.QLearning(deepcopy(graph), args.gamma))
-# if args.policy or args.all:
-#     agents.append(lambda: Directors.PolicyIteration(deepcopy(graph), args.max_iter, args.policy_iter, args.gamma))
-if args.online_value:
-    agents.append(lambda: Directors.OnlineValueIteration(deepcopy(graph), args.gamma))
+get_policies = []
+if args.policy or args.all:
+    get_policies.append(('Policy', lambda G: policy_iteration(G, args.gamma, modified=True, in_place=True, policy_k=args.policy_iter)))
 if args.value:
-    agents.append(lambda: Directors.ValueIteration(deepcopy(graph), args.max_iter, args.gamma, args.theta))
+    get_policies.append(('Value', lambda G: value_iteration(G, args.max_iter, args.gamma, args.theta, in_place=True)))
 if args.random or args.all:
-    agents.append(lambda: Directors.Random(deepcopy(graph)))
+    get_policies.append(('Greedy', lambda G: random_policy(G)))
 if args.greedy or args.all:
-    agents.append(lambda: Directors.Greedy(deepcopy(graph)))
+    get_policies.append(('Random', lambda G: greed_policy(G)))
 
-# run task
-if args.fit_agent:
-    raise NotImplementedError('This feature is no longer used')
-    # for rl_agent in agents:
-        # agent = rl_agent()
-        # print(f'Running Director: {agent.NAME}')
-        # seed(args.seed)
-        # task = FitAgent(agent, config, args.segments, args.playthroughs)
-        # data = task.run()
-
-        # f_name = f'agent_game_{config.NAME}_director_{agent.NAME}_reward_{REWARD_StR}.pkl'
-        # with open(join(config.BASE_DIR, f_name), 'wb') as f:
-        #     pkl_dump(agent, f)
-
-        # f_name =  f'fitagent_game_{config.NAME}_director_{agent.NAME}_reward_{REWARD_StR}.json'
-        # with open(join(config.BASE_DIR, f_name), 'w') as f:
-        #     json_dump(data, f, indent=2)
-
-        # print()
-        # print()
-
-elif args.fit_persona:
+if args.fit_persona:
     to_run = []
-    for rl_agent in agents:
+    for name, policy_maker in get_policies:
         for p_name, p_eval in PLAYERS.items():
-            to_run.append((rl_agent, p_name, p_eval))
-            
-            name = rl_agent().NAME
+            to_run.append((policy_maker, p_name, p_eval, name))
             f_name = f'player_{p_name}_game_{config.NAME}_director_{name}_reward_{REWARD_StR}.json'
             path = join(config.BASE_DIR, f_name)
             if os.path.exists(path):
                 os.remove(path)
 
     progress_bar = tqdm(to_run, leave=False, disable=args.hide_tqdm)
-    for rl_agent, p_name, p_eval in progress_bar:
-        name = rl_agent().NAME # this is lazy but whatever
+    for rl_agent, p_name, p_eval, name in progress_bar:
         progress_bar.set_description(f'{name} :: {p_name} :: {config.NAME}')
         data = []
+        
+        # reset the graph
+        def reset_node(n: CustomNode):
+            if n.name != Keys.START and n.name != Keys.DEATH:
+                n.reward = n.designer_reward
+        G.map_nodes(reset_node)
+        
+        neighbors = list(G.get_node(Keys.START).neighbors)
+        while len(neighbors) != 0:
+            G.remove_edge(Keys.START, neighbors.pop())
+        
+        G.add_default_edge(Keys.START, config.START_NODE, [(config.START_NODE, 0.8), (Keys.DEATH, 0.2)])
 
+        # run
         for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
             seed(args.seed+i)
             task = FitPlayerPersona(
-                rl_agent(), 
+                G,
+                rl_agent, 
                 config, 
                 args.segments, 
                 args.playthroughs, 
@@ -185,51 +179,52 @@ elif args.fit_persona:
             json_dump(res, f, indent=2)
 
 elif args.switch_persona:
-    for rl_agent in tqdm(agents, leave=False, disable=args.hide_tqdm):
-        f_name = f'switch_game_{config.NAME}_director_{rl_agent().NAME}_reward_{REWARD_StR}.json'
-        if os.path.exists(join(config.BASE_DIR, f_name)):
-            os.remove(join(config.BASE_DIR,f_name))
+    raise NotImplementedError('Switching agents not re-implemented / tested yet.')
+    # for rl_agent in tqdm(agents, leave=False, disable=args.hide_tqdm):
+    #     f_name = f'switch_game_{config.NAME}_director_{rl_agent().NAME}_reward_{REWARD_StR}.json'
+    #     if os.path.exists(join(config.BASE_DIR, f_name)):
+    #         os.remove(join(config.BASE_DIR,f_name))
 
-        data = []
-        for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
-            seed(args.seed+i)
-            players = [
-                good_player_likes_hard_levels,
-                bad_player_likes_easy_levels,
-            ]
+    #     data = []
+    #     for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
+    #         seed(args.seed+i)
+    #         players = [
+    #             good_player_likes_hard_levels,
+    #             bad_player_likes_easy_levels,
+    #         ]
 
-            task = SwitchPlayerPersona(
-                rl_agent(), 
-                config, 
-                args.segments, 
-                args.playthroughs, 
-                players, 
-                args.n_gram_graph,
-                args.hide_tqdm)
+    #         task = SwitchPlayerPersona(
+    #             rl_agent(), 
+    #             config, 
+    #             args.segments, 
+    #             args.playthroughs, 
+    #             players, 
+    #             args.n_gram_G,
+    #             args.hide_tqdm)
 
-            data.append(task.run())
+    #         data.append(task.run())
 
-        res = {
-            'data': data,
-            'info': {
-                'seed': args.seed,
-                'segments': args.segments,
-                'theta': args.theta,
-                'max_iter': args.max_iter,
-                'policy_iter': args.policy_iter,
-                'gamma': args.gamma,
-                'runs': args.runs,
-                'playthroughs': args.playthroughs,
-                'players': [
-                    'Mediocre Player Likes High A',
-                    'Bad Player Likes Easy Levels',
-                ]
-            }
-        }
+    #     res = {
+    #         'data': data,
+    #         'info': {
+    #             'seed': args.seed,
+    #             'segments': args.segments,
+    #             'theta': args.theta,
+    #             'max_iter': args.max_iter,
+    #             'policy_iter': args.policy_iter,
+    #             'gamma': args.gamma,
+    #             'runs': args.runs,
+    #             'playthroughs': args.playthroughs,
+    #             'players': [
+    #                 'Mediocre Player Likes High A',
+    #                 'Bad Player Likes Easy Levels',
+    #             ]
+    #         }
+    #     }
 
-        f_name = f'switch_game_{config.NAME}_director_{rl_agent().NAME}_reward_{REWARD_StR}.json'
-        with open(join(config.BASE_DIR, f_name), 'w') as f:
-            json_dump(res, f, indent=2)
+    #     f_name = f'switch_game_{config.NAME}_director_{rl_agent().NAME}_reward_{REWARD_StR}.json'
+    #     with open(join(config.BASE_DIR, f_name), 'w') as f:
+    #         json_dump(res, f, indent=2)
 
 elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')

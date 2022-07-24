@@ -1,13 +1,14 @@
+from GDM.Graph import Graph
 from random import uniform
-from Directors.Keys import *
+from typing import List
 
-from .Playthrough import Playthrough
 from .PlaythroughEntry import PlaythroughEntry
+from .Playthrough import Playthrough
 
-def bad_player_likes_hard_levels(nodes, director, MAX_BC):
+def bad_player_likes_hard_levels(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
     for n in nodes:
-        cur_bc = sum(director.get_md(n, BC))
+        cur_bc = sum(G.get_node(n).behavioral_characteristics)
         agent_r = cur_bc / MAX_BC
         if cur_bc < MAX_BC * 0.25:
             playthrough.add(PlaythroughEntry(n, 1.0, agent_r, 0.0, 0.0, 0.0))
@@ -17,10 +18,10 @@ def bad_player_likes_hard_levels(nodes, director, MAX_BC):
 
     return playthrough
 
-def bad_player_likes_easy_levels(nodes, director, MAX_BC):
+def bad_player_likes_easy_levels(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
     for n in nodes:
-        cur_bc = sum(director.get_md(n, BC))
+        cur_bc = sum(G.get_node(n).behavioral_characteristics)
         agent_r = (MAX_BC - cur_bc) / MAX_BC
         if cur_bc < MAX_BC*0.25:
             playthrough.add(PlaythroughEntry(n, 1.0, agent_r, 0.0, 0.0, 0.0))
@@ -30,10 +31,10 @@ def bad_player_likes_easy_levels(nodes, director, MAX_BC):
 
     return playthrough
 
-def good_player_likes_easy_levels(nodes, director, MAX_BC):
+def good_player_likes_easy_levels(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
     for n in nodes:
-        cur_bc = sum(director.get_md(n, BC))
+        cur_bc = sum(G.get_node(n).behavioral_characteristics)
         agent_r = (MAX_BC - cur_bc) / MAX_BC
 
         if cur_bc < MAX_BC*0.65:
@@ -44,10 +45,10 @@ def good_player_likes_easy_levels(nodes, director, MAX_BC):
 
     return playthrough
 
-def good_player_likes_hard_levels(nodes, director, MAX_BC):
+def good_player_likes_hard_levels(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
     for n in nodes:
-        cur_bc = sum(director.get_md(n, BC))
+        cur_bc = sum(G.get_node(n).behavioral_characteristics)
         agent_r = cur_bc / MAX_BC
         
         if cur_bc < MAX_BC*0.65:
@@ -58,10 +59,10 @@ def good_player_likes_hard_levels(nodes, director, MAX_BC):
 
     return playthrough
 
-def mediocre_player_likes_high_a(nodes, director, MAX_BC):
+def mediocre_player_likes_high_a(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
     for n in nodes:
-        a, b = director.get_md(n, BC)
+        a,b = G.get_node(n).behavioral_characteristics
         cur_bc = a + b
         if cur_bc < MAX_BC * 0.5:
             playthrough.add(PlaythroughEntry(n, 1.0, a, 0.0, 0.0, 0.0))
@@ -71,11 +72,11 @@ def mediocre_player_likes_high_a(nodes, director, MAX_BC):
 
     return playthrough
 
-def mediocre_player_likes_high_b(nodes, director, MAX_BC):
+def mediocre_player_likes_high_b(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
 
     for n in nodes:
-        a, b = director.get_md(n, BC)
+        a,b = G.get_node(n).behavioral_characteristics
         cur_bc = a + b
         if cur_bc < MAX_BC * 0.5:
             playthrough.add(PlaythroughEntry(n, 1.0, b, 0.0, 0.0, 0.0))
@@ -85,10 +86,10 @@ def mediocre_player_likes_high_b(nodes, director, MAX_BC):
 
     return playthrough
 
-def mediocre_player_likes_hard_levels(nodes, director, MAX_BC):
+def mediocre_player_likes_hard_levels(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
     for n in nodes:
-        cur_bc = sum(director.get_md(n, BC))
+        cur_bc = sum(G.get_node(n).behavioral_characteristics)
         agent_r = cur_bc / MAX_BC
 
         if cur_bc < MAX_BC * 0.5:
@@ -99,10 +100,10 @@ def mediocre_player_likes_hard_levels(nodes, director, MAX_BC):
 
     return playthrough
 
-def mediocre_player_likes_easy_levels(nodes, director, MAX_BC):
+def mediocre_player_likes_easy_levels(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
     for n in nodes:
-        cur_bc = sum(director.get_md(n, BC))
+        cur_bc = sum(G.get_node(n).behavioral_characteristics)
         agent_r = (MAX_BC - cur_bc) / MAX_BC
 
         if cur_bc < MAX_BC*0.5:
