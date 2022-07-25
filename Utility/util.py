@@ -4,6 +4,7 @@ from json import load as load_file
 from GDM.Graph import Graph
 from os.path import join
 import sys
+from Utility.CustomEdge import CustomEdge
 
 from Utility.Keys import DEATH, START
 
@@ -164,14 +165,14 @@ def get_level_segment_graph(config, allow_empty_link: bool):
             # between the two nodes.
             edge_slices = tuple(edge_data_use['link'])
             if len(edge_slices) == 0:
-                G.add_default_edge(node, next_node, [(next_node, 1-FAIL_PROB), (DEATH, FAIL_PROB)])
+                G.add_edge(CustomEdge(node, next_node, [(next_node, 1-FAIL_PROB), (DEATH, FAIL_PROB)]))
             else:
                 edge_node = f'{node}__{next_node}'
                 links.append(edge_node)
 
                 G.add_node(CustomNode(edge_node, 0, 0, False, set(), 0, 0, 0, slices, (-1, -1)))
-                G.add_default_edge(node, edge_node, [(edge_node, 1-FAIL_PROB), (DEATH, FAIL_PROB)])
-                G.add_default_edge(edge_node, next_node, [(next_node, 1-FAIL_PROB), (DEATH, FAIL_PROB)])
+                G.add_edge(CustomEdge(node, edge_node, [(edge_node, 1-FAIL_PROB), (DEATH, FAIL_PROB)]))
+                G.add_edge(CustomEdge(edge_node, next_node, [(next_node, 1-FAIL_PROB), (DEATH, FAIL_PROB)]))
 
     # edges are the mean reward of the two nodes that they connect
     for e in links:
@@ -193,7 +194,7 @@ def get_level_segment_graph(config, allow_empty_link: bool):
         node.behavioral_characteristics = (mean_a, mean_b)
 
     # add link to starting node
-    G.add_default_edge(START, config.START_NODE, [(config.START_NODE, 1-FAIL_PROB), (DEATH, FAIL_PROB)])
+    G.add_edge(CustomEdge(START, config.START_NODE, [(config.START_NODE, 1-FAIL_PROB), (DEATH, FAIL_PROB)]))
 
     # clean nodes
     node_removed = True

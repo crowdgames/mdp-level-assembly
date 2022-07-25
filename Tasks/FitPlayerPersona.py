@@ -7,9 +7,8 @@ class FitPlayerPersona(BaseFit):
         self.need_full_level = need_full_level
 
     def run(self):
-        cur = self.config.START_NODE
         data = []
-        cur = self._fit(cur, data, self.player_persona, self.playthroughs)
+        self._fit(data, self.player_persona, self.playthroughs)
 
         return data
    

@@ -129,9 +129,9 @@ PLAYERS = {
 #     # 'Bad Player Likes Hard Levels': bad_player_likes_hard_levels,
 #     # 'Bad Player Likes Easy Levels': bad_player_likes_easy_levels,
 #     # 'Good Player Likes Easy Levels': good_player_likes_easy_levels,
-#     # 'Good Player Likes Hard Levels': good_player_likes_hard_levels,
-#     'Mediocre Player Likes High A': mediocre_player_likes_high_a,
-#     'Mediocre Player Likes High B': mediocre_player_likes_high_b,
+#     'Good Player Likes Hard Levels': good_player_likes_hard_levels,
+#     # 'Mediocre Player Likes High A': mediocre_player_likes_high_a,
+#     # 'Mediocre Player Likes High B': mediocre_player_likes_high_b,
 #     # 'Mediocre Player Likes Hard Levels': mediocre_player_likes_hard_levels,
 #     # 'Mediocre Player Likes Easy Levels': mediocre_player_likes_easy_levels
 # }

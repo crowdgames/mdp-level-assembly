@@ -61,7 +61,7 @@ class FitAgent(BaseFit):
             if '__' in cur:
                 cur = cur.split('__')[1]
 
-            self.director.update(playthrough)
+            self.pi = self.director.update(playthrough)
             print(f'{i}: {playthrough.get_summary(nodes)}')
 
         return data

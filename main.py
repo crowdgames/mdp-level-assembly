@@ -3,7 +3,7 @@ from Players.GramPlayer import GramPlayer
 from Tasks import *
 from Games import *
 from Players.SegmentPlayers import *
-from Utility import Keys
+from Utility import CustomEdge, Keys
 from Utility.CustomNode import CustomNode
 SEGMENT_PLAYERS = PLAYERS
 from Tasks.FitPlayerPersona import FitPlayerPersona
@@ -114,9 +114,9 @@ if args.policy or args.all:
 if args.value:
     get_policies.append(('Value', lambda G: value_iteration(G, args.max_iter, args.gamma, args.theta, in_place=True)))
 if args.random or args.all:
-    get_policies.append(('Greedy', lambda G: random_policy(G)))
+    get_policies.append(('Greedy', lambda G: greed_policy(G)))
 if args.greedy or args.all:
-    get_policies.append(('Random', lambda G: greed_policy(G)))
+    get_policies.append(('Random', lambda G: random_policy(G)))
 
 if args.fit_persona:
     to_run = []
@@ -137,13 +137,14 @@ if args.fit_persona:
         def reset_node(n: CustomNode):
             if n.name != Keys.START and n.name != Keys.DEATH:
                 n.reward = n.designer_reward
+                
         G.map_nodes(reset_node)
         
         neighbors = list(G.get_node(Keys.START).neighbors)
         while len(neighbors) != 0:
             G.remove_edge(Keys.START, neighbors.pop())
         
-        G.add_default_edge(Keys.START, config.START_NODE, [(config.START_NODE, 0.8), (Keys.DEATH, 0.2)])
+        G.add_edge(CustomEdge(Keys.START, config.START_NODE, [(config.START_NODE, 0.8), (Keys.DEATH, 0.2)]))
 
         # run
         for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
