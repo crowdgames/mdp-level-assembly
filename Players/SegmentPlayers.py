@@ -5,6 +5,7 @@ from typing import List
 from .PlaythroughEntry import PlaythroughEntry
 from .Playthrough import Playthrough
 
+############ Bad Player
 def bad_player_likes_hard_levels(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
     for n in nodes:
@@ -31,13 +32,14 @@ def bad_player_likes_easy_levels(G: Graph, nodes: List[str], MAX_BC: float) -> P
 
     return playthrough
 
+############ Good Player
 def good_player_likes_easy_levels(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
     for n in nodes:
         cur_bc = sum(G.get_node(n).behavioral_characteristics)
         agent_r = (MAX_BC - cur_bc) / MAX_BC
 
-        if cur_bc < MAX_BC*0.65:
+        if cur_bc < MAX_BC*0.75:
             playthrough.add(PlaythroughEntry(n, 1.0, agent_r, 0.0, 0.0, 0.0))
         else:
             playthrough.add(PlaythroughEntry(n, uniform(0.6, 0.95), agent_r, 0.0, 0.0, 0.0))
@@ -51,7 +53,7 @@ def good_player_likes_hard_levels(G: Graph, nodes: List[str], MAX_BC: float) -> 
         cur_bc = sum(G.get_node(n).behavioral_characteristics)
         agent_r = cur_bc / MAX_BC
         
-        if cur_bc < MAX_BC*0.65:
+        if cur_bc < MAX_BC*0.75:
             playthrough.add(PlaythroughEntry(n, 1.0, agent_r, 0.0, 0.0, 0.0))
         else:
             playthrough.add(PlaythroughEntry(n, uniform(0.6, 0.95), agent_r, 0.0, 0.0, 0.0))
@@ -72,6 +74,7 @@ def mediocre_player_likes_high_a(G: Graph, nodes: List[str], MAX_BC: float) -> P
 
     return playthrough
 
+############ Mediocre Player
 def mediocre_player_likes_high_b(G: Graph, nodes: List[str], MAX_BC: float) -> Playthrough:
     playthrough = Playthrough()
 

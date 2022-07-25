@@ -1,18 +1,9 @@
-from tkinter import SOLID
+from Games.Config import Config
+from Utility import RewardType
 from Utility.SummervilleAgent import find_path
-from os.path import join
 
-WRAPS = True
-TRANSPOSE = True
-START_NODE = '0,2,0'
-PADDING_SIZE = 2
-NAME = 'icarus'
-MAX_BC = None
-NUM_BC = 2
-REWARD_TYPE = None
-ALLOW_EMPTY_LINK = True
-GRAMMAR_SIZE = 2
-GRAM = None
+from typing import List
+from os.path import join
 
 SOLIDS = set()
 SOLIDS.add('#')
@@ -22,9 +13,6 @@ SOLIDS.add('D')
 SOLIDS.add('d')
 SOLIDS.add('H')
 
-DOOR = 'D'
-MOVING = 'M'
-HAZARD = 'H'
 
 JUMPS = [
     [
@@ -85,10 +73,6 @@ JUMPS = [
     ]
 ]
 
-BASE_DIR = join('.', 'GramElitesData', 'IcarusData', 'gram_elites')
-TRAINING_LEVELS_DIR = join('TrainingLevels', 'Icarus')
-S = '0_0_0'
-
 def read_file(filepath):
     with open(filepath) as f:
         lines = [l.strip() for l in reversed(f.readlines())]
@@ -131,3 +115,27 @@ def player_reward(slice):
             continue
 
     return total/len(slice)
+
+def level_to_str(columns: List[str]) -> str:
+    raise NotImplementedError('Icarus config does not implement level_to_str.')
+
+ICARUS = Config(
+    WRAPS=True,
+    TRANSPOSE=True,
+    START_NODE = '0,2,0',
+    PADDING_SIZE = 2,
+    NAME = 'icarus',
+    MAX_BC = -1000000000,
+    NUM_BC = 2,
+    REWARD_TYPE = RewardType.BOTH,
+    ALLOW_EMPTY_LINK = True,
+    SOLIDS=SOLIDS,
+    JUMPS=JUMPS,
+    GRAMMAR_SIZE=3,
+    BASE_DIR=join('.', 'GramElitesData', 'IcarusData', 'gram_elites'),
+    TRAINING_LEVELS_DIR = join('TrainingLevels', 'Icarus'),
+    read_file=read_file,
+    get_furthest_xy=get_furthest_xy,
+    player_reward=player_reward,
+    level_to_str=level_to_str
+)

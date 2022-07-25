@@ -1,5 +1,3 @@
 # from .Icarus import Icarus
-from . import Icarus
+from .Icarus import ICARUS
 from .Mario import MARIO
-
-print("Update Icarus config!")

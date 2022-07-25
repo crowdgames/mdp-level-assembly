@@ -14,7 +14,7 @@ from .NGram import NGram
 DEFAULT_PERCENT_COMPLETABLE = 1
 DEFAULT_PLAYER_REWARD = 0
 DEFAULT_COUNT = 1
-FAIL_PROB = 0.2
+FAIL_PROB = 0.01
 
 
 def rows_to_slices(rows: List[str], transpose: bool) -> List[str]:

@@ -72,7 +72,7 @@ class BaseFit:
                 # playthrough = player_persona(lvl, nodes, lengths)
                 # assert self.config.GRAM.sequence_is_possible(lvl)
             else:
-                # surrogate is going to play it
+                # surrogate is going to play the game   
                 nodes = [Keys.START]
                 size = 1
                 while size < self.segments + 1:
@@ -80,7 +80,6 @@ class BaseFit:
                     size += 1 * '__' not in nodes[-1] # small optimization to remove branching
 
                 nodes.pop(0)
-
                 playthrough = player_persona(self.G, nodes, self.config.NUM_BC)
 
             # Update the graph rewards based on the playthrough. Playthrough 
@@ -125,13 +124,13 @@ class BaseFit:
             # update edge probabilities
             for tgt_node in tgt_nodes_to_update:
                 source_nodes = []
-                sum_percent_complete: float = 0
-                sum_visited: int = 0
+                sum_percent_complete: float = 1
+                sum_visited: int = 1
                 edge: CustomEdge
                 for edge in self.G.edges.values():
                     if edge.tgt == tgt_node:
-                        sum_percent_complete = edge.sum_percent_complete
-                        sum_visited = edge.sum_visits
+                        sum_percent_complete += edge.sum_percent_complete
+                        sum_visited += edge.sum_visits
                         source_nodes.append(edge.src)
 
                 win_prob = sum_percent_complete / sum_visited

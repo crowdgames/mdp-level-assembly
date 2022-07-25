@@ -1,4 +1,5 @@
 from Games.Config import Config
+from Games import MARIO, ICARUS
 from Players.GramPlayer import GramPlayer
 from Tasks import *
 from Games import *
@@ -67,7 +68,7 @@ parser.add_argument('--segments', type=int, default=3, help='Number of segments 
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
 parser.add_argument('--max-iter', type=int, default=500, help='Max # of iterations for Value Iteration')
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
-parser.add_argument('--gamma', type=float, default=0.4, help='Discount factor for all RL algorithms')
+parser.add_argument('--gamma', type=float, default=0.9, help='Discount factor for all RL algorithms')
 parser.add_argument('--runs', type=int, default=100, help='Number of runs for a person when --fit-person is used')
 parser.add_argument('--playthroughs', type=int, default=20, help='Number of levels played per director')
 parser.add_argument('--hide-tqdm', action='store_true', help='Hide tqdm bars')
@@ -80,7 +81,7 @@ config: Config
 if args.mario:
     config = MARIO
 elif args.icarus:
-    config = Icarus
+    config = ICARUS
 else:
     print('Unrecognized game type')
     import sys
@@ -132,22 +133,31 @@ if args.fit_persona:
     for rl_agent, p_name, p_eval, name in progress_bar:
         progress_bar.set_description(f'{name} :: {p_name} :: {config.NAME}')
         data = []
-        
-        # reset the graph
-        def reset_node(n: CustomNode):
-            if n.name != Keys.START and n.name != Keys.DEATH:
-                n.reward = n.designer_reward
-                
-        G.map_nodes(reset_node)
-        
-        neighbors = list(G.get_node(Keys.START).neighbors)
-        while len(neighbors) != 0:
-            G.remove_edge(Keys.START, neighbors.pop())
-        
-        G.add_edge(CustomEdge(Keys.START, config.START_NODE, [(config.START_NODE, 0.8), (Keys.DEATH, 0.2)]))
 
-        # run
         for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
+            # remove all edges to the start node
+            neighbors = list(G.get_node(Keys.START).neighbors)
+            while len(neighbors) != 0:
+                G.remove_edge(Keys.START, neighbors.pop())
+            
+            G.add_edge(CustomEdge(Keys.START, config.START_NODE, [(config.START_NODE, 0.8), (Keys.DEATH, 0.2)]))
+
+            # reset nodes and edges in the graph
+            def reset_node(n: CustomNode):
+                if n.name != Keys.START and n.name != Keys.DEATH:
+                    n.reward = n.designer_reward
+                    n.visited_count = 0
+                    n.percent_completable = 0
+
+            def reset_edge(e: CustomEdge):
+                e.sum_percent_complete = 0
+                e.sum_visits = 0
+                    
+            G.map_nodes(reset_node)
+            G.map_edges(reset_edge)
+
+
+            # run the agent
             seed(args.seed+i)
             task = FitPlayerPersona(
                 G,
@@ -161,6 +171,7 @@ if args.fit_persona:
 
             data.append(task.run())
 
+        # create data structure and store it to a json file
         res = {
             'data': data,
             'info': {
