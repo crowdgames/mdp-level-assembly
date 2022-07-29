@@ -3,7 +3,7 @@
 TYPE="--segment-graph"
 TASK="--fit-persona"
 GAME="--icarus"
-RUNS="--runs 3"
+RUNS="--runs 50"
 # PLAYTHROUGHS="--playthroughs 50"
 PLAYTHROUGHS="--playthroughs 20"
 SEGMENTS="--segments 5"
@@ -11,8 +11,8 @@ SEGMENTS="--segments 5"
 # AGENT='--policy'
 AGENT='--all'
 
-echo "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
-screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+# echo "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+# screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 
 # echo "pypy3 main.py --r-player ${GAME} ${TASK}  ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 # screen -dm bash -c "pypy3 main.py --r-player ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
@@ -25,16 +25,16 @@ screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SE
 # screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}" 
 
 
-# TYPE="--n-gram-graph"
-# RUNS="--runs 5"
-# TASK="--fit-persona"
-# GAME="--mario"
-# SEGMENTS="--segments 30"
-# PLAYTHROUGHS="--playthroughs 50"
-# AGENT='--all'
+TYPE="--n-gram-graph"
+RUNS="--runs 5"
+TASK="--fit-persona"
+GAME="--mario"
+SEGMENTS="--segments 30"
+PLAYTHROUGHS="--playthroughs 50"
+AGENT='--all'
 
-# echo "pypy3 main.py --r-both ${GAME} ${TASK}  ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
-# screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK}  ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+echo "pypy3 main.py --r-both ${GAME} ${TASK}  ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK}  ${AGENT} ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 
 # echo "pypy3 main.py --r-player ${GAME} ${TASK}  ${AGENT} ${RUNS}  ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 # screen -dm bash -c "pypy3 main.py --r-player ${GAME} ${TASK}  ${AGENT} ${RUNS}  ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"

@@ -27,21 +27,23 @@ class BaseFit:
         self.using_segments = using_segments
         self.hide_tqdm = hide_tqdm
 
-        self.pi = director(self.G)
+        self.pi = director(self.G, True)
 
-    def get_level(self, node):
+    def get_level(self):
         lvl = []
-        size = 1
-        lvl += self.director.get_md(node, S)
-        nodes = [node]
-        lengths = [len(lvl)]
-        while size < self.segments:
+        node = Keys.START
+        lvl = []
+        nodes = [self.pi[Keys.START]]
+        lengths = []
+        print('=================')
+        while len(lengths) < self.segments:
             node = self.pi[node]
+            print(node)
             nodes.append(node)
-            segment = self.director.get_md(node, S)
+            segment = self.G.get_node(node).slices
             lvl += segment
             lengths.append(len(segment))
-            size += 1 * '__' not in node # small optimization to remove branching
+        print('=================')
         
         lengths[0] += self.config.PADDING_SIZE 
         lengths[-1] += self.config.PADDING_SIZE
@@ -63,14 +65,13 @@ class BaseFit:
         return nodes
         
     def _fit(self, data, player_persona: Callable[[Graph, List[str], float], Playthrough], num_playthroughs):
-
         for _ in trange(num_playthroughs, leave=False, disable=self.hide_tqdm):
             if self.need_full_level:
                 # an agent is going to play the game
-                raise NotImplementedError('Level generation for Mario not tested yet.')
-                # lvl, nodes, lengths = self.get_level()
-                # playthrough = player_persona(lvl, nodes, lengths)
-                # assert self.config.GRAM.sequence_is_possible(lvl)
+                lvl, nodes, lengths = self.get_level()
+                print(lvl)
+                assert self.config.GRAM.sequence_is_possible(lvl)
+                playthrough = player_persona(lvl, nodes, None)
             else:
                 # surrogate is going to play the game   
                 nodes = [Keys.START]
@@ -86,6 +87,11 @@ class BaseFit:
             # entries are also updated with important details for logging.
             previous_node = Keys.START
             tgt_nodes_to_update = set()
+            print('////////////////////////////////')
+            for e in playthrough.entries:
+                print(e.node_name)
+            print('////////////////////////////////')
+
             for e in playthrough.entries:
                 tgt_nodes_to_update.add(e.node_name)
 
@@ -108,6 +114,10 @@ class BaseFit:
                 e.reward = node.reward
 
                 # update edge
+                print(f'{previous_node} -> {e.node_name}')
+                for n in self.G.neighbors(previous_node):
+                    print(f'\t{n}')
+                print()
                 edge: CustomEdge = self.G.get_edge(previous_node, e.node_name)
                 edge.sum_visits += 1
                 edge.sum_percent_complete += e.percent_completable
@@ -139,7 +149,8 @@ class BaseFit:
                     self.G.get_edge(src_node, tgt_node).probability = [(tgt_node, win_prob), (Keys.DEATH, death_prob)]
 
             # Update based on new graph values
-            self.pi = self.director(self.G)
+            player_won = len(nodes) == len(playthrough.entries) and playthrough.entries[-1].percent_completable == 1.0
+            self.pi = self.director(self.G, player_won)
             # start_edges = self.G.neighbors(Keys.START)
             # temp = [self.G.get_node(n) for n in tgt_nodes_to_update]
 

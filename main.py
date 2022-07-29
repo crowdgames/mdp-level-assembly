@@ -5,7 +5,9 @@ from Tasks import *
 from Games import *
 from Players.SegmentPlayers import *
 from Utility import CustomEdge, Keys
+from Utility.AdaptiveGammaPolicyIteration import AdaptiveGammaPolicyIteration
 from Utility.CustomNode import CustomNode
+from Utility.util import reset_graph
 SEGMENT_PLAYERS = PLAYERS
 from Tasks.FitPlayerPersona import FitPlayerPersona
 import Utility
@@ -54,7 +56,7 @@ G_group.add_argument('--n-gram-graph', action='store_true', help='n-gram based g
 
 rl_agent_group = parser.add_mutually_exclusive_group(required=True)
 rl_agent_group.add_argument('--policy', action='store_true', help='Policy Iteration Agent')
-rl_agent_group.add_argument('--value', action='store_true', help='Value Iteration Agent')
+rl_agent_group.add_argument('--adaptive-gamma', action='store_true', help='Adaptive Gamma Policy Iteration Agent')
 rl_agent_group.add_argument('--random', action='store_true', help='Randomly choose where to go regardless of the player')
 rl_agent_group.add_argument('--greedy', action='store_true', help='Greedily choose where to go based on the reward')
 rl_agent_group.add_argument('--all', action='store_true', help='Run every agent')
@@ -68,7 +70,7 @@ parser.add_argument('--segments', type=int, default=3, help='Number of segments 
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
 parser.add_argument('--max-iter', type=int, default=500, help='Max # of iterations for Value Iteration')
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
-parser.add_argument('--gamma', type=float, default=0.9, help='Discount factor for all RL algorithms')
+parser.add_argument('--gamma', type=float, default=0.4, help='Discount factor for all RL algorithms')
 parser.add_argument('--runs', type=int, default=100, help='Number of runs for a person when --fit-person is used')
 parser.add_argument('--playthroughs', type=int, default=20, help='Number of levels played per director')
 parser.add_argument('--hide-tqdm', action='store_true', help='Hide tqdm bars')
@@ -111,13 +113,14 @@ else:
 
 get_policies = []
 if args.policy or args.all:
-    get_policies.append(('Policy', lambda G: policy_iteration(G, args.gamma, modified=True, in_place=True, policy_k=args.policy_iter)))
-if args.value:
-    get_policies.append(('Value', lambda G: value_iteration(G, args.max_iter, args.gamma, args.theta, in_place=True)))
+    get_policies.append(('Policy', lambda G, player_won: policy_iteration(G, args.gamma, modified=True, in_place=True, policy_k=args.policy_iter)))
+if args.adaptive_gamma or args.all:
+    agpi = AdaptiveGammaPolicyIteration(args.gamma, args.policy_iter)
+    get_policies.append(('Adaptive Gamma', lambda G, player_won: agpi.get_policy(G, player_won)))
 if args.random or args.all:
-    get_policies.append(('Greedy', lambda G: greed_policy(G)))
+    get_policies.append(('Greedy', lambda G, player_won: greed_policy(G)))
 if args.greedy or args.all:
-    get_policies.append(('Random', lambda G: random_policy(G)))
+    get_policies.append(('Random', lambda G, player_won: random_policy(G)))
 
 if args.fit_persona:
     to_run = []
@@ -135,30 +138,10 @@ if args.fit_persona:
         data = []
 
         for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
-            # remove all edges to the start node
-            neighbors = list(G.get_node(Keys.START).neighbors)
-            while len(neighbors) != 0:
-                G.remove_edge(Keys.START, neighbors.pop())
-            
-            G.add_edge(CustomEdge(Keys.START, config.START_NODE, [(config.START_NODE, 0.8), (Keys.DEATH, 0.2)]))
-
-            # reset nodes and edges in the graph
-            def reset_node(n: CustomNode):
-                if n.name != Keys.START and n.name != Keys.DEATH:
-                    n.reward = n.designer_reward
-                    n.visited_count = 0
-                    n.percent_completable = 0
-
-            def reset_edge(e: CustomEdge):
-                e.sum_percent_complete = 0
-                e.sum_visits = 0
-                    
-            G.map_nodes(reset_node)
-            G.map_edges(reset_edge)
-
+            reset_graph(G, config)
+            seed(args.seed+i)
 
             # run the agent
-            seed(args.seed+i)
             task = FitPlayerPersona(
                 G,
                 rl_agent, 
@@ -191,57 +174,60 @@ if args.fit_persona:
             json_dump(res, f, indent=2)
 
 elif args.switch_persona:
-    raise NotImplementedError('Switching agents not re-implemented / tested yet.')
-    # for rl_agent in tqdm(agents, leave=False, disable=args.hide_tqdm):
-    #     f_name = f'switch_game_{config.NAME}_director_{rl_agent().NAME}_reward_{REWARD_StR}.json'
-    #     if os.path.exists(join(config.BASE_DIR, f_name)):
-    #         os.remove(join(config.BASE_DIR,f_name))
+    for name, get_policy in tqdm(get_policies, leave=False, disable=args.hide_tqdm):
+        f_name = f'switch_game_{config.NAME}_director_{name}_reward_{REWARD_StR}.json'
+        if os.path.exists(join(config.BASE_DIR, f_name)):
+            os.remove(join(config.BASE_DIR,f_name))
 
-    #     data = []
-    #     for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
-    #         seed(args.seed+i)
-    #         players = [
-    #             good_player_likes_hard_levels,
-    #             bad_player_likes_easy_levels,
-    #         ]
+        data = []
+        for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
+            reset_graph(G, config)
+            seed(args.seed+i)
 
-    #         task = SwitchPlayerPersona(
-    #             rl_agent(), 
-    #             config, 
-    #             args.segments, 
-    #             args.playthroughs, 
-    #             players, 
-    #             args.n_gram_G,
-    #             args.hide_tqdm)
+            players = [
+                good_player_likes_hard_levels,
+                bad_player_likes_easy_levels,
+            ]
 
-    #         data.append(task.run())
+            task = SwitchPlayerPersona(
+                G,
+                get_policy, 
+                config, 
+                args.segments, 
+                args.playthroughs, 
+                players, 
+                args.n_gram_graph,
+                args.hide_tqdm)
 
-    #     res = {
-    #         'data': data,
-    #         'info': {
-    #             'seed': args.seed,
-    #             'segments': args.segments,
-    #             'theta': args.theta,
-    #             'max_iter': args.max_iter,
-    #             'policy_iter': args.policy_iter,
-    #             'gamma': args.gamma,
-    #             'runs': args.runs,
-    #             'playthroughs': args.playthroughs,
-    #             'players': [
-    #                 'Mediocre Player Likes High A',
-    #                 'Bad Player Likes Easy Levels',
-    #             ]
-    #         }
-    #     }
+            data.append(task.run())
 
-    #     f_name = f'switch_game_{config.NAME}_director_{rl_agent().NAME}_reward_{REWARD_StR}.json'
-    #     with open(join(config.BASE_DIR, f_name), 'w') as f:
-    #         json_dump(res, f, indent=2)
+        res = {
+            'data': data,
+            'info': {
+                'seed': args.seed,
+                'segments': args.segments,
+                'theta': args.theta,
+                'max_iter': args.max_iter,
+                'policy_iter': args.policy_iter,
+                'gamma': args.gamma,
+                'runs': args.runs,
+                'playthroughs': args.playthroughs,
+                'players': [
+                    'Good Player Likes Hard Levels',
+                    'Bad Player Likes Easy Levels',
+                ]
+            }
+        }
+
+        f_name = f'switch_game_{config.NAME}_director_{name}_reward_{REWARD_StR}.json'
+        with open(join(config.BASE_DIR, f_name), 'w') as f:
+            json_dump(res, f, indent=2)
 
 elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')
 
 elif args.v_n_gram:
+    raise NotImplementedError('--v-n-gram is not yet implemented')
     Visualization.GetNGramLevels(config, agents).run()
 
 end = time()

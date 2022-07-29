@@ -17,7 +17,6 @@ class GramPlayer:
         for n in nodes:
             if cur_x < x:
                 playthrough.add(PlaythroughEntry(n, 1.0, 0.0, 0.0, 0.0, 0.0))
-                
             else:
                 playthrough.add(PlaythroughEntry(n, cur_x/len(nodes), 0.0, 0.0, 0.0, 0.0))
                 break
@@ -42,7 +41,7 @@ class GramPlayer:
         # return playthrough
 
     def get(self, lvl, nodes, _):
-        x, y = self.config.get_furthest_xy(lvl)
+        x, y = self.config.get_furthest_xy(self.config, lvl)
         playthrough = self.get_playthrough(x, y, nodes)
 
         for slice, entry in zip(lvl, playthrough.entries):

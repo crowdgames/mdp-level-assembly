@@ -1,9 +1,13 @@
-from typing import List
+from typing import List, Tuple
 
 from json import load as load_file
 from GDM.Graph import Graph
 from os.path import join
+from os import listdir
 import sys
+from Games import Config
+from Utility import Keys
+from Utility.NGramNode import NGramNode
 from Utility.CustomEdge import CustomEdge
 
 from Utility.Keys import DEATH, START
@@ -28,6 +32,19 @@ def slices_to_rows(slices: List[str], transpose: bool) -> List[str]:
         return list(reversed(slices))
     else:
         return [''.join(_) for _ in [*zip(*slices)]][::-1]
+
+def clean_graph(G: Graph):
+    node_removed = True
+    while node_removed:
+        node_removed = False
+        remove = []
+        for node in G.nodes.values():
+            if len(node.neighbors) == 0 and not node.is_terminal:
+                remove.append(node.name)
+
+        for node in remove:
+            G.remove_node(node)
+            node_removed = True
 
 
 def print_level(level: List[str], path=None, goals=None):
@@ -57,34 +74,34 @@ def print_level(level: List[str], path=None, goals=None):
                 sys.stdout.write(t)
         sys.stdout.write('\n')
 
-def get_n_gram_graph(config):
-    raise NotImplementedError('get_n_gram_graph not reimplemented for GDM yet.')
-    # gram = NGram(config.GRAMMAR_SIZE)
+def get_n_gram_graph(config: Config) -> Tuple[Graph, NGram]:
+    gram = NGram(config.GRAMMAR_SIZE)
 
-    # for filename in listdir(config.TRAINING_LEVELS_DIR):
-    #     filepath = join(config.TRAINING_LEVELS_DIR, filename)
-    #     gram.add_sequence(config.read_file(filepath))
+    for filename in listdir(config.TRAINING_LEVELS_DIR):
+        filepath = join(config.TRAINING_LEVELS_DIR, filename)
+        gram.add_sequence(config.read_file(filepath))
 
-    # graph = Graph()
+    G = Graph()
+    G.add_default_node(START, reward=0)
+    G.add_default_node(DEATH, reward=-1, terminal=True) # was 0?
+    
+    for prior in gram.grammar:
+        key = str(prior)
+        G.add_node(NGramNode(key, 1, 0, False, set(), 1, 1, 0, [prior[-1]], (), prior, 1))
 
-    # for prior in gram.grammar:
-    #     key = str(prior)
-    #     graph.add_node(key)
-    #     graph.nodes[key][P] = prior
-    #     graph.nodes[key][S] = [prior[-1]] 
-    #     graph.nodes[key][R] = 1 # this is set by an agent
-    #     graph.nodes[key][DR] = 1 # this is set by an agent
+    for prior in gram.grammar:
+        prior_key = str(prior)
+        for neighbor in gram.grammar[prior].keys():
+            n_prior = prior[1:] + (neighbor,)
+            G.add_edge(CustomEdge(prior_key, str(n_prior), [(str(n_prior), 1-FAIL_PROB), (DEATH, FAIL_PROB)]))
 
-    # for prior in gram.grammar:
-    #     prior_key = str(prior)
-    #     for neighbor in gram.grammar[prior].keys():
-    #         n_prior = prior[1:] + (neighbor,)
-    #         graph.add_edge(prior_key, str(n_prior))
-
-    # config.START_NODE = str(list(gram.grammar.keys())[0])
-
-    # # we want the graph to be fully connected
-    # return __largest_connected_subgraph(graph), gram
+    first_neighbor = str(list(gram.grammar.keys())[0])
+    config.START_NODE = first_neighbor
+    G.add_edge(CustomEdge(Keys.START, first_neighbor, [(first_neighbor, 1-FAIL_PROB), (DEATH, FAIL_PROB)]))
+    
+    
+    clean_graph(G)
+    return G, gram
 
 def __convert_str(string: str, div: float) -> float:
     return float(string) / div
@@ -122,7 +139,7 @@ def get_level_segment_graph(config, allow_empty_link: bool):
     links = []
     G = Graph()
     G.add_default_node(START, reward=0)
-    G.add_default_node(DEATH, reward=0, terminal=True)
+    G.add_default_node(DEATH, reward=-1, terminal=True) # was 0?
     
     for node, next_data in data.items():
         # reward range is [-1,1]
@@ -197,17 +214,28 @@ def get_level_segment_graph(config, allow_empty_link: bool):
     G.add_edge(CustomEdge(START, config.START_NODE, [(config.START_NODE, 1-FAIL_PROB), (DEATH, FAIL_PROB)]))
 
     # clean nodes
-    node_removed = True
-    while node_removed:
-        node_removed = False
-        remove = []
-        for node in G.nodes.values():
-            if len(node.neighbors) == 0 and not node.is_terminal:
-                remove.append(node.name)
-
-        for node in remove:
-            G.remove_node(node)
-            node_removed = True
-
+    clean_graph(G)
 
     return G
+
+def __reset_node(n: CustomNode):
+    if n.name != Keys.START and n.name != Keys.DEATH:
+        n.reward = n.designer_reward
+        n.visited_count = 0
+        n.percent_completable = 0
+
+def __reset_edge(e: CustomEdge):
+    e.sum_percent_complete = 0
+    e.sum_visits = 0
+
+def reset_graph(G: Graph, config: Config):
+     # remove all edges to the start node
+    neighbors = list(G.get_node(Keys.START).neighbors)
+    while len(neighbors) != 0:
+        G.remove_edge(Keys.START, neighbors.pop())
+    
+    G.add_edge(CustomEdge(Keys.START, config.START_NODE, [(config.START_NODE, 0.8), (Keys.DEATH, 0.2)]))
+
+    # reset nodes and edges in the graph
+    G.map_nodes(__reset_node)
+    G.map_edges(__reset_edge)
