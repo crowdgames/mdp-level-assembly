@@ -3,9 +3,7 @@ from GDM.ADP import policy_iteration
 from GDM.Graph import Graph
 from Utility import Keys
 
-from Utility.CustomNode import CustomNode
-
-class AdaptiveGammaPolicyIteration:
+class AdaptivePolicyIteration:
     def __init__(self, gamma: float, k: int):
         self.k = k
         self.gamma = gamma

@@ -33,17 +33,14 @@ class BaseFit:
         lvl = []
         node = Keys.START
         lvl = []
-        nodes = [self.pi[Keys.START]]
+        nodes = []
         lengths = []
-        print('=================')
         while len(lengths) < self.segments:
             node = self.pi[node]
-            print(node)
             nodes.append(node)
             segment = self.G.get_node(node).slices
             lvl += segment
             lengths.append(len(segment))
-        print('=================')
         
         lengths[0] += self.config.PADDING_SIZE 
         lengths[-1] += self.config.PADDING_SIZE
@@ -69,7 +66,6 @@ class BaseFit:
             if self.need_full_level:
                 # an agent is going to play the game
                 lvl, nodes, lengths = self.get_level()
-                print(lvl)
                 assert self.config.GRAM.sequence_is_possible(lvl)
                 playthrough = player_persona(lvl, nodes, None)
             else:
@@ -87,10 +83,6 @@ class BaseFit:
             # entries are also updated with important details for logging.
             previous_node = Keys.START
             tgt_nodes_to_update = set()
-            print('////////////////////////////////')
-            for e in playthrough.entries:
-                print(e.node_name)
-            print('////////////////////////////////')
 
             for e in playthrough.entries:
                 tgt_nodes_to_update.add(e.node_name)
@@ -114,10 +106,6 @@ class BaseFit:
                 e.reward = node.reward
 
                 # update edge
-                print(f'{previous_node} -> {e.node_name}')
-                for n in self.G.neighbors(previous_node):
-                    print(f'\t{n}')
-                print()
                 edge: CustomEdge = self.G.get_edge(previous_node, e.node_name)
                 edge.sum_visits += 1
                 edge.sum_percent_complete += e.percent_completable

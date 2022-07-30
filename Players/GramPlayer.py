@@ -11,7 +11,7 @@ class GramPlayer:
             self.get_playthrough = self.__playthrough_on_x
 
     def __playthrough_on_x(self, x, y, nodes):
-        playthrough =  Playthrough()
+        playthrough = Playthrough()
 
         cur_x = self.config.PADDING_SIZE
         for n in nodes:

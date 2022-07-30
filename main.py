@@ -5,7 +5,7 @@ from Tasks import *
 from Games import *
 from Players.SegmentPlayers import *
 from Utility import CustomEdge, Keys
-from Utility.AdaptiveGammaPolicyIteration import AdaptiveGammaPolicyIteration
+from Utility.AdaptivePolicyIteration import AdaptivePolicyIteration
 from Utility.CustomNode import CustomNode
 from Utility.util import reset_graph
 SEGMENT_PLAYERS = PLAYERS
@@ -56,7 +56,7 @@ G_group.add_argument('--n-gram-graph', action='store_true', help='n-gram based g
 
 rl_agent_group = parser.add_mutually_exclusive_group(required=True)
 rl_agent_group.add_argument('--policy', action='store_true', help='Policy Iteration Agent')
-rl_agent_group.add_argument('--adaptive-gamma', action='store_true', help='Adaptive Gamma Policy Iteration Agent')
+rl_agent_group.add_argument('--adaptive-policy', action='store_true', help='Adaptive Policy Iteration Agent')
 rl_agent_group.add_argument('--random', action='store_true', help='Randomly choose where to go regardless of the player')
 rl_agent_group.add_argument('--greedy', action='store_true', help='Greedily choose where to go based on the reward')
 rl_agent_group.add_argument('--all', action='store_true', help='Run every agent')
@@ -114,9 +114,9 @@ else:
 get_policies = []
 if args.policy or args.all:
     get_policies.append(('Policy', lambda G, player_won: policy_iteration(G, args.gamma, modified=True, in_place=True, policy_k=args.policy_iter)))
-if args.adaptive_gamma or args.all:
-    agpi = AdaptiveGammaPolicyIteration(args.gamma, args.policy_iter)
-    get_policies.append(('Adaptive Gamma', lambda G, player_won: agpi.get_policy(G, player_won)))
+if args.adaptive_policy or args.all:
+    api = AdaptivePolicyIteration(args.gamma, args.policy_iter)
+    get_policies.append(('Adaptive Policy', lambda G, player_won: api.get_policy(G, player_won)))
 if args.random or args.all:
     get_policies.append(('Greedy', lambda G, player_won: greed_policy(G)))
 if args.greedy or args.all:

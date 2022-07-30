@@ -4,3 +4,4 @@ from . import Math
 from .Counter import Counter
 from .RewardType import *
 from . import Keys
+from .AdaptivePolicyIteration import AdaptivePolicyIteration
