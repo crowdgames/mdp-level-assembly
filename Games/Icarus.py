@@ -137,5 +137,6 @@ ICARUS = Config(
     read_file=read_file,
     get_furthest_xy=get_furthest_xy,
     player_reward=player_reward,
-    level_to_str=level_to_str
+    level_to_str=level_to_str,
+    designer_reward=None
 )

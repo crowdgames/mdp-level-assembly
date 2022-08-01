@@ -87,7 +87,23 @@ def get_n_gram_graph(config: Config) -> Tuple[Graph, NGram]:
     
     for prior in gram.grammar:
         key = str(prior)
-        G.add_node(NGramNode(key, 1, 0, False, set(), 1, 1, 0, [prior[-1]], (), prior, 1))
+        one_slice = prior[-1]
+        designer_reward = config.designer_reward(one_slice)
+
+        G.add_node(NGramNode(
+            name=key,
+            reward=designer_reward, 
+            utility=0,
+            is_terminal=False,
+            neighbors=set(),
+            designer_reward=designer_reward,
+            player_reward=0,
+            visited_count=0,
+            slices=[one_slice,],
+            behavioral_characteristics=(),
+            prior=prior,
+            percent_completable=1
+        ))
 
     for prior in gram.grammar:
         prior_key = str(prior)

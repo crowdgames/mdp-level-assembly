@@ -119,6 +119,9 @@ def player_reward(slice: List[str]) -> float:
 
     return total/len(slice)
 
+def designer_reward(slice: List[str]) -> float:
+    return 'E' in slice
+
 def level_to_str(columns: List[str]) -> str:
     return '\n'.join(slices_to_rows(columns, False))
 
@@ -140,7 +143,8 @@ MARIO = Config(
     read_file=read_file,
     get_furthest_xy=get_furthest_xy,
     player_reward=player_reward,
-    level_to_str=level_to_str
+    level_to_str=level_to_str,
+    designer_reward=designer_reward
 )
 
 

@@ -28,3 +28,4 @@ class Config:
     get_furthest_xy: Callable[[List[str]], Tuple[int, int]] # update
     player_reward: Callable[[List[str]], float]
     level_to_str: Callable[[List[str]], str]
+    designer_reward: Callable[[List[str]], float]

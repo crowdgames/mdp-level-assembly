@@ -7,30 +7,30 @@ RUNS="--runs 20"
 PLAYTHROUGHS="--playthroughs 50"
 SEGMENTS="--segments 5"
 
-echo "pypy3 main.py --r-both ${GAME} ${TASK} --policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
-screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+# echo "pypy3 main.py --r-both ${GAME} ${TASK} --policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+# screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 
-echo "pypy3 main.py --r-both ${GAME} ${TASK} --adaptive-policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
-screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --adaptive-policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+# echo "pypy3 main.py --r-both ${GAME} ${TASK} --adaptive-policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+# screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --adaptive-policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 
-echo "pypy3 main.py --r-both ${GAME} ${TASK} --greedy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
-screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --greedy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+# echo "pypy3 main.py --r-both ${GAME} ${TASK} --greedy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+# screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --greedy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 
-echo "pypy3 main.py --r-both ${GAME} ${TASK} --random ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
-screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --random ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+# echo "pypy3 main.py --r-both ${GAME} ${TASK} --random ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
+# screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --random ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"
 
-TASK="--switch-persona"
-echo "pypy3 main.py --r-both ${GAME} ${TASK} --policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"  
-screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}" 
+# TASK="--switch-persona"
+# echo "pypy3 main.py --r-both ${GAME} ${TASK} --policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"  
+# screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}" 
 
-echo "pypy3 main.py --r-both ${GAME} ${TASK} --adaptive-policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"  
-screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --adaptive-policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}" 
+# echo "pypy3 main.py --r-both ${GAME} ${TASK} --adaptive-policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"  
+# screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --adaptive-policy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}" 
 
-echo "pypy3 main.py --r-both ${GAME} ${TASK} --random ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"  
-screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --random ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}" 
+# echo "pypy3 main.py --r-both ${GAME} ${TASK} --random ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"  
+# screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --random ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}" 
 
-echo "pypy3 main.py --r-both ${GAME} ${TASK} --greedy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"  
-screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --greedy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}" 
+# echo "pypy3 main.py --r-both ${GAME} ${TASK} --greedy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}"  
+# screen -dm bash -c "pypy3 main.py --r-both ${GAME} ${TASK} --greedy ${RUNS} ${SEGMENTS} ${TYPE} ${PLAYTHROUGHS}" 
 
 
 # n-gram is much faster overall
