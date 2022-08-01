@@ -90,7 +90,7 @@ class BaseFit:
                 # update visited
                 if '__' not in e.node_name and e.percent_completable == 1.0:
                     if not self.G.has_edge(Keys.START, e.node_name):
-                        self.G.add_edge(CustomEdge(Keys.START, e.node_name, [(e.node_name, 0.8), (Keys.DEATH, 0.2)]))
+                        self.G.add_edge(CustomEdge(Keys.START, e.node_name, [(e.node_name, 1.0), (Keys.DEATH, 0.0)]))
                 
                 # update graph values
                 node: CustomNode = self.G.get_node(e.node_name)

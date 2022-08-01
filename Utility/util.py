@@ -110,7 +110,6 @@ def __convert_str(string: str, div: float) -> float:
 def get_level_segment_graph(config, allow_empty_link: bool):
     # get json file that represents the graph
     filename = join(config.BASE_DIR, f'links_{allow_empty_link}.json')
-    print(f'Loading links from: {filename}') 
     with open(filename, 'r') as f:
         data = load_file(f)
 
@@ -206,7 +205,7 @@ def get_level_segment_graph(config, allow_empty_link: bool):
         mean_b = (src_b + tgt_b)/2.0
 
         node = G.get_node(e)
-        node.reward = r
+        node.reward = (mean_a + mean_b)/2.0
         node.designer_reward = (mean_a + mean_b)/2.0
         node.behavioral_characteristics = (mean_a, mean_b)
 
@@ -234,7 +233,7 @@ def reset_graph(G: Graph, config: Config):
     while len(neighbors) != 0:
         G.remove_edge(Keys.START, neighbors.pop())
     
-    G.add_edge(CustomEdge(Keys.START, config.START_NODE, [(config.START_NODE, 0.8), (Keys.DEATH, 0.2)]))
+    G.add_edge(CustomEdge(Keys.START, config.START_NODE, [(config.START_NODE, 1-FAIL_PROB), (Keys.DEATH, FAIL_PROB)]))
 
     # reset nodes and edges in the graph
     G.map_nodes(__reset_node)

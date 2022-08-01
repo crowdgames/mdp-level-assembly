@@ -70,7 +70,7 @@ parser.add_argument('--segments', type=int, default=3, help='Number of segments 
 parser.add_argument('--theta', type=float, default=1e-13, help='Convergence criteria for Ialue Iteration')
 parser.add_argument('--max-iter', type=int, default=500, help='Max # of iterations for Value Iteration')
 parser.add_argument('--policy-iter', type=int, default=20, help='# of iterations for Policy Evaluation step')
-parser.add_argument('--gamma', type=float, default=0.4, help='Discount factor for all RL algorithms')
+parser.add_argument('--gamma', type=float, default=0.95, help='Discount factor for all RL algorithms')
 parser.add_argument('--runs', type=int, default=100, help='Number of runs for a person when --fit-person is used')
 parser.add_argument('--playthroughs', type=int, default=20, help='Number of levels played per director')
 parser.add_argument('--hide-tqdm', action='store_true', help='Hide tqdm bars')
@@ -138,7 +138,12 @@ if args.fit_persona:
         data = []
 
         for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
-            reset_graph(G, config)
+            # reset the graph
+            if args.segment_graph:
+                start = time()
+                G: Graph = Utility.get_level_segment_graph(config, config.ALLOW_EMPTY_LINK)
+            else:
+                G, gram = Utility.get_n_gram_graph(config)
             seed(args.seed+i)
 
             # run the agent
@@ -181,7 +186,11 @@ elif args.switch_persona:
 
         data = []
         for i in trange(args.runs, leave=False, disable=args.hide_tqdm):
-            reset_graph(G, config)
+            # reset the graph
+            if args.segment_graph:
+                G: Graph = Utility.get_level_segment_graph(config, config.ALLOW_EMPTY_LINK)
+            else:
+                G, gram = Utility.get_n_gram_graph(config)
             seed(args.seed+i)
 
             players = [
