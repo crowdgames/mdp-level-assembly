@@ -7,13 +7,14 @@ from Players.SegmentPlayers import *
 from Utility import CustomEdge, Keys
 from Utility.AdaptivePolicyIteration import AdaptivePolicyIteration
 from Utility.CustomNode import CustomNode
+from Utility.Math import median
 from Utility.util import reset_graph
 SEGMENT_PLAYERS = PLAYERS
 from Tasks.FitPlayerPersona import FitPlayerPersona
 import Utility
 
 from GDM.Baseline import random_policy, greed_policy
-from GDM.ADP import policy_iteration, value_iteration
+from GDM.ADP import policy_iteration
 
 from os.path import join
 from random import seed
@@ -49,6 +50,7 @@ task_group.add_argument('--fit-persona', action='store_true', help='Fit to a pla
 task_group.add_argument('--switch-persona', action='store_true', help='Fit to two player personas')
 task_group.add_argument('--get-level', action='store_true', help='Generate a level with a G trained with --fit-to-agent')
 task_group.add_argument('--v-n-gram', action='store_true', help='get n-gram visualizations')
+task_group.add_argument('--stats', action='store_true', help='get stats on the graph')
 
 G_group = parser.add_mutually_exclusive_group(required=True)
 G_group.add_argument('--segment-graph', action='store_true', help='segment based generation for G')
@@ -236,8 +238,25 @@ elif args.get_level:
     raise NotImplementedError('--get-level is not yet implemented')
 
 elif args.v_n_gram:
-    raise NotImplementedError('--v-n-gram is not yet implemented')
-    Visualization.GetNGramLevels(config, agents).run()
+    Visualization.GetNGramLevels(config, get_policies).run()
+
+elif args.stats:
+    if args.segment_graph:
+        G: Graph = Utility.get_level_segment_graph(config, config.ALLOW_EMPTY_LINK)
+    else:
+        G, gram = Utility.get_n_gram_graph(config)
+
+    num_nodes = sum(1 for n in G.nodes.values() if '__' not in n.name) - 2
+    n: CustomNode
+    connections = [len(n.neighbors) for n in G.nodes.values() if '__' not in n.name]
+
+    print(f'Nodes: {num_nodes}')
+    print()
+    print(f'Min: {min(connections)}')
+    print(f'Mean: {sum(connections)/num_nodes}')
+    print(f'Median: {median(connections)}')
+    print(f'Max: {max(connections)}')
+
 
 end = time()
 

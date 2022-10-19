@@ -10,8 +10,7 @@ class GetNGramLevels:
     def run(self):
         REWARD_StR = reward_type_to_str(self.config.REWARD_TYPE)
 
-        for a in self.agents:
-            NAME = a().NAME
+        for NAME,_ in self.agents:
             print(NAME)
             f_name = f'player_agent_game_{self.config.NAME}_director_{NAME}_reward_{REWARD_StR}.json'
             with open(join(self.config.BASE_DIR, f_name), 'r') as f:
@@ -22,7 +21,7 @@ class GetNGramLevels:
             self.__print_level(play_through[0]['Playthrough'])
 
             print('\n\nEnd')
-            self.__print_level(play_through[-1]['Playthrough'])
+            self.__print_level(play_through[-4]['Playthrough'])
 
             print('\n\n==================================\n\n')
 
