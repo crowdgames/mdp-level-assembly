@@ -6,7 +6,7 @@ Many games feature a progression of levels that does not change or adapt to the 
 
 ## Paper
 
-A free to read version of the paper can be found [here]()—working link will be added when available.
+A free to read version of the paper can be found on [arxiv](https://arxiv.org/pdf/2304.13922v1.pdf).
 
 ## Use
 
